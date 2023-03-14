@@ -1,3 +1,4 @@
 dist
 node_modules
-src/parser.ts
+src/_parser.ts
+coverage
