@@ -37,15 +37,16 @@ export type CommandDef = {
   meta?: Resolvable<CommandMeta>;
   args?: Resolvable<ArgsDef>;
   subCommands?: Resolvable<SubCommandsDef>;
-  run?: CommandRun;
+  setup?: (context: CommandContext) => any | Promise<any>;
+  cleanup?: (context: CommandContext) => any | Promise<any>;
+  run?: (context: CommandContext) => any | Promise<any>;
 };
-
-export type CommandRun = (context: CommandContext) => any | Promise<any>;
 
 export interface CommandContext {
   rawArgs: string[];
   args: ParsedArgs;
   cmd: CommandDef;
+  subCommand?: CommandDef;
 }
 
 // ----- Utils -----
