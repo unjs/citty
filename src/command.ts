@@ -1,4 +1,4 @@
-import type { CommandDef } from "./types";
+import type { CommandContext, CommandDef } from "./types";
 import { CLIError, resolveValue } from "./_utils";
 import { parseArgs } from "./args";
 
@@ -15,15 +15,18 @@ export async function runCommand(
   cmd: CommandDef,
   opts: RunCommandOptions
 ): Promise<void> {
-  // Handle main command
-  if (typeof cmd.run === "function") {
-    const cmdArgs = await resolveValue(cmd.args || {});
-    const parsedArgs = parseArgs(opts.rawArgs, cmdArgs);
-    await cmd.run({
-      rawArgs: opts.rawArgs,
-      args: parsedArgs,
-      cmd,
-    });
+  const cmdArgs = await resolveValue(cmd.args || {});
+  const parsedArgs = parseArgs(opts.rawArgs, cmdArgs);
+
+  const context: CommandContext = {
+    rawArgs: opts.rawArgs,
+    args: parsedArgs,
+    cmd,
+  };
+
+  // Setup hook
+  if (typeof cmd.setup === "function") {
+    await cmd.setup(context);
   }
 
   // Handle sub command
@@ -51,6 +54,11 @@ export async function runCommand(
         rawArgs: opts.rawArgs.slice(subCommandArgIndex),
       });
     }
+  }
+
+  // Handle main command
+  if (typeof cmd.run === "function") {
+    await cmd.run(context);
   }
 }
 
