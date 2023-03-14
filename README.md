@@ -45,7 +45,7 @@ const { defineCommand, runMain } = require("citty");
 Define main command to run:
 
 ```ts
-import { defineCommand, runMain } from "../src";
+import { defineCommand, runMain } from "citty";
 
 const main = defineCommand({
   meta: {
