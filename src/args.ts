@@ -29,8 +29,9 @@ export function parseArgs(rawArgs: string[], argsDef: ArgsDef): ParsedArgs {
   const parsed = parseRawArgs(rawArgs, parseOptions);
   const parsedArgsProxyHandler = {
     get(target: ParsedArgs, prop: string) {
-      if (kebabCase(prop) in target) {
-        return target[kebabCase(prop)];
+      const kebabCasedName = kebabCase(prop);
+      if (kebabCasedName in target) {
+        return target[kebabCasedName];
       }
       return target[prop];
     },
@@ -39,6 +40,7 @@ export function parseArgs(rawArgs: string[], argsDef: ArgsDef): ParsedArgs {
   const [, ...positionalArguments] = parsedArgsProxy._;
 
   for (const [, arg] of args.entries()) {
+    const kebabCasedName = kebabCase(arg.name);
     if (arg.type === "positional") {
       const nextPositionalArgument = positionalArguments.shift();
       if (nextPositionalArgument !== undefined) {
@@ -52,11 +54,11 @@ export function parseArgs(rawArgs: string[], argsDef: ArgsDef): ParsedArgs {
         );
       }
     } else if (
-      kebabCase(arg.name) !== arg.name &&
-      kebabCase(arg.name) in parsedArgsProxy
+      kebabCasedName !== arg.name &&
+      kebabCasedName in parsedArgsProxy
     ) {
-      parsedArgsProxy[arg.name] = parsedArgsProxy[kebabCase(arg.name)];
-      delete parsedArgsProxy[kebabCase(arg.name)];
+      parsedArgsProxy[arg.name] = parsedArgsProxy[kebabCasedName];
+      delete parsedArgsProxy[kebabCasedName];
     } else if (arg.required && parsedArgsProxy[arg.name] === undefined) {
       throw new CLIError(`Missing required argument: --${arg.name}`, "EARG");
     }
