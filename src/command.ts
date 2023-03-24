@@ -31,7 +31,7 @@ export async function runCommand(
 
   // Handle sub command
   const subCommands = await resolveValue(cmd.subCommands);
-  if (subCommands && Object.keys(subCommands.length > 0)) {
+  if (subCommands && Object.keys(subCommands).length > 0) {
     const subCommandArgIndex = opts.rawArgs.findIndex(
       (arg) => !arg.startsWith("-")
     );
@@ -68,7 +68,7 @@ export async function resolveSubCommand(
   parent?: CommandDef
 ): Promise<[CommandDef, CommandDef?]> {
   const subCommands = await resolveValue(cmd.subCommands);
-  if (subCommands && Object.keys(subCommands.length > 0)) {
+  if (subCommands && Object.keys(subCommands).length > 0) {
     const subCommandArgIndex = rawArgs.findIndex((arg) => !arg.startsWith("-"));
     const subCommandName = rawArgs[subCommandArgIndex];
     const subCommand = await resolveValue(subCommands[subCommandName]);

@@ -26,11 +26,13 @@ export function parseArgs(rawArgs: string[], argsDef: ArgsDef): ParsedArgs {
   }
 
   const parsed = parseRawArgs(rawArgs, parseOptions);
+  const [, ...positionalArguments] = parsed._;
 
-  for (const [i, arg] of args.entries()) {
+  for (const [, arg] of args.entries()) {
     if (arg.type === "positional") {
-      if (parsed._[i] !== undefined) {
-        parsed[arg.name] = parsed._[i];
+      const nextPositionalArgument = positionalArguments.shift();
+      if (nextPositionalArgument !== undefined) {
+        parsed[arg.name] = nextPositionalArgument;
       } else if (arg.default !== undefined) {
         parsed[arg.name] = arg.default;
       } else {
