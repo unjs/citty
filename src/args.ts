@@ -1,4 +1,4 @@
-import { kebabCase } from "scule";
+import { kebabCase, camelCase } from "scule";
 import { parseRawArgs } from "./_parser";
 import type { Arg, ArgsDef, ParsedArgs } from "./types";
 import { CLIError, toArray } from "./_utils";
@@ -70,7 +70,7 @@ export function resolveArgs(argsDef: ArgsDef): Arg[] {
   for (const [name, argDef] of Object.entries(argsDef || {})) {
     args.push({
       ...argDef,
-      name,
+      name: camelCase(name),
       alias: toArray((argDef as any).alias),
     });
   }
