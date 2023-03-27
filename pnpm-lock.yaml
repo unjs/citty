@@ -9,13 +9,13 @@ specifiers:
   eslint-config-unjs: ^0.1.0
   jiti: ^1.18.2
   prettier: ^2.8.6
-  scule: github:unjs/scule
+  scule: ^1.0.0
   typescript: ^4.9.5
   unbuild: ^1.1.2
   vitest: ^0.29.7
 
 dependencies:
-  scule: github.com/unjs/scule/249072ac10d1f441a23eb9df7bcb1bfc1e13d419
+  scule: 1.0.0
 
 devDependencies:
   '@types/node': 18.15.5
@@ -3340,7 +3340,6 @@ packages:
 
   /scule/1.0.0:
     resolution: {integrity: sha512-4AsO/FrViE/iDNEPaAQlb77tf0csuq27EsVpy6ett584EcRTp6pTDLoGWVxCD77y5iU5FauOvhsI4o1APwPoSQ==}
-    dev: true
 
   /semver/5.7.1:
     resolution: {integrity: sha512-sauaDf/PZdVgrLTNYHRtpXa1iRiKcaebiKQ1BJdpQlWH2lCvexQdX55snPFyK7QzpudqbCI0qXFfOasHdyNDGQ==}
@@ -4003,9 +4002,3 @@ packages:
     resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
     engines: {node: '>=12.20'}
     dev: true
-
-  github.com/unjs/scule/249072ac10d1f441a23eb9df7bcb1bfc1e13d419:
-    resolution: {tarball: https://codeload.github.com/unjs/scule/tar.gz/249072ac10d1f441a23eb9df7bcb1bfc1e13d419}
-    name: scule
-    version: 1.0.0
-    dev: false

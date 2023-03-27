@@ -44,6 +44,6 @@
   },
   "packageManager": "pnpm@7.30.0",
   "dependencies": {
-    "scule": "github:unjs/scule"
+    "scule": "^1.0.0"
   }
 }
