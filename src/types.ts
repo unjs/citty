@@ -17,7 +17,23 @@ export type PositionalArgDef = Omit<_ArgDef<"positional", string>, "alias">;
 export type ArgDef = BooleanArgDef | StringArgDef | PositionalArgDef;
 export type ArgsDef = Record<string, ArgDef>;
 export type Arg = ArgDef & { name: string; alias: string[] };
-export type ParsedArgs = Record<string, string | boolean> & { _: string[] };
+
+export type ParsedArgs<T extends ArgsDef = ArgsDef> = { _: string[] } & Record<
+  { [K in keyof T]: T[K] extends { type: "positional" } ? K : never }[keyof T],
+  string | boolean
+> &
+  Record<
+    {
+      [K in keyof T]: T[K] extends { type: "string" } ? K : never;
+    }[keyof T],
+    string
+  > &
+  Record<
+    {
+      [K in keyof T]: T[K] extends { type: "boolean" } ? K : never;
+    }[keyof T],
+    boolean
+  >;
 
 // ----- Command -----
 
@@ -33,21 +49,21 @@ export interface CommandMeta {
 
 export type SubCommandsDef = Record<string, Resolvable<CommandDef>>;
 
-export type CommandDef = {
+export type CommandDef<T extends ArgsDef = ArgsDef> = {
   meta?: Resolvable<CommandMeta>;
-  args?: Resolvable<ArgsDef>;
+  args?: Resolvable<T>;
   subCommands?: Resolvable<SubCommandsDef>;
-  setup?: (context: CommandContext) => any | Promise<any>;
-  cleanup?: (context: CommandContext) => any | Promise<any>;
-  run?: (context: CommandContext) => any | Promise<any>;
+  setup?: (context: CommandContext<T>) => any | Promise<any>;
+  cleanup?: (context: CommandContext<T>) => any | Promise<any>;
+  run?: (context: CommandContext<T>) => any | Promise<any>;
 };
 
-export interface CommandContext {
+export type CommandContext<T extends ArgsDef = ArgsDef> = {
   rawArgs: string[];
-  args: ParsedArgs;
+  args: ParsedArgs<T>;
   cmd: CommandDef;
-  subCommand?: CommandDef;
-}
+  subCommand?: CommandDef<T>;
+};
 
 // ----- Utils -----
 
