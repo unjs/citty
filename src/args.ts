@@ -1,4 +1,4 @@
-import { kebabCase, camelCase, snakeCase } from "scule";
+import { kebabCase, camelCase } from "scule";
 import { parseRawArgs } from "./_parser";
 import type { Arg, ArgsDef, ParsedArgs } from "./types";
 import { CLIError, toArray } from "./_utils";
