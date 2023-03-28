@@ -42,5 +42,8 @@
     "unbuild": "^1.1.2",
     "vitest": "^0.29.7"
   },
-  "packageManager": "pnpm@7.30.5"
+  "packageManager": "pnpm@7.30.5",
+  "dependencies": {
+    "scule": "^1.0.0"
+  }
 }

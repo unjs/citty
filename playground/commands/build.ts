@@ -21,7 +21,7 @@ export default defineCommand({
       description: "disable hot module replacement",
       default: true,
     },
-    dir: {
+    workDir: {
       type: "string",
       description: "working directory",
       required: true,
