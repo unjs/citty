@@ -27,12 +27,13 @@ export function parseArgs(rawArgs: string[], argsDef: ArgsDef): ParsedArgs {
   }
 
   const parsed = parseRawArgs(rawArgs, parseOptions);
+  const [, ...positionalArguments] = parsed._;
+
   const parsedArgsProxy = new Proxy(parsed, {
     get(target: ParsedArgs, prop: string) {
       return target[prop] ?? target[camelCase(prop)] ?? target[kebabCase(prop)];
     },
   });
-  const [, ...positionalArguments] = parsedArgsProxy._;
 
   for (const [, arg] of args.entries()) {
     if (arg.type === "positional") {
