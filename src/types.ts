@@ -47,7 +47,7 @@ export interface CommandMeta {
 
 // Command: Definition
 
-export type SubCommandsDef = Record<string, Resolvable<CommandDef>>;
+export type SubCommandsDef = Record<string, Resolvable<CommandDef<any>>>;
 
 export type CommandDef<T extends ArgsDef = ArgsDef> = {
   meta?: Resolvable<CommandMeta>;
