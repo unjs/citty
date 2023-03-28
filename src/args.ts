@@ -27,7 +27,7 @@ export function parseArgs(rawArgs: string[], argsDef: ArgsDef): ParsedArgs {
   }
 
   const parsed = parseRawArgs(rawArgs, parseOptions);
-  const parsedArgsProxyHandler = {
+  const parsedArgsProxy = new Proxy(parsed, {
     get(target: ParsedArgs, prop: string) {
       if (camelCase(prop) in target) {
         return target[camelCase(prop)];
@@ -39,8 +39,7 @@ export function parseArgs(rawArgs: string[], argsDef: ArgsDef): ParsedArgs {
         return target[prop];
       }
     },
-  };
-  const parsedArgsProxy = new Proxy(parsed, parsedArgsProxyHandler);
+  });
   const [, ...positionalArguments] = parsedArgsProxy._;
 
   for (const [, arg] of args.entries()) {
