@@ -29,14 +29,12 @@ export function parseArgs(rawArgs: string[], argsDef: ArgsDef): ParsedArgs {
   const parsed = parseRawArgs(rawArgs, parseOptions);
   const parsedArgsProxy = new Proxy(parsed, {
     get(target: ParsedArgs, prop: string) {
-      if (camelCase(prop) in target) {
+      if (prop in target) {
+        return target[prop];
+      } else if (camelCase(prop) in target) {
         return target[camelCase(prop)];
       } else if (kebabCase(prop) in target) {
         return target[kebabCase(prop)];
-      } else if (snakeCase(prop) in target) {
-        return target[snakeCase(prop)];
-      } else {
-        return target[prop];
       }
     },
   });
