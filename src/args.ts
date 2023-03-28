@@ -30,7 +30,7 @@ export function parseArgs(rawArgs: string[], argsDef: ArgsDef): ParsedArgs {
   const [, ...positionalArguments] = parsed._;
 
   const parsedArgsProxy = new Proxy(parsed, {
-    get(target: ParsedArgs, prop: string) {
+    get(target: ParsedArgs<any>, prop: string) {
       return target[prop] ?? target[camelCase(prop)] ?? target[kebabCase(prop)];
     },
   });
