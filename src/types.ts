@@ -20,7 +20,7 @@ export type Arg = ArgDef & { name: string; alias: string[] };
 
 export type ParsedArgs<T extends ArgsDef = ArgsDef> = { _: string[] } & Record<
   { [K in keyof T]: T[K] extends { type: "positional" } ? K : never }[keyof T],
-  string | boolean
+  string
 > &
   Record<
     {
@@ -33,6 +33,12 @@ export type ParsedArgs<T extends ArgsDef = ArgsDef> = { _: string[] } & Record<
       [K in keyof T]: T[K] extends { type: "boolean" } ? K : never;
     }[keyof T],
     boolean
+  > &
+  Record<
+    {
+      [K in keyof T]: T[K] extends {} ? K : never;
+    }[keyof T],
+    string | boolean
   >;
 
 // ----- Command -----

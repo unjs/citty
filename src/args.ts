@@ -7,6 +7,7 @@ export function parseArgs(rawArgs: string[], argsDef: ArgsDef): ParsedArgs {
   const parseOptions = {
     boolean: [] as string[],
     string: [] as string[],
+    mixed: [] as string[],
     alias: {} as Record<string, string | string[]>,
     default: {} as Record<string, boolean | string>,
   };
@@ -17,7 +18,11 @@ export function parseArgs(rawArgs: string[], argsDef: ArgsDef): ParsedArgs {
     if (arg.type === "positional") {
       continue;
     }
-    parseOptions[arg.type || "boolean"].push(arg.name);
+    if (arg.type === "string") {
+      parseOptions.string.push(arg.name);
+    } else if (arg.type === "boolean") {
+      parseOptions.boolean.push(arg.name);
+    }
     if (arg.default !== undefined) {
       parseOptions.default[arg.name] = arg.default;
     }
