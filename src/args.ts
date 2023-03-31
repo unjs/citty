@@ -27,7 +27,7 @@ export function parseArgs(rawArgs: string[], argsDef: ArgsDef): ParsedArgs {
   }
 
   const parsed = parseRawArgs(rawArgs, parseOptions);
-  const [, ...positionalArguments] = parsed._;
+  const [...positionalArguments] = parsed._;
 
   const parsedArgsProxy = new Proxy(parsed, {
     get(target: ParsedArgs<any>, prop: string) {
