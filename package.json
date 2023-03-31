@@ -40,7 +40,7 @@
     "prettier": "^2.8.7",
     "scule": "^1.0.0",
     "typescript": "^5.0.3",
-    "unbuild": "^1.1.2",
+    "unbuild": "^1.2.0",
     "vitest": "^0.29.8"
   },
   "packageManager": "pnpm@8.1.0"
