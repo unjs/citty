@@ -33,17 +33,17 @@
     "scule": "^1.0.0"
   },
   "devDependencies": {
-    "@types/node": "^18.15.10",
+    "@types/node": "^18.15.11",
     "@vitest/coverage-c8": "^0.29.8",
     "changelogen": "^0.5.2",
     "colorette": "^2.0.19",
-    "eslint": "^8.36.0",
+    "eslint": "^8.37.0",
     "eslint-config-unjs": "^0.1.0",
     "jiti": "^1.18.2",
     "prettier": "^2.8.7",
-    "typescript": "^5.0.2",
+    "typescript": "^5.0.3",
     "unbuild": "^1.1.2",
     "vitest": "^0.29.8"
   },
-  "packageManager": "pnpm@8.0.0"
+  "packageManager": "pnpm@8.1.0"
 }
