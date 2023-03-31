@@ -53,7 +53,7 @@ export async function runCommand(
     const subCommand = await resolveValue(subCommands[subCommandName]);
     if (subCommand) {
       await runCommand(subCommand, {
-        rawArgs: opts.rawArgs.slice(subCommandArgIndex),
+        rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
       });
     }
   }
@@ -77,7 +77,7 @@ export async function resolveSubCommand(
     if (subCommand) {
       return resolveSubCommand(
         subCommand,
-        rawArgs.slice(subCommandArgIndex),
+        rawArgs.slice(subCommandArgIndex + 1),
         cmd
       );
     }
