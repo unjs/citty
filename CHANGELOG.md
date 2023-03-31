@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v0.1.0
+
+[compare changes](https://github.com/unjs/citty/compare/v0.0.2...v0.1.0)
+
+
+### 🏡 Chore
+
+  - Inline deps ([ad8cec2](https://github.com/unjs/citty/commit/ad8cec2))
+
+### ❤️  Contributors
+
+- Pooya Parsa ([@pi0](http://github.com/pi0))
+
 ## v0.0.2
 
 
