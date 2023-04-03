@@ -29,7 +29,7 @@
     "release": "pnpm test && changelogen --release --push && npm publish",
     "test": "pnpm lint && vitest run --coverage"
   },
-  "dependencies": {
+  "devDependencies": {
     "@types/node": "^18.15.11",
     "@vitest/coverage-c8": "^0.29.8",
     "changelogen": "^0.5.2",
