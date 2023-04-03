@@ -34,12 +34,7 @@ export type ParsedArgs<T extends ArgsDef = ArgsDef> = { _: string[] } & Record<
     }[keyof T],
     boolean
   > &
-  Record<
-    {
-      [K in keyof T]: T[K] extends {} ? K : never;
-    }[keyof T],
-    string | boolean
-  >;
+  Record<string, string | boolean>;
 
 // ----- Command -----
 
