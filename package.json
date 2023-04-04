@@ -29,11 +29,13 @@
     "release": "pnpm test && changelogen --release --push && npm publish",
     "test": "pnpm lint && vitest run --coverage"
   },
+  "dependencies": {
+    "boxen": "^7.0.2"
+  },
   "devDependencies": {
     "@types/node": "^18.15.11",
     "@types/semver": "^7.3.13",
     "@vitest/coverage-c8": "^0.29.8",
-    "boxen": "^7.0.2",
     "changelogen": "^0.5.2",
     "colorette": "^2.0.19",
     "defu": "^6.1.2",
