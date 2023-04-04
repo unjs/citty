@@ -52,6 +52,17 @@ const main = defineCommand({
     name: "hello",
     version: "1.0.0",
     description: "My Awesome CLI App",
+    updateChecker: {
+      registryName: "helloWorld",
+      msg: `Update available! {current} → {latest}.\n\nRun "npm install -g {cmd}" to update`,
+      box: {
+        padding: 1,
+        margin: 1,
+        align: "center",
+        borderColor: "yellow",
+        borderStyle: "round",
+      }
+    }
   },
   args: {
     name: {

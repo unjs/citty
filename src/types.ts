@@ -1,5 +1,5 @@
+import type { Options as BoxOptions } from "boxen";
 // ----- Args -----
-
 export type ArgType = "boolean" | "string" | "positional" | undefined;
 
 export type _ArgDef<T extends ArgType, VT extends boolean | string> = {
@@ -44,6 +44,27 @@ export interface CommandMeta {
   name?: string;
   version?: string;
   description?: string;
+  updateChecker?:
+    | false
+    | {
+        /**
+         * Defaults to `name` if not provided
+         * Usually the name of the package in the registry can be different from the name of the package in the `package.json`
+         */
+        registryName?: string;
+
+        /**
+         * The main update message to display in the box.
+         *
+         * @default 'Update available! ${red(bold("{current}"))} → ${bold(green("{latest}"))}.\n\nRun "${bold(magenta("npm install -g {cmd}"))}" to update'
+         */
+        msg: string;
+
+        /**
+         * Box options to update the look of the box.
+         */
+        box: BoxOptions;
+      };
 }
 
 // Command: Definition
