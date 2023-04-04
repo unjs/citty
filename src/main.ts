@@ -1,6 +1,7 @@
 import boxen from "boxen";
 import defu from "defu";
 import { bgRed, red, bold, green, magenta } from "colorette";
+import { readPackageJSON } from "pkg-types";
 import type { CommandDef } from "./types";
 import { resolveSubCommand, runCommand } from "./command";
 import { CLIError, resolveValue } from "./_utils";
@@ -30,24 +31,26 @@ export async function runMain(cmd: CommandDef, opts: RunMainOptions = {}) {
     });
 
     // Check for updates
-    const updateCOpts = cmdMeta.updateChecker;
+    const pkgName = await readPackageJSON()
+      .then((r) => r.name)
+      .catch(() => undefined);
+    const updateOpts = cmdMeta.updateChecker;
     const registryName =
-      typeof updateCOpts === "object"
-        ? updateCOpts?.registryName || cmdMeta.name
+      typeof updateOpts === "object"
+        ? updateOpts?.registryName || pkgName
         : false;
 
-    if (registryName && updateCOpts) {
-      const pkgVer = await checkPkgVersion(registryName);
-      const isOutdated = isPkgOutdated(pkgVer);
+    if (registryName && updateOpts) {
+      const version = await checkPkgVersion(registryName);
+      const isOutdated = isPkgOutdated(version);
 
-      if (isOutdated && pkgVer.current && pkgVer.latest) {
-        // Format message
-        const msg = updateCOpts.msg
+      if (isOutdated && version.current && version.latest) {
+        const msg = updateOpts.msg
           .replace(/{cmd}/g, registryName)
-          .replace(/{current}/g, pkgVer.current)
-          .replace(/{latest}/g, pkgVer.latest);
+          .replace(/{current}/g, version.current)
+          .replace(/{latest}/g, version.latest);
 
-        console.log(boxen(msg, updateCOpts.box as any) + "\n");
+        console.log(boxen(msg, updateOpts.box as any) + "\n");
       }
     }
     // End of update check
