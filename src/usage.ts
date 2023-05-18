@@ -61,7 +61,7 @@ export async function renderUsage(cmd: CommandDef, parent?: CommandDef) {
   if (cmd.subCommands) {
     const commandNames: string[] = [];
     for (const [name, sub] of Object.entries(cmd.subCommands)) {
-      commandsLines.push([name, sub.meta?.description || ""]);
+      commandsLines.push([name, (await resolveValue(sub)).meta?.description || ""]);
       commandNames.push(name);
     }
     usageLine.push(commandNames.join("|"));
