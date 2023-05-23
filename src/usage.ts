@@ -60,8 +60,11 @@ export async function renderUsage(cmd: CommandDef, parent?: CommandDef) {
 
   if (cmd.subCommands) {
     const commandNames: string[] = [];
-    for (const [name, sub] of Object.entries(cmd.subCommands)) {
-      commandsLines.push([name, sub.meta?.description || ""]);
+    const subCommands = await resolveValue(cmd.subCommands);
+    for (const [name, sub] of Object.entries(subCommands)) {
+      const subCmd = await resolveValue(sub);
+      const meta = await resolveValue(subCmd?.meta);
+      commandsLines.push([name, meta?.description || ""]);
       commandNames.push(name);
     }
     usageLine.push(commandNames.join("|"));
