@@ -25,8 +25,18 @@ export function formatLineColumns(lines: string[][], linePrefix = "") {
     .join("\n");
 }
 
-export function resolveValue<T>(input: Resolvable<T>): T | Promise<T> {
-  return typeof input === "function" ? (input as any)() : input;
+const cache = new WeakMap<Function, any>()
+
+export async function resolveValue<T>(input: Resolvable<T>): Promise<T> {
+  if (typeof input === 'function') {
+    let result: T = cache.get(input);
+    if (!result) {
+      result = await (input as any)();
+      cache.set(input, result);
+    }
+    return result;
+  }
+  return input;
 }
 
 export class CLIError extends Error {
