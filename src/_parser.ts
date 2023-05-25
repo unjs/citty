@@ -1,3 +1,4 @@
+/* c8 ignore start */
 // Parser is based on https://github.com/lukeed/mri 1.2.0 (MIT)
 // Check the main LICENSE file for more info.
 
@@ -17,11 +18,11 @@ export type Argv<T = Default> = T & {
   _: string[];
 };
 
-function toArr(any: any) {
+export function toArr(any: any) {
   return any == undefined ? [] : Array.isArray(any) ? any : [any];
 }
 
-function toVal(out, key, val, opts) {
+export function toVal(out, key, val, opts) {
   let x;
   const old = out[key];
   const nxt = ~opts.string.indexOf(key)
@@ -169,3 +170,4 @@ export function parseRawArgs<T = Default>(
 
   return out;
 }
+/* c8 ignore stop */
