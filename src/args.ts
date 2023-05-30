@@ -3,7 +3,10 @@ import { parseRawArgs } from "./_parser";
 import type { Arg, ArgsDef, ParsedArgs } from "./types";
 import { CLIError, toArray } from "./_utils";
 
-export function parseArgs(rawArgs: string[], argsDef: ArgsDef): ParsedArgs {
+export function parseArgs<T extends ArgsDef = ArgsDef>(
+  rawArgs: string[],
+  argsDef: ArgsDef
+): ParsedArgs<T> {
   const parseOptions = {
     boolean: [] as string[],
     string: [] as string[],
@@ -58,7 +61,7 @@ export function parseArgs(rawArgs: string[], argsDef: ArgsDef): ParsedArgs {
     }
   }
 
-  return parsedArgsProxy;
+  return parsedArgsProxy as ParsedArgs<T>;
 }
 
 export function resolveArgs(argsDef: ArgsDef): Arg[] {

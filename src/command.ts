@@ -13,14 +13,14 @@ export interface RunCommandOptions {
   showUsage?: boolean;
 }
 
-export async function runCommand(
-  cmd: CommandDef,
+export async function runCommand<T extends ArgsDef = ArgsDef>(
+  cmd: CommandDef<T>,
   opts: RunCommandOptions
 ): Promise<void> {
   const cmdArgs = await resolveValue(cmd.args || {});
-  const parsedArgs = parseArgs(opts.rawArgs, cmdArgs);
+  const parsedArgs = parseArgs<T>(opts.rawArgs, cmdArgs);
 
-  const context: CommandContext = {
+  const context: CommandContext<T> = {
     rawArgs: opts.rawArgs,
     args: parsedArgs,
     cmd,
@@ -64,11 +64,11 @@ export async function runCommand(
   }
 }
 
-export async function resolveSubCommand(
-  cmd: CommandDef,
+export async function resolveSubCommand<T extends ArgsDef = ArgsDef>(
+  cmd: CommandDef<T>,
   rawArgs: string[],
-  parent?: CommandDef
-): Promise<[CommandDef, CommandDef?]> {
+  parent?: CommandDef<T>
+): Promise<[CommandDef<T>, CommandDef<T>?]> {
   const subCommands = await resolveValue(cmd.subCommands);
   if (subCommands && Object.keys(subCommands).length > 0) {
     const subCommandArgIndex = rawArgs.findIndex((arg) => !arg.startsWith("-"));

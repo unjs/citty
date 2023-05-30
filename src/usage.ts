@@ -1,8 +1,11 @@
 import { formatLineColumns, resolveValue } from "./_utils";
-import type { CommandDef } from "./types";
+import type { ArgsDef, CommandDef } from "./types";
 import { resolveArgs } from "./args";
 
-export async function showUsage(cmd: CommandDef, parent?: CommandDef) {
+export async function showUsage<T extends ArgsDef = ArgsDef>(
+  cmd: CommandDef<T>,
+  parent?: CommandDef<T>
+) {
   try {
     console.log((await renderUsage(cmd, parent)) + "\n");
   } catch (error) {
@@ -10,7 +13,10 @@ export async function showUsage(cmd: CommandDef, parent?: CommandDef) {
   }
 }
 
-export async function renderUsage(cmd: CommandDef, parent?: CommandDef) {
+export async function renderUsage<T extends ArgsDef = ArgsDef>(
+  cmd: CommandDef<T>,
+  parent?: CommandDef<T>
+) {
   const cmdMeta = await resolveValue(cmd.meta || {});
   const cmdArgs = resolveArgs(await resolveValue(cmd.args || {}));
   const parentMeta = await resolveValue(parent?.meta || {});
