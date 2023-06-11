@@ -11,7 +11,7 @@ export type _ArgDef<T extends ArgType, VT extends boolean | string> = {
   required?: boolean;
 };
 
-export type BooleanArgDef = _ArgDef<"boolean", boolean>;
+export type BooleanArgDef = _ArgDef<"boolean", boolean> & { negativeDescription?: string };
 export type StringArgDef = _ArgDef<"string", string>;
 export type PositionalArgDef = Omit<_ArgDef<"positional", string>, "alias">;
 export type ArgDef = BooleanArgDef | StringArgDef | PositionalArgDef;

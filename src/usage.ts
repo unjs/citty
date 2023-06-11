@@ -48,9 +48,13 @@ export async function renderUsage(cmd: CommandDef, parent?: CommandDef) {
               arg.valueHint ? `<${arg.valueHint}>` : `"${arg.default || ""}"`
             }`
           : "");
+      let description = arg.description;
+      if (arg.type === "boolean" && arg.default === true) {
+        description = arg.negativeDescription
+      }
       argLines.push([
         argStr + (isRequired ? " (required)" : ""),
-        arg.description || "",
+        description || "",
       ]);
       if (isRequired) {
         usageLine.push(argStr);
