@@ -4,7 +4,7 @@ export function toArray(val: any) {
   if (Array.isArray(val)) {
     return val;
   }
-  return val !== undefined ? [val] : [];
+  return val === undefined ? [] : [val];
 }
 
 export function formatLineColumns(lines: string[][], linePrefix = "") {
