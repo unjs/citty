@@ -1,5 +1,5 @@
 import { bgRed } from "colorette";
-import type { CommandDef } from "./types";
+import type { ArgsDef, CommandDef } from "./types";
 import { resolveSubCommand, runCommand } from "./command";
 import { CLIError } from "./_utils";
 import { showUsage } from "./usage";
@@ -8,7 +8,10 @@ export interface RunMainOptions {
   rawArgs?: string[];
 }
 
-export async function runMain(cmd: CommandDef, opts: RunMainOptions = {}) {
+export async function runMain<T extends ArgsDef = ArgsDef>(
+  cmd: CommandDef<T>,
+  opts: RunMainOptions = {}
+) {
   const rawArgs = opts.rawArgs || process.argv.slice(2);
   try {
     if (rawArgs.includes("--help") || rawArgs.includes("-h")) {
