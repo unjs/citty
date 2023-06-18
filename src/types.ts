@@ -62,7 +62,7 @@ export type CommandDef<T extends ArgsDef = ArgsDef> = {
 export type CommandContext<T extends ArgsDef = ArgsDef> = {
   rawArgs: string[];
   args: ParsedArgs<T>;
-  cmd: CommandDef;
+  cmd: CommandDef<T>;
   subCommand?: CommandDef<T>;
 };
 
