@@ -1,6 +1,35 @@
 # Changelog
 
 
+## v0.1.2
+
+[compare changes](https://github.com/unjs/citty/compare/v0.1.1...v0.1.2)
+
+### 🚀 Enhancements
+
+- **usage:** Resolve sub commands for meta description ([#32](https://github.com/unjs/citty/pull/32))
+- Use consola for output formatting ([bf5de7f](https://github.com/unjs/citty/commit/bf5de7f))
+- **runCommand:** Allow passing custom `data` ([4abc848](https://github.com/unjs/citty/commit/4abc848))
+
+### 🩹 Fixes
+
+- Fix generic type issues ([#38](https://github.com/unjs/citty/pull/38))
+- Handle `required: false` for positional arguments ([ab0401b](https://github.com/unjs/citty/commit/ab0401b))
+
+### 🏡 Chore
+
+- Lint code ([5e56aa9](https://github.com/unjs/citty/commit/5e56aa9))
+- Update dependencies ([7724079](https://github.com/unjs/citty/commit/7724079))
+- Update dependencies ([59aeecd](https://github.com/unjs/citty/commit/59aeecd))
+- Add autofix ci ([2cfd134](https://github.com/unjs/citty/commit/2cfd134))
+- Fix typo in error code ([4f2c7ca](https://github.com/unjs/citty/commit/4f2c7ca))
+
+### ❤️  Contributors
+
+- Pooya Parsa ([@pi0](http://github.com/pi0))
+- Zuixinwang 
+- Wang Yiding ([@yidingww](http://github.com/yidingww))
+
 ## v0.1.1
 
 [compare changes](https://github.com/unjs/citty/compare/v0.1.0...v0.1.1)
