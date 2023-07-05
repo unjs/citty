@@ -5,7 +5,7 @@ import { CLIError, toArray } from "./_utils";
 
 export function parseArgs<T extends ArgsDef = ArgsDef>(
   rawArgs: string[],
-  argsDef: ArgsDef
+  argsDef: ArgsDef,
 ): ParsedArgs<T> {
   const parseOptions = {
     boolean: [] as string[],
@@ -51,7 +51,7 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
       } else if (arg.default === undefined) {
         throw new CLIError(
           `Missing required positional argument: ${arg.name.toUpperCase()}`,
-          "EARG"
+          "EARG",
         );
       } else {
         parsedArgsProxy[arg.name] = arg.default;

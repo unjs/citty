@@ -3,7 +3,7 @@ import { CLIError, resolveValue } from "./_utils";
 import { parseArgs } from "./args";
 
 export function defineCommand<T extends ArgsDef = ArgsDef>(
-  def: CommandDef<T>
+  def: CommandDef<T>,
 ): CommandDef<T> {
   return def;
 }
@@ -15,7 +15,7 @@ export interface RunCommandOptions {
 
 export async function runCommand<T extends ArgsDef = ArgsDef>(
   cmd: CommandDef<T>,
-  opts: RunCommandOptions
+  opts: RunCommandOptions,
 ): Promise<void> {
   const cmdArgs = await resolveValue(cmd.args || {});
   const parsedArgs = parseArgs<T>(opts.rawArgs, cmdArgs);
@@ -35,19 +35,19 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
   const subCommands = await resolveValue(cmd.subCommands);
   if (subCommands && Object.keys(subCommands).length > 0) {
     const subCommandArgIndex = opts.rawArgs.findIndex(
-      (arg) => !arg.startsWith("-")
+      (arg) => !arg.startsWith("-"),
     );
     const subCommandName = opts.rawArgs[subCommandArgIndex];
     if (!subCommandName && !cmd.run) {
       throw new CLIError(
         `Missing sub command. Use --help to see available sub commands.`,
-        "ESUBCOMMAND"
+        "ESUBCOMMAND",
       );
     }
     if (!subCommands[subCommandName]) {
       throw new CLIError(
         `Unknown sub command: ${subCommandName}`,
-        "ESUBCOMMAND"
+        "ESUBCOMMAND",
       );
     }
     const subCommand = await resolveValue(subCommands[subCommandName]);
@@ -67,7 +67,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
 export async function resolveSubCommand<T extends ArgsDef = ArgsDef>(
   cmd: CommandDef<T>,
   rawArgs: string[],
-  parent?: CommandDef<T>
+  parent?: CommandDef<T>,
 ): Promise<[CommandDef<T>, CommandDef<T>?]> {
   const subCommands = await resolveValue(cmd.subCommands);
   if (subCommands && Object.keys(subCommands).length > 0) {
@@ -78,7 +78,7 @@ export async function resolveSubCommand<T extends ArgsDef = ArgsDef>(
       return resolveSubCommand(
         subCommand,
         rawArgs.slice(subCommandArgIndex + 1),
-        cmd
+        cmd,
       );
     }
   }
