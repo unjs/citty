@@ -46,7 +46,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
     if (!subCommands[subCommandName]) {
       throw new CLIError(
         `Unknown command \`${subCommandName}\``,
-        "E_UNKOWN_COMMAND",
+        "E_UNKNOWN_COMMAND",
       );
     }
     const subCommand = await resolveValue(subCommands[subCommandName]);
