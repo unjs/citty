@@ -1,3 +1,5 @@
+import consola from "consola";
+import { colors } from 'consola/utils'
 import { formatLineColumns, resolveValue } from "./_utils";
 import type { ArgsDef, CommandDef } from "./types";
 import { resolveArgs } from "./args";
@@ -7,9 +9,9 @@ export async function showUsage<T extends ArgsDef = ArgsDef>(
   parent?: CommandDef<T>,
 ) {
   try {
-    console.log((await renderUsage(cmd, parent)) + "\n");
+    consola.log((await renderUsage(cmd, parent)) + "\n");
   } catch (error) {
-    console.error(error);
+    consola.error(error);
   }
 }
 
@@ -36,7 +38,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
       const isRequired = arg.required !== false && arg.default === undefined;
       // (isRequired ? " (required)" : " (optional)"
       const usageHint = arg.default ? `="${arg.default}"` : "";
-      posLines.push([name + usageHint, arg.description || ""]);
+      posLines.push(["`" + name + usageHint + "`", arg.description || ""]);
       usageLine.push(isRequired ? `<${name}>` : `[${name}]`);
     } else {
       const isRequired = arg.required === true && arg.default === undefined;
@@ -55,7 +57,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
             }`
           : "");
       argLines.push([
-        argStr + (isRequired ? " (required)" : ""),
+        "`" + argStr + (isRequired ? " (required)" : "") + "`",
         arg.description || "",
       ]);
       if (isRequired) {
@@ -70,7 +72,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
     for (const [name, sub] of Object.entries(subCommands)) {
       const subCmd = await resolveValue(sub);
       const meta = await resolveValue(subCmd?.meta);
-      commandsLines.push([name, meta?.description || ""]);
+      commandsLines.push([`\`${name}\``, meta?.description || ""]);
       commandNames.push(name);
     }
     usageLine.push(commandNames.join("|"));
@@ -79,34 +81,34 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
   const usageLines: (string | undefined)[] = [];
 
   const version = cmdMeta.version || parentMeta.version;
+
   usageLines.push(
-    commandName + (version ? ` v${version}` : ""),
-    cmdMeta.description,
+    colors.gray(`${cmdMeta.description} (${commandName + (version ? ` v${version}` : "")})`),
     "",
   );
 
   const hasOptions = argLines.length > 0 || posLines.length > 0;
   usageLines.push(
-    `USAGE: ${commandName}${hasOptions ? " [OPTIONS]" : ""} ${usageLine.join(
+    `${colors.underline(colors.bold('USAGE'))} \`${commandName}${hasOptions ? " [OPTIONS]" : ""} ${usageLine.join(
       " ",
-    )}`,
+    )}\``,
     "",
   );
 
   if (posLines.length > 0) {
-    usageLines.push("ARGUMENTS:", "");
+    usageLines.push(colors.underline(colors.bold("ARGUMENTS")), "");
     usageLines.push(formatLineColumns(posLines, "  "));
     usageLines.push("");
   }
 
   if (argLines.length > 0) {
-    usageLines.push("OPTIONS:", "");
+    usageLines.push(colors.underline(colors.bold("OPTIONS")), "");
     usageLines.push(formatLineColumns(argLines, "  "));
     usageLines.push("");
   }
 
   if (commandsLines.length > 0) {
-    usageLines.push("COMMANDS:", "");
+    usageLines.push(colors.underline(colors.bold("COMMANDS")), "");
     usageLines.push(formatLineColumns(commandsLines, "  "));
     usageLines.push(
       "",

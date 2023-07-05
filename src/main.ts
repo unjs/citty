@@ -1,4 +1,4 @@
-import { bgRed } from "colorette";
+import consola from "consola";
 import type { ArgsDef, CommandDef } from "./types";
 import { resolveSubCommand, runCommand } from "./command";
 import { CLIError } from "./_utils";
@@ -23,14 +23,12 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
   } catch (error: any) {
     const isCLIError = error instanceof CLIError;
     if (!isCLIError) {
-      console.error(error, "\n");
+      consola.error(error, "\n");
     }
-    console.error(
-      `\n${bgRed(` ${error.code || error.name} `)} ${error.message}\n`,
-    );
     if (isCLIError) {
       await showUsage(...(await resolveSubCommand(cmd, rawArgs)));
     }
+    consola.error(error.message);
     process.exit(1);
   }
 }
