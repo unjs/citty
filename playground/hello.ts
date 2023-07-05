@@ -1,3 +1,4 @@
+import consola from 'consola'
 import { defineCommand, runMain } from "../src";
 
 const main = defineCommand({
@@ -18,7 +19,7 @@ const main = defineCommand({
     },
   },
   run({ args }) {
-    console.log(`${args.friendly ? "Hi" : "Greetings"} ${args.name}!`);
+    consola.log(`${args.friendly ? "Hi" : "Greetings"} ${args.name}!`);
   },
 });
 

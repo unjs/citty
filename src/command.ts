@@ -39,15 +39,12 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
     );
     const subCommandName = opts.rawArgs[subCommandArgIndex];
     if (!subCommandName && !cmd.run) {
-      throw new CLIError(
-        `Missing sub command. Use --help to see available sub commands.`,
-        "ESUBCOMMAND",
-      );
+      throw new CLIError(`No command specified.`, "E_NO_COMMAND");
     }
     if (!subCommands[subCommandName]) {
       throw new CLIError(
-        `Unknown sub command: ${subCommandName}`,
-        "ESUBCOMMAND",
+        `Unknown command \`${subCommandName}\``,
+        "E_UNKOWN_COMMAND",
       );
     }
     const subCommand = await resolveValue(subCommands[subCommandName]);
