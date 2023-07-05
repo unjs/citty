@@ -1,5 +1,5 @@
 import consola from "consola";
-import { colors } from 'consola/utils'
+import { colors } from "consola/utils";
 import { formatLineColumns, resolveValue } from "./_utils";
 import type { ArgsDef, CommandDef } from "./types";
 import { resolveArgs } from "./args";
@@ -83,15 +83,19 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
   const version = cmdMeta.version || parentMeta.version;
 
   usageLines.push(
-    colors.gray(`${cmdMeta.description} (${commandName + (version ? ` v${version}` : "")})`),
+    colors.gray(
+      `${cmdMeta.description} (${
+        commandName + (version ? ` v${version}` : "")
+      })`,
+    ),
     "",
   );
 
   const hasOptions = argLines.length > 0 || posLines.length > 0;
   usageLines.push(
-    `${colors.underline(colors.bold('USAGE'))} \`${commandName}${hasOptions ? " [OPTIONS]" : ""} ${usageLine.join(
-      " ",
-    )}\``,
+    `${colors.underline(colors.bold("USAGE"))} \`${commandName}${
+      hasOptions ? " [OPTIONS]" : ""
+    } ${usageLine.join(" ")}\``,
     "",
   );
 
