@@ -10,6 +10,7 @@ export function defineCommand<T extends ArgsDef = ArgsDef>(
 
 export interface RunCommandOptions {
   rawArgs: string[];
+  data?: any;
   showUsage?: boolean;
 }
 
@@ -23,6 +24,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
   const context: CommandContext<T> = {
     rawArgs: opts.rawArgs,
     args: parsedArgs,
+    data: opts.data,
     cmd,
   };
 

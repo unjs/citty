@@ -64,6 +64,7 @@ export type CommandContext<T extends ArgsDef = ArgsDef> = {
   args: ParsedArgs<T>;
   cmd: CommandDef<T>;
   subCommand?: CommandDef<T>;
+  data?: any;
 };
 
 // ----- Utils -----
