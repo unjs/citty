@@ -48,7 +48,7 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
       const nextPositionalArgument = positionalArguments.shift();
       if (nextPositionalArgument !== undefined) {
         parsedArgsProxy[arg.name] = nextPositionalArgument;
-      } else if (arg.default === undefined) {
+      } else if (arg.default === undefined && arg.required !== false) {
         throw new CLIError(
           `Missing required positional argument: ${arg.name.toUpperCase()}`,
           "EARG",
