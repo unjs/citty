@@ -10,7 +10,7 @@ export interface RunMainOptions {
 
 export async function runMain<T extends ArgsDef = ArgsDef>(
   cmd: CommandDef<T>,
-  opts: RunMainOptions = {}
+  opts: RunMainOptions = {},
 ) {
   const rawArgs = opts.rawArgs || process.argv.slice(2);
   try {
@@ -26,7 +26,7 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
       console.error(error, "\n");
     }
     console.error(
-      `\n${bgRed(` ${error.code || error.name} `)} ${error.message}\n`
+      `\n${bgRed(` ${error.code || error.name} `)} ${error.message}\n`,
     );
     if (isCLIError) {
       await showUsage(...(await resolveSubCommand(cmd, rawArgs)));

@@ -4,7 +4,7 @@ import { resolveArgs } from "./args";
 
 export async function showUsage<T extends ArgsDef = ArgsDef>(
   cmd: CommandDef<T>,
-  parent?: CommandDef<T>
+  parent?: CommandDef<T>,
 ) {
   try {
     console.log((await renderUsage(cmd, parent)) + "\n");
@@ -15,7 +15,7 @@ export async function showUsage<T extends ArgsDef = ArgsDef>(
 
 export async function renderUsage<T extends ArgsDef = ArgsDef>(
   cmd: CommandDef<T>,
-  parent?: CommandDef<T>
+  parent?: CommandDef<T>,
 ) {
   const cmdMeta = await resolveValue(cmd.meta || {});
   const cmdArgs = resolveArgs(await resolveValue(cmd.args || {}));
@@ -47,7 +47,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
               `--no-${arg.name}`,
             ].join(", ")
           : [...(arg.alias || []).map((a) => `-${a}`), `--${arg.name}`].join(
-              ", "
+              ", ",
             )) +
         (arg.type === "string" && (arg.valueHint || arg.default)
           ? `=${
@@ -82,15 +82,15 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
   usageLines.push(
     commandName + (version ? ` v${version}` : ""),
     cmdMeta.description,
-    ""
+    "",
   );
 
   const hasOptions = argLines.length > 0 || posLines.length > 0;
   usageLines.push(
     `USAGE: ${commandName}${hasOptions ? " [OPTIONS]" : ""} ${usageLine.join(
-      " "
+      " ",
     )}`,
-    ""
+    "",
   );
 
   if (posLines.length > 0) {
@@ -110,7 +110,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
     usageLines.push(formatLineColumns(commandsLines, "  "));
     usageLines.push(
       "",
-      `Use \`${commandName} <command> --help\` for more information about a command.`
+      `Use \`${commandName} <command> --help\` for more information about a command.`,
     );
   }
 
