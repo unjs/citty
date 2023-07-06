@@ -65,7 +65,7 @@ const main = defineCommand({
     },
   },
   run({ args }) {
-    consol.log(`${args.friendly ? "Hi" : "Greetings"} ${args.name}!`);
+    console.log(`${args.friendly ? "Hi" : "Greetings"} ${args.name}!`);
   },
 });
 
