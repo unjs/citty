@@ -11,7 +11,7 @@
 - Fast and lightweight argument parser based on [mri](https://github.com/lukeed/mri)
 - Smart value parsing with typecast, boolean shortcuts and unknown flag handling
 - Nested sub-commands
-- Lazy and Async commands
+- Lazy and Async commands, caching async results
 - Plugable and composable API
 - Auto generated usage and help
 
