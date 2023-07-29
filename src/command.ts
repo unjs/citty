@@ -18,7 +18,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
   cmd: CommandDef<T>,
   opts: RunCommandOptions,
 ): Promise<void> {
-  const cmdArgs = await resolveValue(cmd.args || {});
+  const cmdArgs = await resolveValue<ArgsDef>(cmd.args || {});
   const parsedArgs = parseArgs<T>(opts.rawArgs, cmdArgs);
 
   const context: CommandContext<T> = {
@@ -42,6 +42,12 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
     const subCommandName = opts.rawArgs[subCommandArgIndex];
     if (!subCommandName && !cmd.run) {
       throw new CLIError(`No command specified.`, "E_NO_COMMAND");
+    } else if (
+      typeof cmd.run === "function" &&
+      Object.values(cmdArgs).some((arg) => arg.type === "positional")
+    ) {
+      await cmd.run(context);
+      return;
     }
     if (!subCommands[subCommandName]) {
       throw new CLIError(
