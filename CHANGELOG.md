@@ -1,6 +1,29 @@
 # Changelog
 
 
+## v0.1.3
+
+[compare changes](https://github.com/unjs/citty/compare/v0.1.2...v0.1.3)
+
+### 🩹 Fixes
+
+- Allow string[] in arg signature ([#56](https://github.com/unjs/citty/pull/56))
+
+### 🏡 Chore
+
+- Typo in readme ([#45](https://github.com/unjs/citty/pull/45))
+- Update dependencies ([f863f9d](https://github.com/unjs/citty/commit/f863f9d))
+
+### 🤖 CI
+
+- Use conventional commit for autofix action ([#50](https://github.com/unjs/citty/pull/50))
+
+### ❤️ Contributors
+
+- Pooya Parsa ([@pi0](http://github.com/pi0))
+- Daniel Roe <daniel@roe.dev>
+- Muhammad Mahmoud ([@MuhammadM1998](http://github.com/MuhammadM1998))
+
 ## v0.1.2
 
 [compare changes](https://github.com/unjs/citty/compare/v0.1.1...v0.1.2)
