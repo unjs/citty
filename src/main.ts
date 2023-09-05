@@ -32,3 +32,9 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
     process.exit(1);
   }
 }
+
+export function createMain<T extends ArgsDef = ArgsDef>(
+  cmd: CommandDef<T>,
+): (opts?: RunMainOptions) => Promise<void> {
+  return async (opts: RunMainOptions = {}) => await runMain(cmd, opts);
+}

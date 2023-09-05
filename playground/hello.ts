@@ -1,5 +1,6 @@
 import consola from 'consola'
-import { defineCommand, runMain } from "../src";
+import { defineCommand } from "citty";
+import { createMain } from 'citty/main';
 
 const main = defineCommand({
   meta: {
@@ -23,4 +24,7 @@ const main = defineCommand({
   },
 });
 
-runMain(main);
+const run = createMain(main);
+
+run()
+// run()
