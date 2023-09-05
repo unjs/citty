@@ -61,6 +61,10 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
   if (typeof cmd.run === "function") {
     await cmd.run(context);
   }
+
+  if (typeof cmd.cleanup === "function") {
+    await cmd.cleanup(context);
+  }
 }
 
 export async function resolveSubCommand<T extends ArgsDef = ArgsDef>(
