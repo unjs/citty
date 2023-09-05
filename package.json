@@ -22,8 +22,8 @@
   "scripts": {
     "build": "unbuild",
     "dev": "vitest dev",
-    "lint": "eslint --cache --ext .ts,.js,.mjs,.cjs . && prettier -c src test",
-    "lint:fix": "eslint --cache --ext .ts,.js,.mjs,.cjs . --fix && prettier -c src test -w",
+    "lint": "eslint --cache --ext .ts,.js,.mjs,.cjs . && prettier -c src test playground examples",
+    "lint:fix": "eslint --cache --ext .ts,.js,.mjs,.cjs . --fix && prettier -c src test playground examples -w",
     "prepack": "pnpm run build",
     "play": "jiti ./playground/cli.ts",
     "release": "pnpm test && changelogen --release --push && npm publish",

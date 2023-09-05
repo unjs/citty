@@ -4,45 +4,63 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-dependencies:
-  consola:
-    specifier: ^3.2.3
-    version: 3.2.3
+importers:
 
-devDependencies:
-  '@types/node':
-    specifier: ^20.5.7
-    version: 20.5.7
-  '@vitest/coverage-v8':
-    specifier: ^0.34.3
-    version: 0.34.3(vitest@0.34.3)
-  changelogen:
-    specifier: ^0.5.5
-    version: 0.5.5
-  eslint:
-    specifier: ^8.48.0
-    version: 8.48.0
-  eslint-config-unjs:
-    specifier: ^0.2.1
-    version: 0.2.1(eslint@8.48.0)(typescript@5.2.2)
-  jiti:
-    specifier: ^1.19.3
-    version: 1.19.3
-  prettier:
-    specifier: ^3.0.3
-    version: 3.0.3
-  scule:
-    specifier: ^1.0.0
-    version: 1.0.0
-  typescript:
-    specifier: ^5.2.2
-    version: 5.2.2
-  unbuild:
-    specifier: ^2.0.0
-    version: 2.0.0(typescript@5.2.2)
-  vitest:
-    specifier: ^0.34.3
-    version: 0.34.3
+  .:
+    dependencies:
+      consola:
+        specifier: ^3.2.3
+        version: 3.2.3
+    devDependencies:
+      '@types/node':
+        specifier: ^20.5.7
+        version: 20.5.7
+      '@vitest/coverage-v8':
+        specifier: ^0.34.3
+        version: 0.34.3(vitest@0.34.3)
+      changelogen:
+        specifier: ^0.5.5
+        version: 0.5.5
+      eslint:
+        specifier: ^8.48.0
+        version: 8.48.0
+      eslint-config-unjs:
+        specifier: ^0.2.1
+        version: 0.2.1(eslint@8.48.0)(typescript@5.2.2)
+      jiti:
+        specifier: ^1.19.3
+        version: 1.19.3
+      prettier:
+        specifier: ^3.0.3
+        version: 3.0.3
+      scule:
+        specifier: ^1.0.0
+        version: 1.0.0
+      typescript:
+        specifier: ^5.2.2
+        version: 5.2.2
+      unbuild:
+        specifier: ^2.0.0
+        version: 2.0.0(typescript@5.2.2)
+      vitest:
+        specifier: ^0.34.3
+        version: 0.34.3
+
+  examples:
+    dependencies:
+      citty:
+        specifier: workspace:../src
+        version: link:../src
+    devDependencies:
+      jiti:
+        specifier: ^1.19.3
+        version: 1.19.3
+
+  playground:
+    dependencies:
+      citty:
+        specifier: workspace:../src
+        version: link:../src
 
 packages:
 
