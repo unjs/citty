@@ -18,7 +18,8 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
       await showUsage(...(await resolveSubCommand(cmd, rawArgs)));
       process.exit(0);
     } else if (rawArgs.includes("--version") || rawArgs.includes("-v")) {
-      const meta = typeof cmd.meta === "function" ? (await cmd.meta()) : await cmd.meta;
+      const meta =
+        typeof cmd.meta === "function" ? await cmd.meta() : await cmd.meta;
 
       if (!meta) {
         throw new CLIError("No meta specified", "E_NO_META");
