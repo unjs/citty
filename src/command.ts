@@ -61,7 +61,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
     if (typeof cmd.run === "function") {
       await cmd.run(context);
     }
-  } catch(error) {
+  } catch (error) {
     if (error instanceof CLIError) {
       // Re-trow CLIError to be sure that cleanup will be called
       throw new CLIError(error.message, error.code);
