@@ -1,0 +1,9 @@
+{
+  "name": "examples",
+  "dependencies": {
+    "citty": "workspace:../src"
+  },
+  "devDependencies": {
+    "jiti": "^1.19.3"
+  }
+}
