@@ -6,6 +6,9 @@ const main = defineCommand({
     version: "1.0.0",
     description: "Citty playground CLI",
   },
+  setup() {
+    console.log("Setup");
+  },
   cleanup() {
     console.log("Cleanup");
   },

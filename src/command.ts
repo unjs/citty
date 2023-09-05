@@ -34,36 +34,43 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
   }
 
   // Handle sub command
-  const subCommands = await resolveValue(cmd.subCommands);
-  if (subCommands && Object.keys(subCommands).length > 0) {
-    const subCommandArgIndex = opts.rawArgs.findIndex(
-      (arg) => !arg.startsWith("-"),
-    );
-    const subCommandName = opts.rawArgs[subCommandArgIndex];
-    if (!subCommandName && !cmd.run) {
-      throw new CLIError(`No command specified.`, "E_NO_COMMAND");
-    }
-    if (!subCommands[subCommandName]) {
-      throw new CLIError(
-        `Unknown command \`${subCommandName}\``,
-        "E_UNKNOWN_COMMAND",
+  try {
+    const subCommands = await resolveValue(cmd.subCommands);
+    if (subCommands && Object.keys(subCommands).length > 0) {
+      const subCommandArgIndex = opts.rawArgs.findIndex(
+        (arg) => !arg.startsWith("-"),
       );
+      const subCommandName = opts.rawArgs[subCommandArgIndex];
+      if (!subCommandName && !cmd.run) {
+        throw new CLIError(`No command specified.`, "E_NO_COMMAND");
+      }
+      if (!subCommands[subCommandName]) {
+        throw new CLIError(
+          `Unknown command \`${subCommandName}\``,
+          "E_UNKNOWN_COMMAND",
+        );
+      }
+      const subCommand = await resolveValue(subCommands[subCommandName]);
+      if (subCommand) {
+        await runCommand(subCommand, {
+          rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
+        });
+      }
     }
-    const subCommand = await resolveValue(subCommands[subCommandName]);
-    if (subCommand) {
-      await runCommand(subCommand, {
-        rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
-      });
+    // Handle main command
+    if (typeof cmd.run === "function") {
+      await cmd.run(context);
     }
-  }
-
-  // Handle main command
-  if (typeof cmd.run === "function") {
-    await cmd.run(context);
-  }
-
-  if (typeof cmd.cleanup === "function") {
-    await cmd.cleanup(context);
+  } catch(error) {
+    if (error instanceof CLIError) {
+      // Re-trow CLIError to be sure that cleanup will be called
+      throw new CLIError(error.message, error.code);
+    }
+    throw error;
+  } finally {
+    if (typeof cmd.cleanup === "function") {
+      await cmd.cleanup(context);
+    }
   }
 }
 
