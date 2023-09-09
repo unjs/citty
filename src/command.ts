@@ -41,22 +41,24 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
         (arg) => !arg.startsWith("-"),
       );
       const subCommandName = opts.rawArgs[subCommandArgIndex];
-      if (!subCommandName && !cmd.run) {
+      if (subCommandName) {
+        if (!subCommands[subCommandName]) {
+          throw new CLIError(
+            `Unknown command \`${subCommandName}\``,
+            "E_UNKNOWN_COMMAND",
+          );
+        }
+        const subCommand = await resolveValue(subCommands[subCommandName]);
+        if (subCommand) {
+          await runCommand(subCommand, {
+            rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
+          });
+        }
+      } else if (!cmd.run) {
         throw new CLIError(`No command specified.`, "E_NO_COMMAND");
       }
-      if (!subCommands[subCommandName]) {
-        throw new CLIError(
-          `Unknown command \`${subCommandName}\``,
-          "E_UNKNOWN_COMMAND",
-        );
-      }
-      const subCommand = await resolveValue(subCommands[subCommandName]);
-      if (subCommand) {
-        await runCommand(subCommand, {
-          rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
-        });
-      }
     }
+
     // Handle main command
     if (typeof cmd.run === "function") {
       await cmd.run(context);
