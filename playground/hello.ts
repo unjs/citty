@@ -1,7 +1,7 @@
-import consola from 'consola'
-import { defineCommand, runMain } from "../src";
+import consola from "consola";
+import { defineCommand, createMain } from "../src";
 
-const main = defineCommand({
+const command = defineCommand({
   meta: {
     name: "hello",
     version: "1.0.0",
@@ -23,4 +23,4 @@ const main = defineCommand({
   },
 });
 
-runMain(main);
+createMain(command)();
