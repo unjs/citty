@@ -1,8 +1,7 @@
-import consola from 'consola'
-import { defineCommand } from "citty";
-import { createMain } from 'citty/main';
+import consola from "consola";
+import { defineCommand, createMain } from "../src";
 
-const main = defineCommand({
+const command = defineCommand({
   meta: {
     name: "hello",
     version: "1.0.0",
@@ -24,7 +23,4 @@ const main = defineCommand({
   },
 });
 
-const run = createMain(main);
-
-run()
-// run()
+createMain(command)();
