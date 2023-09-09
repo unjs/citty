@@ -17,19 +17,13 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
     if (rawArgs.includes("--help") || rawArgs.includes("-h")) {
       await showUsage(...(await resolveSubCommand(cmd, rawArgs)));
       process.exit(0);
-    } else if (rawArgs.includes("--version") || rawArgs.includes("-v")) {
+    } else if (rawArgs.length === 1 && rawArgs[0] === "--version") {
       const meta =
         typeof cmd.meta === "function" ? await cmd.meta() : await cmd.meta;
-
-      if (!meta) {
-        throw new CLIError("No meta specified", "E_NO_META");
-      }
-
       if (!meta?.version) {
         throw new CLIError("No version specified", "E_NO_VERSION");
       }
-
-      consola.info(meta.version);
+      consola.log(meta.version);
     } else {
       await runCommand(cmd, { rawArgs });
     }
