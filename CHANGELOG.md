@@ -1,6 +1,30 @@
 # Changelog
 
 
+## v0.1.4
+
+[compare changes](https://github.com/unjs/citty/compare/v0.1.3...v0.1.4)
+
+### 🚀 Enhancements
+
+- Support cleanup hook ([#64](https://github.com/unjs/citty/pull/64))
+- Add `createMain` utility ([#65](https://github.com/unjs/citty/pull/65))
+- Support `--version` ([#67](https://github.com/unjs/citty/pull/67))
+
+### 🩹 Fixes
+
+- Do not throw error when no subcommand specified but main has `run` ([#58](https://github.com/unjs/citty/pull/58))
+
+### 🏡 Chore
+
+- Update dependencies ([be58b90](https://github.com/unjs/citty/commit/be58b90))
+
+### ❤️ Contributors
+
+- 三咲智子 Kevin Deng <sxzz@sxzz.moe>
+- Estéban ([@Barbapapazes](http://github.com/Barbapapazes))
+- Pooya Parsa ([@pi0](http://github.com/pi0))
+
 ## v0.1.3
 
 [compare changes](https://github.com/unjs/citty/compare/v0.1.2...v0.1.3)
