@@ -49,6 +49,8 @@ const { defineCommand, runMain } = require("citty");
 
 ### Main Command
 
+Create a main command is the first step to create a CLI app. You can do it in a `index.mjs` file.
+
 ```js
 import { defineCommand, runMain } from "citty";
 
@@ -75,6 +77,13 @@ const main = defineCommand({
 });
 
 runMain(main);
+```
+
+Then, you can execute your CLI app:
+
+```sh
+node index.mjs john
+# output: Greetings john!
 ```
 
 ### Sub Commands
@@ -117,6 +126,13 @@ const main = defineCommand({
 runMain(main);
 ```
 
+Then, you can execute your CLI app:
+
+```sh
+node index.mjs sub john
+# output: Hello john!
+```
+
 ### Hooks
 
 `citty` supports a `setup` and `cleanup`  functions that are called before and after command execution. This is useful for setting up and cleaning up resources.
@@ -144,6 +160,20 @@ const main = defineCommand({
 });
 
 runMain(main);
+```
+
+Now, you can run your CLI app:
+
+```sh
+node index.mjs
+```
+
+And you will see:
+
+```sh
+Setting up...
+Hello World!
+Cleaning up...
 ```
 
 ### Lazy Load Commands
@@ -181,7 +211,7 @@ const main = defineCommand({
 });
 ```
 
-Now, when you run `hello sub`, the sub command will be loaded and executed. This avoid to load all commands at once.
+Now, when you run `node index.mjs sub`, the sub command will be loaded and executed. This avoid to load all commands at once when you start your app.
 
 ### Publish CLI App as an Executable
 
