@@ -206,7 +206,7 @@ const main = defineCommand({
     description: "My Awesome CLI App",
   },
   commands: {
-    sub: () => import("./sub.js").then((m) => m.default), // Lazy Import Sub Command
+    sub: () => import("./sub.mjs").then((m) => m.default), // Lazy Import Sub Command
   },
 });
 ```
