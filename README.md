@@ -180,7 +180,7 @@ Cleaning up...
 
 For large CLI apps, you may want to only load the command that is being executed.
 
-First, create a command in a file and export it.
+First, create a command in a file named `sub.mjs` and export it.
 
 ```js
 import { defineCommand } from "citty";
