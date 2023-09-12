@@ -229,7 +229,7 @@ Runs a command with usage support and graceful error handling.
 
 ### `createMain`
 
-Create the main command that can be executed later. Return a [`runMain`](#runmain) function.
+Create a wrapper around command that calls `runMain` when called.
 
 ### `runCommand`
 
