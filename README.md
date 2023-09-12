@@ -190,6 +190,13 @@ export default defineCommand({
     name: "sub",
     description: "Sub command",
   },
+  args: {
+    name: {
+      type: "positional",
+      description: "Your name",
+      required: true,
+    },
+  },
   run({ args }) {
     console.log(`Hello ${args.name}!`);
   },
@@ -247,7 +254,105 @@ Then, you will need to update your `package.json` file to enable the usage as a 
 
 You're ready to publish your CLI app to npm!
 
-## Utils
+## Args Commands
+
+When you create a command with `defineCommand`, you can provide a `args` object to define the arguments of the command. For example:
+
+```js
+const main = defineCommand({
+  // ...
+  args: {
+    name: {
+      type: "positional",
+      description: "Your name",
+      required: true,
+    },
+    friendly: {
+      type: "boolean",
+      description: "Use friendly greeting",
+    },
+  },
+  // ...
+});
+```
+
+There is 3 types of arguments:
+
+- `boolean`: A boolean flag. Can be set to `true` or `false`. Can be set using a shortcut like `--flag` (if `false` is the default or `--no-flag` if `true` is the default).
+- `string`: A string flag. Can be set using a value like `--flag value`.
+- `positional`: A positional argument. Can be set using a value like `value`.
+
+Then, you can add a description to each argument. This description will be used to generate the usage of the command. You can also use `required` to make an argument required or not.
+
+You can also set a default value for each argument. For example:
+
+```js
+const main = defineCommand({
+  // ...
+  args: {
+    name: {
+      type: "positional",
+      description: "Your name",
+      default: "Foo",
+    },
+    friendly: {
+      type: "boolean",
+      description: "Use friendly greeting",
+      default: true,
+    },
+  },
+  // ...
+});
+```
+
+Finally, you can set aliases for each argument. For example:
+
+```js
+const main = defineCommand({
+  // ...
+  args: {
+    name: {
+      type: "positional",
+      description: "Your name",
+      required: true,
+      alias: ["n", "N"],
+    },
+    friendly: {
+      type: "boolean",
+      description: "Use friendly greeting",
+      alias: ["f", "F"],
+    },
+  },
+  // ...
+});
+```
+
+Then, use can use these arguments in the `run` function of the command because they are passed as parameters:
+
+```js
+const main = defineCommand({
+  meta: {
+    name: "sub",
+    description: "Sub command",
+  },
+  args: {
+    name: {
+      type: "positional",
+      description: "Your name",
+      required: true,
+    },
+  },
+  run({ args }) {
+    console.log(`Hello ${args.name}!`);
+  },
+});
+```
+
+`args` is an object fully typed with the type of each argument. For example, if you have a `string` argument, the type of the argument will be `string`. If you have a `boolean` argument, the type of the argument will be `boolean`.
+
+## Build-in Commands
+
+## API
 
 ### `defineCommand`
 
