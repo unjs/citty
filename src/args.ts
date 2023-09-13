@@ -10,9 +10,10 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
   const parseOptions = {
     boolean: [] as string[],
     string: [] as string[],
+    number: [] as string[],
     mixed: [] as string[],
     alias: {} as Record<string, string | string[]>,
-    default: {} as Record<string, boolean | string>,
+    default: {} as Record<string, boolean | number | string>,
   };
 
   const args = resolveArgs(argsDef);
@@ -25,6 +26,8 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
       parseOptions.string.push(arg.name);
     } else if (arg.type === "boolean") {
       parseOptions.boolean.push(arg.name);
+    } else if (arg.type === "number") {
+      parseOptions.number.push(arg.name);
     }
     if (arg.default !== undefined) {
       parseOptions.default[arg.name] = arg.default;

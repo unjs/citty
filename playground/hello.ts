@@ -17,9 +17,15 @@ const command = defineCommand({
       type: "boolean",
       description: "Use friendly greeting",
     },
+    age: {
+      type: "number",
+      description: "Your age",
+      required: true,
+    },
   },
   run({ args }) {
-    consola.log(`${args.friendly ? "Hi" : "Greetings"} ${args.name}!`);
+    consola.log(args);
+    consola.log(`${args.friendly ? "Hi" : "Greetings"} ${args.name}! You are ${args.age} years old.`);
   },
 });
 

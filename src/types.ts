@@ -1,8 +1,8 @@
 // ----- Args -----
 
-export type ArgType = "boolean" | "string" | "positional" | undefined;
+export type ArgType = "boolean" | "number" | "string" | "positional" | undefined;
 
-export type _ArgDef<T extends ArgType, VT extends boolean | string> = {
+export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
   type?: T;
   description?: string;
   valueHint?: string;
@@ -12,9 +12,10 @@ export type _ArgDef<T extends ArgType, VT extends boolean | string> = {
 };
 
 export type BooleanArgDef = _ArgDef<"boolean", boolean>;
+export type NumberArgDef = _ArgDef<"number", number>;
 export type StringArgDef = _ArgDef<"string", string>;
 export type PositionalArgDef = Omit<_ArgDef<"positional", string>, "alias">;
-export type ArgDef = BooleanArgDef | StringArgDef | PositionalArgDef;
+export type ArgDef = BooleanArgDef | NumberArgDef | StringArgDef | PositionalArgDef;
 export type ArgsDef = Record<string, ArgDef>;
 export type Arg = ArgDef & { name: string; alias: string[] };
 
@@ -30,11 +31,17 @@ export type ParsedArgs<T extends ArgsDef = ArgsDef> = { _: string[] } & Record<
   > &
   Record<
     {
+      [K in keyof T]: T[K] extends { type: "number" } ? K : never;
+    }[keyof T],
+    number
+  > &
+  Record<
+    {
       [K in keyof T]: T[K] extends { type: "boolean" } ? K : never;
     }[keyof T],
     boolean
   > &
-  Record<string, string | boolean | string[]>;
+  Record<string, string | number | boolean | string[]>;
 
 // ----- Command -----
 
