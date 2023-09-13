@@ -1,6 +1,11 @@
 // ----- Args -----
 
-export type ArgType = "boolean" | "number" | "string" | "positional" | undefined;
+export type ArgType =
+  | "boolean"
+  | "number"
+  | "string"
+  | "positional"
+  | undefined;
 
 export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
   type?: T;
@@ -15,7 +20,11 @@ export type BooleanArgDef = _ArgDef<"boolean", boolean>;
 export type NumberArgDef = _ArgDef<"number", number>;
 export type StringArgDef = _ArgDef<"string", string>;
 export type PositionalArgDef = Omit<_ArgDef<"positional", string>, "alias">;
-export type ArgDef = BooleanArgDef | NumberArgDef | StringArgDef | PositionalArgDef;
+export type ArgDef =
+  | BooleanArgDef
+  | NumberArgDef
+  | StringArgDef
+  | PositionalArgDef;
 export type ArgsDef = Record<string, ArgDef>;
 export type Arg = ArgDef & { name: string; alias: string[] };
 
