@@ -2,10 +2,11 @@ import consola from "consola";
 import type { ArgsDef, CommandDef } from "./types";
 import { resolveSubCommand, runCommand } from "./command";
 import { CLIError } from "./_utils";
-import { showUsage } from "./usage";
+import { showUsage as _showUsage } from "./usage";
 
 export interface RunMainOptions {
   rawArgs?: string[];
+  customShowUsage?: <T extends ArgsDef = ArgsDef>(cmd: CommandDef<T>, parent? : CommandDef<T>) => Promise<void> | void;
 }
 
 export async function runMain<T extends ArgsDef = ArgsDef>(
@@ -13,6 +14,7 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
   opts: RunMainOptions = {},
 ) {
   const rawArgs = opts.rawArgs || process.argv.slice(2);
+  const showUsage = opts.customShowUsage || _showUsage;
   try {
     if (rawArgs.includes("--help") || rawArgs.includes("-h")) {
       await showUsage(...(await resolveSubCommand(cmd, rawArgs)));
