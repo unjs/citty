@@ -18,19 +18,45 @@ export type ArgDef = BooleanArgDef | StringArgDef | PositionalArgDef;
 export type ArgsDef = Record<string, ArgDef>;
 export type Arg = ArgDef & { name: string; alias: string[] };
 
-export type ParsedArgs<T extends ArgsDef = ArgsDef> = { _: string[] } & Record<
-  { [K in keyof T]: T[K] extends { type: "positional" } ? K : never }[keyof T],
+export type ParsedArgs<T extends ArgsDef = ArgsDef> = { _: string[] }
+& Record<
+{ [K in keyof T]: T[K] extends { type: "positional", required: true } ? K : never }[keyof T],
+string
+>
+& Record<
+{ [K in keyof T]: T[K] extends { type: "positional", required: false } ? K : never }[keyof T],
+string | undefined
+>
+& Record<
+{ [K in keyof T]: T[K] extends { type: "positional", default: string, required: false,  } ? K : never }[keyof T],
+string
+>
+& Record<
+  { [K in keyof T]: T[K] extends { type: "positional" } ? T[K] extends { required: boolean } ? never : K : never }[keyof T],
   string
-> &
+>
+&
   Record<
     {
       [K in keyof T]: T[K] extends { type: "string" } ? K : never;
+    }[keyof T],
+    string | undefined
+  > &
+  Record<
+    {
+      [K in keyof T]: T[K] extends { type: "boolean" } ? K : never;
+    }[keyof T],
+    boolean | undefined
+  > &
+  Record<
+    {
+      [K in keyof T]: T[K] extends { type: "string", required: true } ? K : never;
     }[keyof T],
     string
   > &
   Record<
     {
-      [K in keyof T]: T[K] extends { type: "boolean" } ? K : never;
+      [K in keyof T]: T[K] extends { type: "boolean", required: true } ? K : never;
     }[keyof T],
     boolean
   > &
