@@ -24,7 +24,7 @@ const command = defineCommand({
 });
 
 createMain(command)({
- customShowUsage(cmd, parent) {
+ showUsage(cmd, parent) {
   console.log(`Usage: cmd <name> [options]`)
 },
 });

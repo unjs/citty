@@ -6,7 +6,7 @@ import { showUsage as _showUsage } from "./usage";
 
 export interface RunMainOptions {
   rawArgs?: string[];
-  customShowUsage?: <T extends ArgsDef = ArgsDef>(
+  showUsage?: <T extends ArgsDef = ArgsDef>(
     cmd: CommandDef<T>,
     parent?: CommandDef<T>,
   ) => Promise<void> | void;
@@ -17,7 +17,7 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
   opts: RunMainOptions = {},
 ) {
   const rawArgs = opts.rawArgs || process.argv.slice(2);
-  const showUsage = opts.customShowUsage || _showUsage;
+  const showUsage = opts.showUsage || _showUsage;
   try {
     if (rawArgs.includes("--help") || rawArgs.includes("-h")) {
       await showUsage(...(await resolveSubCommand(cmd, rawArgs)));
