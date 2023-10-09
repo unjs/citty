@@ -1,6 +1,6 @@
 // ----- Args -----
 
-export type ArgType = "boolean" | "string" | "positional" | 'enum' | undefined;
+export type ArgType = "boolean" | "string" | "positional" | "enum" | undefined;
 
 export type _ArgDef<T extends ArgType, VT extends boolean | string> = {
   type?: T;
@@ -14,9 +14,16 @@ export type _ArgDef<T extends ArgType, VT extends boolean | string> = {
 
 export type BooleanArgDef = Omit<_ArgDef<"boolean", boolean>, "options">;
 export type StringArgDef = Omit<_ArgDef<"string", string>, "options">;
-export type PositionalArgDef = Omit<_ArgDef<"positional", string>, "alias"| "options">;
-export type EnumArgDef = _ArgDef<'enum', string>;
-export type ArgDef = BooleanArgDef | StringArgDef | PositionalArgDef | EnumArgDef;
+export type PositionalArgDef = Omit<
+  _ArgDef<"positional", string>,
+  "alias" | "options"
+>;
+export type EnumArgDef = _ArgDef<"enum", string>;
+export type ArgDef =
+  | BooleanArgDef
+  | StringArgDef
+  | PositionalArgDef
+  | EnumArgDef;
 export type ArgsDef = Record<string, ArgDef>;
 export type Arg = ArgDef & { name: string; alias: string[] };
 
@@ -35,12 +42,13 @@ export type ParsedArgs<T extends ArgsDef = ArgsDef> = { _: string[] } & Record<
       [K in keyof T]: T[K] extends { type: "boolean" } ? K : never;
     }[keyof T],
     boolean
-  > & Record<
+  > &
+  Record<
     {
       [K in keyof T]: T[K] extends { type: "enum" } ? K : never;
     }[keyof T],
     {
-      [K in keyof T]: T[K] extends { options: (infer U) } ? U : never
+      [K in keyof T]: T[K] extends { options: infer U } ? U : never;
     }[keyof T]
   > &
   Record<string, string | boolean | string[]>;

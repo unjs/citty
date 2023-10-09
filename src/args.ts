@@ -23,22 +23,22 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
       continue;
     }
     switch (arg.type) {
-    case "string": {
-      parseOptions.string.push(arg.name);
+      case "string": {
+        parseOptions.string.push(arg.name);
 
-    break;
-    }
-    case "boolean": {
-      parseOptions.boolean.push(arg.name);
+        break;
+      }
+      case "boolean": {
+        parseOptions.boolean.push(arg.name);
 
-    break;
-    }
-    case "enum": {
-      parseOptions.enum.push(...(arg.options || []));
+        break;
+      }
+      case "enum": {
+        parseOptions.enum.push(...(arg.options || []));
 
-    break;
-    }
-    // No default
+        break;
+      }
+      // No default
     }
 
     if (arg.default !== undefined) {
@@ -81,9 +81,7 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
           "EARG",
         );
       }
-    }
-
-     else if (arg.required && parsedArgsProxy[arg.name] === undefined) {
+    } else if (arg.required && parsedArgsProxy[arg.name] === undefined) {
       throw new CLIError(`Missing required argument: --${arg.name}`, "EARG");
     }
   }
