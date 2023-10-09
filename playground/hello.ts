@@ -17,9 +17,16 @@ const command = defineCommand({
       type: "boolean",
       description: "Use friendly greeting",
     },
+    adjective: {
+      type: "enum",
+      description: "Adjective to use in greeting",
+      options: ["awesome", "cool", "nice"],
+      default: "awesome",
+      require: false,
+    }
   },
   run({ args }) {
-    consola.log(`${args.friendly ? "Hi" : "Greetings"} ${args.name}!`);
+    consola.log(`${args.friendly ? "Hi" : "Greetings"} ${args.adjective} ${args.name}!`);
   },
 });
 
