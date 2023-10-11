@@ -58,7 +58,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
           : "");
       let description = arg.description;
       if (arg.type === "boolean" && arg.default === true) {
-        description = arg.negativeDescription
+        description = arg.negativeDescription;
       }
       argLines.push([
         "`" + argStr + (isRequired ? " (required)" : "") + "`",
