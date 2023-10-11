@@ -117,6 +117,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
     usageLines.push(
       "",
       `Use \`${commandName} <command> --help\` for more information about a command.`,
+      `Use \`${commandName} --version\` to get the version of the CLI.`,
     );
   }
 
