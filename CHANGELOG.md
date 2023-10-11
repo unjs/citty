@@ -1,6 +1,82 @@
 # Changelog
 
 
+## v0.1.4
+
+[compare changes](https://github.com/unjs/citty/compare/v0.1.3...v0.1.4)
+
+### 🚀 Enhancements
+
+- Support cleanup hook ([#64](https://github.com/unjs/citty/pull/64))
+- Add `createMain` utility ([#65](https://github.com/unjs/citty/pull/65))
+- Support `--version` ([#67](https://github.com/unjs/citty/pull/67))
+
+### 🩹 Fixes
+
+- Do not throw error when no subcommand specified but main has `run` ([#58](https://github.com/unjs/citty/pull/58))
+
+### 🏡 Chore
+
+- Update dependencies ([be58b90](https://github.com/unjs/citty/commit/be58b90))
+
+### ❤️ Contributors
+
+- 三咲智子 Kevin Deng <sxzz@sxzz.moe>
+- Estéban ([@Barbapapazes](http://github.com/Barbapapazes))
+- Pooya Parsa ([@pi0](http://github.com/pi0))
+
+## v0.1.3
+
+[compare changes](https://github.com/unjs/citty/compare/v0.1.2...v0.1.3)
+
+### 🩹 Fixes
+
+- Allow string[] in arg signature ([#56](https://github.com/unjs/citty/pull/56))
+
+### 🏡 Chore
+
+- Typo in readme ([#45](https://github.com/unjs/citty/pull/45))
+- Update dependencies ([f863f9d](https://github.com/unjs/citty/commit/f863f9d))
+
+### 🤖 CI
+
+- Use conventional commit for autofix action ([#50](https://github.com/unjs/citty/pull/50))
+
+### ❤️ Contributors
+
+- Pooya Parsa ([@pi0](http://github.com/pi0))
+- Daniel Roe <daniel@roe.dev>
+- Muhammad Mahmoud ([@MuhammadM1998](http://github.com/MuhammadM1998))
+
+## v0.1.2
+
+[compare changes](https://github.com/unjs/citty/compare/v0.1.1...v0.1.2)
+
+### 🚀 Enhancements
+
+- **usage:** Resolve sub commands for meta description ([#32](https://github.com/unjs/citty/pull/32))
+- Use consola for output formatting ([bf5de7f](https://github.com/unjs/citty/commit/bf5de7f))
+- **runCommand:** Allow passing custom `data` ([4abc848](https://github.com/unjs/citty/commit/4abc848))
+
+### 🩹 Fixes
+
+- Fix generic type issues ([#38](https://github.com/unjs/citty/pull/38))
+- Handle `required: false` for positional arguments ([ab0401b](https://github.com/unjs/citty/commit/ab0401b))
+
+### 🏡 Chore
+
+- Lint code ([5e56aa9](https://github.com/unjs/citty/commit/5e56aa9))
+- Update dependencies ([7724079](https://github.com/unjs/citty/commit/7724079))
+- Update dependencies ([59aeecd](https://github.com/unjs/citty/commit/59aeecd))
+- Add autofix ci ([2cfd134](https://github.com/unjs/citty/commit/2cfd134))
+- Fix typo in error code ([4f2c7ca](https://github.com/unjs/citty/commit/4f2c7ca))
+
+### ❤️  Contributors
+
+- Pooya Parsa ([@pi0](http://github.com/pi0))
+- Zuixinwang 
+- Wang Yiding ([@yidingww](http://github.com/yidingww))
+
 ## v0.1.1
 
 [compare changes](https://github.com/unjs/citty/compare/v0.1.0...v0.1.1)

@@ -3,26 +3,28 @@ import { CLIError, resolveValue } from "./_utils";
 import { parseArgs } from "./args";
 
 export function defineCommand<T extends ArgsDef = ArgsDef>(
-  def: CommandDef<T>
+  def: CommandDef<T>,
 ): CommandDef<T> {
   return def;
 }
 
 export interface RunCommandOptions {
   rawArgs: string[];
+  data?: any;
   showUsage?: boolean;
 }
 
-export async function runCommand(
-  cmd: CommandDef,
-  opts: RunCommandOptions
+export async function runCommand<T extends ArgsDef = ArgsDef>(
+  cmd: CommandDef<T>,
+  opts: RunCommandOptions,
 ): Promise<void> {
   const cmdArgs = await resolveValue(cmd.args || {});
-  const parsedArgs = parseArgs(opts.rawArgs, cmdArgs);
+  const parsedArgs = parseArgs<T>(opts.rawArgs, cmdArgs);
 
-  const context: CommandContext = {
+  const context: CommandContext<T> = {
     rawArgs: opts.rawArgs,
     args: parsedArgs,
+    data: opts.data,
     cmd,
   };
 
@@ -32,43 +34,47 @@ export async function runCommand(
   }
 
   // Handle sub command
-  const subCommands = await resolveValue(cmd.subCommands);
-  if (subCommands && Object.keys(subCommands).length > 0) {
-    const subCommandArgIndex = opts.rawArgs.findIndex(
-      (arg) => !arg.startsWith("-")
-    );
-    const subCommandName = opts.rawArgs[subCommandArgIndex];
-    if (!subCommandName && !cmd.run) {
-      throw new CLIError(
-        `Missing sub command. Use --help to see available sub commands.`,
-        "ESUBCOMMAND"
+  try {
+    const subCommands = await resolveValue(cmd.subCommands);
+    if (subCommands && Object.keys(subCommands).length > 0) {
+      const subCommandArgIndex = opts.rawArgs.findIndex(
+        (arg) => !arg.startsWith("-"),
       );
+      const subCommandName = opts.rawArgs[subCommandArgIndex];
+      if (subCommandName) {
+        if (!subCommands[subCommandName]) {
+          throw new CLIError(
+            `Unknown command \`${subCommandName}\``,
+            "E_UNKNOWN_COMMAND",
+          );
+        }
+        const subCommand = await resolveValue(subCommands[subCommandName]);
+        if (subCommand) {
+          await runCommand(subCommand, {
+            rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
+          });
+        }
+      } else if (!cmd.run) {
+        throw new CLIError(`No command specified.`, "E_NO_COMMAND");
+      }
     }
-    if (!subCommands[subCommandName]) {
-      throw new CLIError(
-        `Unknown sub command: ${subCommandName}`,
-        "ESUBCOMMAND"
-      );
-    }
-    const subCommand = await resolveValue(subCommands[subCommandName]);
-    if (subCommand) {
-      await runCommand(subCommand, {
-        rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
-      });
-    }
-  }
 
-  // Handle main command
-  if (typeof cmd.run === "function") {
-    await cmd.run(context);
+    // Handle main command
+    if (typeof cmd.run === "function") {
+      await cmd.run(context);
+    }
+  } finally {
+    if (typeof cmd.cleanup === "function") {
+      await cmd.cleanup(context);
+    }
   }
 }
 
-export async function resolveSubCommand(
-  cmd: CommandDef,
+export async function resolveSubCommand<T extends ArgsDef = ArgsDef>(
+  cmd: CommandDef<T>,
   rawArgs: string[],
-  parent?: CommandDef
-): Promise<[CommandDef, CommandDef?]> {
+  parent?: CommandDef<T>,
+): Promise<[CommandDef<T>, CommandDef<T>?]> {
   const subCommands = await resolveValue(cmd.subCommands);
   if (subCommands && Object.keys(subCommands).length > 0) {
     const subCommandArgIndex = rawArgs.findIndex((arg) => !arg.startsWith("-"));
@@ -78,7 +84,7 @@ export async function resolveSubCommand(
       return resolveSubCommand(
         subCommand,
         rawArgs.slice(subCommandArgIndex + 1),
-        cmd
+        cmd,
       );
     }
   }

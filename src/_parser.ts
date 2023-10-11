@@ -44,7 +44,7 @@ function toVal(out, key, val, opts) {
 
 export function parseRawArgs<T = Default>(
   args: string[] = [],
-  opts: Options = {}
+  opts: Options = {},
 ): Argv<T> {
   let k;
   let arr;

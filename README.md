@@ -82,6 +82,10 @@ runMain(main);
 
 Runs a command with usage support and graceful error handling.
 
+### `createMain`
+
+Create a wrapper around command that calls `runMain` when called.
+
 ### `runCommand`
 
 Parses input args and runs command and sub-commands (unsupervised).

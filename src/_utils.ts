@@ -4,7 +4,7 @@ export function toArray(val: any) {
   if (Array.isArray(val)) {
     return val;
   }
-  return val !== undefined ? [val] : [];
+  return val === undefined ? [] : [val];
 }
 
 export function formatLineColumns(lines: string[][], linePrefix = "") {
@@ -18,9 +18,10 @@ export function formatLineColumns(lines: string[][], linePrefix = "") {
     .map((l) =>
       l
         .map(
-          (c, i) => linePrefix + c[i === 0 ? "padStart" : "padEnd"](maxLengh[i])
+          (c, i) =>
+            linePrefix + c[i === 0 ? "padStart" : "padEnd"](maxLengh[i]),
         )
-        .join("  ")
+        .join("  "),
     )
     .join("\n");
 }
@@ -30,7 +31,10 @@ export function resolveValue<T>(input: Resolvable<T>): T | Promise<T> {
 }
 
 export class CLIError extends Error {
-  constructor(message: string, public code?: string) {
+  constructor(
+    message: string,
+    public code?: string,
+  ) {
     super(message);
     this.name = "CLIError";
   }

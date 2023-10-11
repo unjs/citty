@@ -34,7 +34,7 @@ export type ParsedArgs<T extends ArgsDef = ArgsDef> = { _: string[] } & Record<
     }[keyof T],
     boolean
   > &
-  Record<string, string | boolean>;
+  Record<string, string | boolean | string[]>;
 
 // ----- Command -----
 
@@ -62,8 +62,9 @@ export type CommandDef<T extends ArgsDef = ArgsDef> = {
 export type CommandContext<T extends ArgsDef = ArgsDef> = {
   rawArgs: string[];
   args: ParsedArgs<T>;
-  cmd: CommandDef;
+  cmd: CommandDef<T>;
   subCommand?: CommandDef<T>;
+  data?: any;
 };
 
 // ----- Utils -----

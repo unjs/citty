@@ -1,6 +1,7 @@
-import { defineCommand, runMain } from "../src";
+import consola from "consola";
+import { defineCommand, createMain } from "../src";
 
-const main = defineCommand({
+const command = defineCommand({
   meta: {
     name: "hello",
     version: "1.0.0",
@@ -18,8 +19,8 @@ const main = defineCommand({
     },
   },
   run({ args }) {
-    console.log(`${args.friendly ? "Hi" : "Greetings"} ${args.name}!`);
+    consola.log(`${args.friendly ? "Hi" : "Greetings"} ${args.name}!`);
   },
 });
 
-runMain(main);
+createMain(command)();

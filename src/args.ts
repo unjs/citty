@@ -3,7 +3,10 @@ import { parseRawArgs } from "./_parser";
 import type { Arg, ArgsDef, ParsedArgs } from "./types";
 import { CLIError, toArray } from "./_utils";
 
-export function parseArgs(rawArgs: string[], argsDef: ArgsDef): ParsedArgs {
+export function parseArgs<T extends ArgsDef = ArgsDef>(
+  rawArgs: string[],
+  argsDef: ArgsDef,
+): ParsedArgs<T> {
   const parseOptions = {
     boolean: [] as string[],
     string: [] as string[],
@@ -45,20 +48,20 @@ export function parseArgs(rawArgs: string[], argsDef: ArgsDef): ParsedArgs {
       const nextPositionalArgument = positionalArguments.shift();
       if (nextPositionalArgument !== undefined) {
         parsedArgsProxy[arg.name] = nextPositionalArgument;
-      } else if (arg.default !== undefined) {
-        parsedArgsProxy[arg.name] = arg.default;
-      } else {
+      } else if (arg.default === undefined && arg.required !== false) {
         throw new CLIError(
           `Missing required positional argument: ${arg.name.toUpperCase()}`,
-          "EARG"
+          "EARG",
         );
+      } else {
+        parsedArgsProxy[arg.name] = arg.default;
       }
     } else if (arg.required && parsedArgsProxy[arg.name] === undefined) {
       throw new CLIError(`Missing required argument: --${arg.name}`, "EARG");
     }
   }
 
-  return parsedArgsProxy;
+  return parsedArgsProxy as ParsedArgs<T>;
 }
 
 export function resolveArgs(argsDef: ArgsDef): Arg[] {
