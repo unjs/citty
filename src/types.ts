@@ -9,6 +9,7 @@ export type _ArgDef<T extends ArgType, VT extends boolean | string> = {
   alias?: string | string[];
   default?: VT;
   required?: boolean;
+  validate?: (value: ParsedArgType<T>) => boolean | string
 };
 
 export type BooleanArgDef = _ArgDef<"boolean", boolean>;
@@ -35,6 +36,14 @@ export type ParsedArgs<T extends ArgsDef = ArgsDef> = { _: string[] } & Record<
     boolean
   > &
   Record<string, string | boolean | string[]>;
+
+export type ParsedArgType<T extends ArgType = ArgType> = T extends "positional"
+  ? string
+  : T extends "string"
+    ? string
+    : T extends "boolean"
+      ? boolean
+      : (string | boolean)
 
 // ----- Command -----
 
