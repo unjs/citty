@@ -81,7 +81,7 @@ export function resolveArgsValidate(parsedArgs: ParsedArgs, argsDef: ArgsDef): s
     const value = parsedArgs[name] as never
     if(argDef.validate) {
       const word = argDef.validate(value) || ''
-      if(typeof word === 'string') {
+      if(argDef.required && typeof word === 'string') {
         return `Argument validation failed: ${name}` + (word ? ` - ${word}` : '')
       }
     }
