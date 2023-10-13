@@ -91,7 +91,8 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
     "",
   );
 
-  const hasOptions = argLines.length > 0 || posLines.length > 0;
+  const hasOptions = version || argLines.length > 0;
+
   usageLines.push(
     `${colors.underline(colors.bold("USAGE"))} \`${commandName}${
       hasOptions ? " [OPTIONS]" : ""
@@ -105,9 +106,19 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
     usageLines.push("");
   }
 
-  if (argLines.length > 0) {
+  if (hasOptions) {
     usageLines.push(colors.underline(colors.bold("OPTIONS")), "");
-    usageLines.push(formatLineColumns(argLines, "  "));
+
+    if (version) {
+      usageLines.push(
+        formatLineColumns([[colors.cyan("--version"), "Show version"]], "  "),
+      );
+    }
+
+    if (argLines.length > 0) {
+      usageLines.push(formatLineColumns(argLines, "  "));
+    }
+
     usageLines.push("");
   }
 
@@ -117,12 +128,6 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
     usageLines.push(
       "",
       `Use \`${commandName} <command> --help\` for more information about a command.`,
-    );
-  }
-
-  if (version) {
-    usageLines.push(
-      `Use \`${commandName} --version\` to get the version of the CLI.`,
     );
   }
 
