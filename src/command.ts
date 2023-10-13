@@ -58,8 +58,8 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
         throw new CLIError(`No command specified.`, "E_NO_COMMAND");
       }
     }
-    const word = resolveArgsValidate(parsedArgs, cmdArgs)
-    if(word) {
+    const word = resolveArgsValidate(parsedArgs, cmdArgs);
+    if (word) {
       throw new CLIError(word, "E_VALIDATE_FAILED");
     }
     // Handle main command
