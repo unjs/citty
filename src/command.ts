@@ -33,6 +33,13 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
     await cmd.setup(context);
   }
 
+  let isValidate = true
+  if (cmd.interceptors?.length && cmd.run) {
+    const results = await Promise.all(cmd.interceptors.map((m) => m(context)))
+    if (results.includes(false)) { isValidate = false }
+  }
+  if (!isValidate) { return }
+
   // Handle sub command
   try {
     const subCommands = await resolveValue(cmd.subCommands);

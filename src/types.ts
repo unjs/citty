@@ -50,9 +50,12 @@ export interface CommandMeta {
 
 export type SubCommandsDef = Record<string, Resolvable<CommandDef<any>>>;
 
+export type Interceptors<T extends ArgsDef = ArgsDef> = (context: CommandContext<T>) => boolean | undefined | Promise<boolean | void> | void
+
 export type CommandDef<T extends ArgsDef = ArgsDef> = {
   meta?: Resolvable<CommandMeta>;
   args?: Resolvable<T>;
+  interceptors?: Interceptors<T>[];
   subCommands?: Resolvable<SubCommandsDef>;
   setup?: (context: CommandContext<T>) => any | Promise<any>;
   cleanup?: (context: CommandContext<T>) => any | Promise<any>;
