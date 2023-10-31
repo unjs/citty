@@ -1,5 +1,5 @@
 import type { CommandContext, CommandDef, ArgsDef } from "./types";
-import { CLIError, resolveValue } from "./_utils";
+import { CLIError, resolveValue, runIfFunction } from "./_utils";
 import { parseArgs } from "./args";
 
 export function defineCommand<T extends ArgsDef = ArgsDef>(
@@ -29,9 +29,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
   };
 
   // Setup hook
-  if (typeof cmd.setup === "function") {
-    await cmd.setup(context);
-  }
+  await runIfFunction(cmd.setup)(context);
 
   // Handle sub command
   try {
@@ -60,13 +58,11 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
     }
 
     // Handle main command
-    if (typeof cmd.run === "function") {
-      await cmd.run(context);
-    }
+    await runIfFunction(cmd.before)(context);
+    await runIfFunction(cmd.run)(context);
   } finally {
-    if (typeof cmd.cleanup === "function") {
-      await cmd.cleanup(context);
-    }
+    await runIfFunction(cmd.after)(context);
+    await runIfFunction(cmd.cleanup)(context);
   }
 }
 

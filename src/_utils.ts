@@ -1,5 +1,13 @@
 import type { Resolvable } from "./types";
 
+export  function runIfFunction<T extends (...args: any[]) => Promise<void> | void>(val: T | undefined) {
+  return async function (...args: Parameters<T>) {
+    if (typeof val === 'function') {
+      await val(...args)
+    }
+  }
+}
+
 export function toArray(val: any) {
   if (Array.isArray(val)) {
     return val;
