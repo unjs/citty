@@ -23,12 +23,10 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
       continue;
     }
     // eslint-disable-next-line unicorn/prefer-switch
-    if (arg.type === "string") {
+    if (arg.type === "string" || arg.type === "number") {
       parseOptions.string.push(arg.name);
     } else if (arg.type === "boolean") {
       parseOptions.boolean.push(arg.name);
-    } else if (arg.type === "number") {
-      parseOptions.number.push(arg.name);
     }
     if (arg.default !== undefined) {
       parseOptions.default[arg.name] = arg.default;

@@ -8,7 +8,6 @@ type Default = Dict<any>;
 export interface Options {
   boolean?: Arrayable<string>;
   string?: Arrayable<string>;
-  number?: Arrayable<string>;
   alias?: Dict<Arrayable<string>>;
   default?: Dict<any>;
   unknown?(flag: string): void;
@@ -30,15 +29,15 @@ function toVal(out, key, val, opts) {
       ? ""
       : String(val)
     : typeof val === "boolean"
-      ? val
-      : ~opts.boolean.indexOf(key)
-        ? val === "false"
-          ? false
-          : val === "true" ||
-            (out._.push(((x = +val), x * 0 === 0) ? x : val), !!val)
-        : ((x = +val), x * 0 === 0)
-          ? x
-          : val;
+    ? val
+    : ~opts.boolean.indexOf(key)
+    ? val === "false"
+      ? false
+      : val === "true" ||
+        (out._.push(((x = +val), x * 0 === 0) ? x : val), !!val)
+    : ((x = +val), x * 0 === 0)
+    ? x
+    : val;
   out[key] =
     old == undefined ? nxt : Array.isArray(old) ? old.concat(nxt) : [old, nxt];
 }
@@ -65,7 +64,6 @@ export function parseRawArgs<T = Default>(
   opts.alias = opts.alias || {};
   opts.string = toArr(opts.string);
   opts.boolean = toArr(opts.boolean);
-  opts.number = toArr(opts.number);
 
   if (alibi) {
     for (k in opts.alias) {
@@ -80,13 +78,6 @@ export function parseRawArgs<T = Default>(
     arr = opts.alias[opts.boolean[i]] || [];
     for (j = arr.length; j-- > 0; ) {
       opts.boolean.push(arr[j]);
-    }
-  }
-
-  for (i = opts.number.length; i-- > 0; ) {
-    arr = opts.alias[opts.number[i]] || [];
-    for (j = arr.length; j-- > 0; ) {
-      opts.number.push(arr[j]);
     }
   }
 
