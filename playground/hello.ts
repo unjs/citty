@@ -29,4 +29,4 @@ const command = defineCommand({
   },
 });
 
-createMain(command)();
+createMain(command)({});
