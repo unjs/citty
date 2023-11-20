@@ -88,7 +88,7 @@ Create a wrapper around command that calls `runMain` when called.
 
 ### `runCommand`
 
-Parses input args and runs command and sub-commands (unsupervised). It returns the result of that command.
+Parses input args and runs command and sub-commands (unsupervised). You can access `result` key from returnd/awaited value to access command's result.
 
 ### `parseArgs`
 
