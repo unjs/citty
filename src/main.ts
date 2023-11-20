@@ -6,10 +6,7 @@ import { showUsage as _showUsage } from "./usage";
 
 export interface RunMainOptions {
   rawArgs?: string[];
-  showUsage?: <T extends ArgsDef = ArgsDef>(
-    cmd: CommandDef<T>,
-    parent?: CommandDef<T>,
-  ) => Promise<void> | void;
+  showUsage?: typeof _showUsage;
 }
 
 export async function runMain<T extends ArgsDef = ArgsDef>(
