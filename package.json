@@ -1,6 +1,6 @@
 {
   "name": "citty",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Elegant CLI Builder",
   "repository": "unjs/citty",
   "license": "MIT",
