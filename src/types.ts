@@ -53,6 +53,7 @@ export interface CommandMeta {
   name?: string;
   version?: string;
   description?: string;
+  hidden?: boolean;
 }
 
 // Command: Definition
