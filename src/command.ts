@@ -17,7 +17,7 @@ export interface RunCommandOptions {
 export async function runCommand<T extends ArgsDef = ArgsDef>(
   cmd: CommandDef<T>,
   opts: RunCommandOptions,
-): Promise<void> {
+): Promise<{ result: unknown }> {
   const cmdArgs = await resolveValue(cmd.args || {});
   const parsedArgs = parseArgs<T>(opts.rawArgs, cmdArgs);
 
@@ -34,6 +34,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
   }
 
   // Handle sub command
+  let result: unknown;
   try {
     const subCommands = await resolveValue(cmd.subCommands);
     if (subCommands && Object.keys(subCommands).length > 0) {
@@ -64,13 +65,14 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
     }
     // Handle main command
     if (typeof cmd.run === "function") {
-      await cmd.run(context);
+      result = await cmd.run(context);
     }
   } finally {
     if (typeof cmd.cleanup === "function") {
       await cmd.cleanup(context);
     }
   }
+  return { result };
 }
 
 export async function resolveSubCommand<T extends ArgsDef = ArgsDef>(
