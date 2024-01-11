@@ -18,4 +18,6 @@ const main = defineCommand({
   },
 });
 
-runMain(main);
+if (process.env.NODE_ENV !== "test") {
+  runMain(main);
+}

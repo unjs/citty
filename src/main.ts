@@ -38,7 +38,9 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
       await showUsage(...(await resolveSubCommand(cmd, rawArgs)));
     }
     consola.error(error.message);
-    process.exit(1);
+    if (process.env.NODE_ENV !== "test") {
+      process.exit(1);
+    }
   }
 }
 
