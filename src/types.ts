@@ -56,6 +56,7 @@ export type CommandDef<T extends ArgsDef = ArgsDef> = {
   subCommands?: Resolvable<SubCommandsDef>;
   setup?: (context: CommandContext<T>) => any | Promise<any>;
   cleanup?: (context: CommandContext<T>) => any | Promise<any>;
+  catch?: (context: CommandContext<T>, e: Error) => any | Promise<any>;
   run?: (context: CommandContext<T>) => any | Promise<any>;
 };
 
