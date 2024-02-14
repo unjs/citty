@@ -37,8 +37,12 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
       const name = arg.name.toUpperCase();
       const isRequired = arg.required !== false && arg.default === undefined;
       // (isRequired ? " (required)" : " (optional)"
-      const usageHint = arg.default ? `="${arg.default}"` : "";
-      posLines.push(["`" + name + usageHint + "`", arg.description || ""]);
+      const defaultHint = arg.default ? `="${arg.default}"` : "";
+      posLines.push([
+        "`" + name + defaultHint + "`",
+        arg.description || "",
+        arg.valueHint ? `<${arg.valueHint}>` : "",
+      ]);
       usageLine.push(isRequired ? `<${name}>` : `[${name}]`);
     } else {
       const isRequired = arg.required === true && arg.default === undefined;
