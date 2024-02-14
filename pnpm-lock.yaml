@@ -16,6 +16,9 @@ devDependencies:
   '@vitest/coverage-v8':
     specifier: ^1.2.2
     version: 1.2.2(vitest@1.2.2)
+  automd:
+    specifier: ^0.2.0
+    version: 0.2.0
   changelogen:
     specifier: ^0.5.5
     version: 0.5.5
@@ -1168,6 +1171,24 @@ packages:
 
   /assertion-error@1.1.0:
     resolution: {integrity: sha512-jgsaNduz+ndvGyFt3uSuWqvy4lCnIJiovtouQN5JZHOKCS2QuhEdbcQHFhVksz2N2U9hXJo8odG7ETyWlEeuDw==}
+    dev: true
+
+  /automd@0.2.0:
+    resolution: {integrity: sha512-uAt55rf9VJ+SiQMxfpRhQaY/ruzlYDBZsK7RqZGmwbI1CjtXBTUP8/t732decduuRGUMzgoQ01z5c5GsXf1bDg==}
+    hasBin: true
+    dependencies:
+      c12: 1.8.0
+      citty: 0.1.5
+      consola: 3.2.3
+      defu: 6.1.4
+      destr: 2.0.2
+      magic-string: 0.30.7
+      omark: 0.1.0
+      pkg-types: 1.0.3
+      scule: 1.3.0
+      untyped: 1.4.2
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /autoprefixer@10.4.17(postcss@8.4.35):
@@ -3375,6 +3396,10 @@ packages:
 
   /ohash@1.1.3:
     resolution: {integrity: sha512-zuHHiGTYTA1sYJ/wZN+t5HKZaH23i4yI1HMwbuXm24Nid7Dv0KcuRlKoNKS9UNfAVSBlnGLcuQrnOKWOZoEGaw==}
+    dev: true
+
+  /omark@0.1.0:
+    resolution: {integrity: sha512-l+7hOfsjru88QuW7E937KH7BSz99NownkNTGigi+e4JzeSSCosMp2v3eVW1wdmgm99pFbzaUVg1kiT2V0QvvtQ==}
     dev: true
 
   /once@1.4.0:
