@@ -1,4 +1,4 @@
-import consola from 'consola'
+import consola from "consola";
 import { defineCommand } from "../../src";
 
 export default defineCommand({
@@ -35,6 +35,7 @@ export default defineCommand({
       type: "positional",
       required: false,
       description: "path to output directory",
+      default: ".output",
     },
   },
   run({ args }) {

@@ -15,6 +15,7 @@ const main = defineCommand({
   subCommands: {
     build: () => import("./commands/build").then((r) => r.default),
     deploy: () => import("./commands/deploy").then((r) => r.default),
+    debug: () => import("./commands/debug").then((r) => r.default),
   },
 });
 

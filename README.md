@@ -1,12 +1,14 @@
 # 🌆 citty
 
-[![npm version][npm-version-src]][npm-version-href]
-[![npm downloads][npm-downloads-src]][npm-downloads-href]
-[![bundle][bundle-src]][bundle-href]
-[![Codecov][codecov-src]][codecov-href]
-[![License][license-src]][license-href]
+<!-- automd:badges color=yellow bundlephobia -->
 
-> Elegant CLI Builder
+[![npm version](https://img.shields.io/npm/v/citty?color=yellow)](https://npmjs.com/package/citty)
+[![npm downloads](https://img.shields.io/npm/dm/citty?color=yellow)](https://npmjs.com/package/citty)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/citty?color=yellow)](https://bundlephobia.com/package/citty)
+
+<!-- /automd -->
+
+Elegant CLI Builder
 
 - Fast and lightweight argument parser based on [mri](https://github.com/lukeed/mri)
 - Smart value parsing with typecast, boolean shortcuts and unknown flag handling
@@ -88,7 +90,7 @@ Create a wrapper around command that calls `runMain` when called.
 
 ### `runCommand`
 
-Parses input args and runs command and sub-commands (unsupervised).
+Parses input args and runs command and sub-commands (unsupervised). You can access `result` key from returnd/awaited value to access command's result.
 
 ### `parseArgs`
 
@@ -115,20 +117,3 @@ Renders usage and prints to the console
 Made with 💛 Published under [MIT License](./LICENSE).
 
 Argument parser is based on [lukeed/mri](https://github.com/lukeed/mri) by Luke Edwards ([@lukeed](https://github.com/lukeed)).
-
-<!-- Badges -->
-
-<!-- Badges -->
-
-[npm-version-src]: https://img.shields.io/npm/v/citty?style=flat&colorA=18181B&colorB=F0DB4F
-[npm-version-href]: https://npmjs.com/package/citty
-[npm-downloads-src]: https://img.shields.io/npm/dm/citty?style=flat&colorA=18181B&colorB=F0DB4F
-[npm-downloads-href]: https://npmjs.com/package/citty
-[codecov-src]: https://img.shields.io/codecov/c/gh/unjs/citty/main?style=flat&colorA=18181B&colorB=F0DB4F
-[codecov-href]: https://codecov.io/gh/unjs/citty
-[bundle-src]: https://img.shields.io/bundlephobia/minzip/citty?style=flat&colorA=18181B&colorB=F0DB4F
-[bundle-href]: https://bundlephobia.com/result?p=citty
-[license-src]: https://img.shields.io/github/license/unjs/citty.svg?style=flat&colorA=18181B&colorB=F0DB4F
-[license-href]: https://github.com/unjs/citty/blob/main/LICENSE
-[jsdocs-src]: https://img.shields.io/badge/jsDocs.io-reference-18181B?style=flat&colorA=18181B&colorB=F0DB4F
-[jsdocs-href]: https://www.jsdocs.io/package/citty
