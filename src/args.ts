@@ -81,7 +81,10 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
       parsedArgsProxy[arg.name] = Number.parseFloat(
         parsedArgsProxy[arg.name] as string,
       );
-      if (Number.isNaN(parsedArgsProxy[arg.name])) {
+      if (
+        parsedArgsProxy[arg.name] !== undefined &&
+        Number.isNaN(parsedArgsProxy[arg.name])
+      ) {
         throw new CLIError(
           `Invalid value for argument: \`--${arg.name}\` (\`${_originalValue}\`). Expected a number.`,
           "EARG",
