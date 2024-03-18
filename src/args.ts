@@ -22,23 +22,13 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
     if (arg.type === "positional") {
       continue;
     }
-    switch (arg.type) {
-      case "string": {
-        parseOptions.string.push(arg.name);
-
-        break;
-      }
-      case "boolean": {
-        parseOptions.boolean.push(arg.name);
-
-        break;
-      }
-      case "enum": {
-        parseOptions.enum.push(...(arg.options || []));
-
-        break;
-      }
-      // No default
+    // eslint-disable-next-line unicorn/prefer-switch
+    if (arg.type === "string") {
+      parseOptions.string.push(arg.name);
+    } else if (arg.type === "boolean") {
+      parseOptions.boolean.push(arg.name);
+    } else if (arg.type === "enum") {
+      parseOptions.enum.push(...(arg.options || []));
     }
 
     if (arg.default !== undefined) {
