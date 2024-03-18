@@ -11,6 +11,7 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
     boolean: [] as string[],
     string: [] as string[],
     number: [] as string[],
+    enum: [] as (number | string)[],
     mixed: [] as string[],
     alias: {} as Record<string, string | string[]>,
     default: {} as Record<string, boolean | number | string>,
@@ -27,7 +28,10 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
       parseOptions.string.push(arg.name);
     } else if (arg.type === "boolean") {
       parseOptions.boolean.push(arg.name);
+    } else if (arg.type === "enum") {
+      parseOptions.enum.push(...(arg.options || []));
     }
+
     if (arg.default !== undefined) {
       parseOptions.default[arg.name] = arg.default;
     }
@@ -57,6 +61,19 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
         );
       } else {
         parsedArgsProxy[arg.name] = arg.default;
+      }
+    } else if (arg.type === "enum") {
+      const argument = parsedArgsProxy[arg.name];
+      const options = arg.options || [];
+      if (
+        argument !== undefined &&
+        options.length > 0 &&
+        !options.includes(argument)
+      ) {
+        throw new CLIError(
+          `Invalid value for argument: \`--${arg.name}\` (\`${argument}\`). Expected one of: ${options.map((o) => `\`${o}\``).join(", ")}.`,
+          "EARG",
+        );
       }
     } else if (arg.required && parsedArgsProxy[arg.name] === undefined) {
       throw new CLIError(`Missing required argument: --${arg.name}`, "EARG");

@@ -2,8 +2,9 @@
 
 export type ArgType =
   | "boolean"
-  | "number"
   | "string"
+  | "number"
+  | "enum"
   | "positional"
   | undefined;
 
@@ -14,18 +15,28 @@ export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
   alias?: string | string[];
   default?: VT;
   required?: boolean;
+  options?: (string | number)[];
 };
 
-export type BooleanArgDef = _ArgDef<"boolean", boolean>;
-export type NumberArgDef = _ArgDef<"number", number>;
-export type StringArgDef = _ArgDef<"string", string>;
-export type PositionalArgDef = Omit<_ArgDef<"positional", string>, "alias">;
+export type BooleanArgDef = Omit<_ArgDef<"boolean", boolean>, "options">;
+export type StringArgDef = Omit<_ArgDef<"string", string>, "options">;
+export type NumberArgDef = Omit<_ArgDef<"number", boolean>, "options">;
+
+export type EnumArgDef = _ArgDef<"enum", string>;
+
+export type PositionalArgDef = Omit<
+  _ArgDef<"positional", string>,
+  "alias" | "options"
+>;
+
 export type ArgDef =
   | BooleanArgDef
-  | NumberArgDef
   | StringArgDef
-  | PositionalArgDef;
+  | PositionalArgDef
+  | EnumArgDef;
+
 export type ArgsDef = Record<string, ArgDef>;
+
 export type Arg = ArgDef & { name: string; alias: string[] };
 
 export type ParsedArgs<T extends ArgsDef = ArgsDef> = { _: string[] } & Record<
@@ -50,6 +61,14 @@ export type ParsedArgs<T extends ArgsDef = ArgsDef> = { _: string[] } & Record<
     }[keyof T],
     boolean
   > &
+  Record<
+    {
+      [K in keyof T]: T[K] extends { type: "enum" } ? K : never;
+    }[keyof T],
+    {
+      [K in keyof T]: T[K] extends { options: infer U } ? U : never;
+    }[keyof T]
+  > &
   Record<string, string | number | boolean | string[]>;
 
 // ----- Command -----
@@ -60,6 +79,7 @@ export interface CommandMeta {
   name?: string;
   version?: string;
   description?: string;
+  hidden?: boolean;
 }
 
 // Command: Definition

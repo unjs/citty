@@ -22,10 +22,18 @@ const command = defineCommand({
       description: "Your age",
       required: true,
     },
+    adjective: {
+      type: "enum",
+      description: "Adjective to use in greeting",
+      options: ["awesome", "cool", "nice"],
+      default: "awesome",
+      require: false,
+    },
   },
   run({ args }) {
-    consola.log(args);
-    consola.log(`${args.friendly ? "Hi" : "Greetings"} ${args.name}! You are ${args.age} years old.`);
+    consola.log(
+      `${args.friendly ? "Hi" : "Greetings"} ${args.adjective} ${args.name}! You are ${args.age} years old.`,
+    );
   },
 });
 

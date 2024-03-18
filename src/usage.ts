@@ -59,6 +59,9 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
           ? `=${
               arg.valueHint ? `<${arg.valueHint}>` : `"${arg.default || ""}"`
             }`
+          : "") +
+        (arg.type === "enum" && arg.options
+          ? `=<${arg.options.join("|")}>`
           : "");
       argLines.push([
         "`" + argStr + (isRequired ? " (required)" : "") + "`",
@@ -76,6 +79,9 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
     for (const [name, sub] of Object.entries(subCommands)) {
       const subCmd = await resolveValue(sub);
       const meta = await resolveValue(subCmd?.meta);
+      if (meta?.hidden) {
+        continue;
+      }
       commandsLines.push([`\`${name}\``, meta?.description || ""]);
       commandNames.push(name);
     }
