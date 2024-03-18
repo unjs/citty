@@ -50,6 +50,7 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
   });
 
   for (const [, arg] of args.entries()) {
+    // eslint-disable-next-line unicorn/prefer-switch
     if (arg.type === "positional") {
       const nextPositionalArgument = positionalArguments.shift();
       if (nextPositionalArgument !== undefined) {
@@ -72,6 +73,17 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
       ) {
         throw new CLIError(
           `Invalid value for argument: \`--${arg.name}\` (\`${argument}\`). Expected one of: ${options.map((o) => `\`${o}\``).join(", ")}.`,
+          "EARG",
+        );
+      }
+    } else if (arg.type === "number") {
+      const _originalValue = parsedArgsProxy[arg.name];
+      parsedArgsProxy[arg.name] = Number.parseFloat(
+        parsedArgsProxy[arg.name] as string,
+      );
+      if (Number.isNaN(parsedArgsProxy[arg.name])) {
+        throw new CLIError(
+          `Invalid value for argument: \`--${arg.name}\` (\`${_originalValue}\`). Expected a number.`,
           "EARG",
         );
       }

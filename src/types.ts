@@ -30,6 +30,7 @@ export type PositionalArgDef = Omit<
 export type ArgDef =
   | BooleanArgDef
   | StringArgDef
+  | NumberArgDef
   | PositionalArgDef
   | EnumArgDef;
 

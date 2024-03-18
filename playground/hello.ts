@@ -20,20 +20,28 @@ const command = defineCommand({
     age: {
       type: "number",
       description: "Your age",
-      required: true,
+      required: false,
     },
-    adjective: {
+    adj: {
       type: "enum",
       description: "Adjective to use in greeting",
       options: ["awesome", "cool", "nice"],
       default: "awesome",
-      require: false,
+      required: false,
     },
   },
   run({ args }) {
-    consola.log(
-      `${args.friendly ? "Hi" : "Greetings"} ${args.adjective} ${args.name}! You are ${args.age} years old.`,
-    );
+    consola.log(args);
+    const msg = [
+      args.friendly ? "Hi" : "Greetings",
+      args.adj || "",
+      args.name,
+      args.age ? `You are ${args.age} years old.` : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+
+    consola.log(msg);
   },
 });
 
