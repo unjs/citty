@@ -63,9 +63,13 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
         (arg.type === "enum" && arg.options
           ? `=<${arg.options.join("|")}>`
           : "");
+      const isNegative = arg.type === "boolean" && arg.default === true;
+      const description = isNegative
+        ? arg.negativeDescription || arg.description
+        : arg.description;
       argLines.push([
         "`" + argStr + (isRequired ? " (required)" : "") + "`",
-        arg.description || "",
+        description || "",
       ]);
       if (isRequired) {
         usageLine.push(argStr);
