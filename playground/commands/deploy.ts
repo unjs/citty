@@ -47,10 +47,10 @@ export default defineCommand({
       type: "boolean",
       description: "Dry run the deployment process",
     },
-    outputDir: {
+    provider: {
       type: "positional",
-      description: "Path to the build output directory",
-      default: ".output",
+      description: "Deployment provider",
+      valueHint: "foo|bar|baz|qux",
     },
     port: {
       type: "string",

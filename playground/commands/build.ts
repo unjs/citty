@@ -35,6 +35,7 @@ export default defineCommand({
       type: "positional",
       required: false,
       description: "path to output directory",
+      default: ".output",
     },
   },
   run({ args }) {

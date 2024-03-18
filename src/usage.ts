@@ -37,8 +37,12 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
       const name = arg.name.toUpperCase();
       const isRequired = arg.required !== false && arg.default === undefined;
       // (isRequired ? " (required)" : " (optional)"
-      const usageHint = arg.default ? `="${arg.default}"` : "";
-      posLines.push(["`" + name + usageHint + "`", arg.description || ""]);
+      const defaultHint = arg.default ? `="${arg.default}"` : "";
+      posLines.push([
+        "`" + name + defaultHint + "`",
+        arg.description || "",
+        arg.valueHint ? `<${arg.valueHint}>` : "",
+      ]);
       usageLine.push(isRequired ? `<${name}>` : `[${name}]`);
     } else {
       const isRequired = arg.required === true && arg.default === undefined;
@@ -55,6 +59,9 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
           ? `=${
               arg.valueHint ? `<${arg.valueHint}>` : `"${arg.default || ""}"`
             }`
+          : "") +
+        (arg.type === "enum" && arg.options
+          ? `=<${arg.options.join("|")}>`
           : "");
       argLines.push([
         "`" + argStr + (isRequired ? " (required)" : "") + "`",
@@ -72,7 +79,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
     for (const [name, sub] of Object.entries(subCommands)) {
       const subCmd = await resolveValue(sub);
       const meta = await resolveValue(subCmd?.meta);
-      if(meta?.hidden) {
+      if (meta?.hidden) {
         continue;
       }
       commandsLines.push([`\`${name}\``, meta?.description || ""]);
