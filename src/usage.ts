@@ -59,6 +59,9 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
           ? `=${
               arg.valueHint ? `<${arg.valueHint}>` : `"${arg.default || ""}"`
             }`
+          : "") +
+        (arg.type === "enum" && arg.options
+          ? `=<${arg.options.join("|")}>`
           : "");
       argLines.push([
         "`" + argStr + (isRequired ? " (required)" : "") + "`",
