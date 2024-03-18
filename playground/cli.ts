@@ -18,6 +18,7 @@ export const main = defineCommand({
     error: () => import("./commands/error").then((r) => r.default),
     "error-no-catch": () =>
       import("./commands/error-no-catch").then((r) => r.default),
+    debug: () => import("./commands/debug").then((r) => r.default),
   },
 });
 
