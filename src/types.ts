@@ -21,9 +21,7 @@ export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
 export type BooleanArgDef = Omit<_ArgDef<"boolean", boolean>, "options">;
 export type StringArgDef = Omit<_ArgDef<"string", string>, "options">;
 export type NumberArgDef = Omit<_ArgDef<"number", boolean>, "options">;
-
 export type EnumArgDef = _ArgDef<"enum", string>;
-
 export type PositionalArgDef = Omit<
   _ArgDef<"positional", string>,
   "alias" | "options"
