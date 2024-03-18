@@ -1,6 +1,47 @@
 # Changelog
 
 
+## v0.1.6
+
+[compare changes](https://github.com/unjs/citty/compare/v0.1.5...v0.1.6)
+
+### 🩹 Fixes
+
+- **usage:** Render valueHint for positional args ([dbd1d92](https://github.com/unjs/citty/commit/dbd1d92))
+
+### 🏡 Chore
+
+- Apply automated lint fixes ([f00055d](https://github.com/unjs/citty/commit/f00055d))
+- Update lockfile ([0e73aad](https://github.com/unjs/citty/commit/0e73aad))
+
+### ❤️ Contributors
+
+- Pooya Parsa ([@pi0](http://github.com/pi0))
+
+## v0.1.5
+
+[compare changes](https://github.com/unjs/citty/compare/v0.1.4...v0.1.5)
+
+### 🚀 Enhancements
+
+- **command:** Return result of run command ([#101](https://github.com/unjs/citty/pull/101))
+- **runMain:** Support custom `showUsage` option ([#74](https://github.com/unjs/citty/pull/74))
+
+### 🏡 Chore
+
+- Apply automated lint fixes ([505b621](https://github.com/unjs/citty/commit/505b621))
+- Format with prettier ([c4597a1](https://github.com/unjs/citty/commit/c4597a1))
+
+### 🎨 Styles
+
+- Format with prettier ([afea1a5](https://github.com/unjs/citty/commit/afea1a5))
+
+### ❤️ Contributors
+
+- Pooya Parsa ([@pi0](http://github.com/pi0))
+- Estéban ([@Barbapapazes](http://github.com/Barbapapazes))
+- Katerina Skroumpelou
+
 ## v0.1.4
 
 [compare changes](https://github.com/unjs/citty/compare/v0.1.3...v0.1.4)
