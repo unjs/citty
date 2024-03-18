@@ -4,8 +4,8 @@ import {
   formatLineColumns,
   resolveValue,
   CLIError,
-} from "../../src/_utils";
-import type { Resolvable } from "../../src/types";
+} from "../src/_utils";
+import type { Resolvable } from "../src/types";
 
 describe("toArray()", () => {
   it.concurrent("should return empty array if input is undefined", () => {
