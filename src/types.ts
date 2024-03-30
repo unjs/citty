@@ -1,9 +1,3 @@
-type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never };
-
-type XOR<T, U> = (T | U) extends object
-  ? (Without<T, U> & U) | (Without<U, T> & T)
-  : T | U;
-
 // ----- Args -----
 
 export type ArgType =
@@ -18,13 +12,13 @@ export type ArgAlias = string | string[]
 
 export type ArgDefault = string | number | boolean | (string | number)[]
 
-export type DefaultOrRequiredArgDef<DefaultT extends ArgDefault> = XOR<{
+export type DefaultOrRequiredArgDef<DefaultT extends ArgDefault> = {
     default?: DefaultT
     required?: false | undefined
-}, {
+} | {
     default?: undefined
-    required?: true
-}>
+    required?: boolean
+}
 
 export type BaseArgDef<TypeT extends ArgType, DefaultT extends ArgDefault> = {
     type: TypeT;
