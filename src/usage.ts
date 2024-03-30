@@ -35,17 +35,15 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
   for (const arg of cmdArgs) {
     if (arg.type === "positional") {
       const name = arg.name.toUpperCase();
-      const isRequired = arg.required !== false && arg.default === undefined;
-      // (isRequired ? " (required)" : " (optional)"
       const defaultHint = arg.default ? `="${arg.default}"` : "";
+
       posLines.push([
         "`" + name + defaultHint + "`",
         arg.description || "",
         arg.valueHint ? `<${arg.valueHint}>` : "",
       ]);
-      usageLine.push(isRequired ? `<${name}>` : `[${name}]`);
+      usageLine.push(arg.required ? `<${name}>` : `[${name}]`);
     } else {
-      const isRequired = arg.required === true && arg.default === undefined;
       const argStr =
         (arg.type === "boolean" && arg.default === true
           ? [
@@ -67,11 +65,13 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
       const description = isNegative
         ? arg.negativeDescription || arg.description
         : arg.description;
+
       argLines.push([
-        "`" + argStr + (isRequired ? " (required)" : "") + "`",
+        "`" + argStr + (arg.required ? " (required)" : "") + "`",
         description || "",
       ]);
-      if (isRequired) {
+
+      if (arg.required) {
         usageLine.push(argStr);
       }
     }
@@ -106,6 +106,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
   );
 
   const hasOptions = argLines.length > 0 || posLines.length > 0;
+
   usageLines.push(
     `${colors.underline(colors.bold("USAGE"))} \`${commandName}${
       hasOptions ? " [OPTIONS]" : ""

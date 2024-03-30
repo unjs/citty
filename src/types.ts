@@ -1,3 +1,9 @@
+type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never };
+
+type XOR<T, U> = (T | U) extends object
+  ? (Without<T, U> & U) | (Without<U, T> & T)
+  : T | U;
+
 // ----- Args -----
 
 export type ArgType =
@@ -8,68 +14,79 @@ export type ArgType =
   | "positional"
   | undefined;
 
-export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
-  type?: T;
-  description?: string;
-  valueHint?: string;
-  alias?: string | string[];
-  default?: VT;
-  required?: boolean;
-  options?: (string | number)[];
-};
+export type ArgAlias = string | string[]
 
-export type BooleanArgDef = Omit<_ArgDef<"boolean", boolean>, "options"> & {
-  negativeDescription?: string;
-};
-export type StringArgDef = Omit<_ArgDef<"string", string>, "options">;
-export type NumberArgDef = Omit<_ArgDef<"number", boolean>, "options">;
-export type EnumArgDef = _ArgDef<"enum", string>;
-export type PositionalArgDef = Omit<
-  _ArgDef<"positional", string>,
-  "alias" | "options"
->;
+export type ArgDefault = string | number | boolean | (string | number)[]
+
+export type DefaultOrRequiredArgDef<DefaultT extends ArgDefault> = XOR<{
+    default?: DefaultT
+    required?: false | undefined
+}, {
+    default?: undefined
+    required?: true
+}>
+
+export type BaseArgDef<TypeT extends ArgType, DefaultT extends ArgDefault> = {
+    type: TypeT;
+    description?: string;
+    valueHint?: string;
+} & DefaultOrRequiredArgDef<DefaultT>
+
+export type BooleanArgDef = BaseArgDef<'boolean', boolean> & {
+    alias?: ArgAlias;
+    negativeDescription?: string;
+}
+
+export type StringArgDef = BaseArgDef<'string', string> & {
+    alias?: ArgAlias;
+}
+
+export type NumberArgDef = BaseArgDef<'number', number> & {
+    alias?: ArgAlias;
+}
+
+export type EnumArgDef = BaseArgDef<'enum', string | number> & {
+    options: (string | number)[];
+    alias?: ArgAlias;
+}
+
+export type PositionalArgDef = BaseArgDef<'positional', string>
 
 export type ArgDef =
   | BooleanArgDef
   | StringArgDef
   | NumberArgDef
-  | PositionalArgDef
-  | EnumArgDef;
+  | EnumArgDef
+  | PositionalArgDef;
 
 export type ArgsDef = Record<string, ArgDef>;
 
 export type Arg = ArgDef & { name: string; alias: string[] };
 
-export type ParsedArgs<T extends ArgsDef = ArgsDef> = { _: string[] } & Record<
-  { [K in keyof T]: T[K] extends { type: "positional" } ? K : never }[keyof T],
-  string
-> &
-  Record<
-    {
-      [K in keyof T]: T[K] extends { type: "string" } ? K : never;
-    }[keyof T],
-    string
-  > &
-  Record<
-    {
-      [K in keyof T]: T[K] extends { type: "number" } ? K : never;
-    }[keyof T],
-    number
-  > &
-  Record<
-    {
-      [K in keyof T]: T[K] extends { type: "boolean" } ? K : never;
-    }[keyof T],
-    boolean
-  > &
-  Record<
-    {
-      [K in keyof T]: T[K] extends { type: "enum" } ? K : never;
-    }[keyof T],
-    {
-      [K in keyof T]: T[K] extends { options: infer U } ? U : never;
-    }[keyof T]
-  > &
+export type ParsedArg<ArgT extends ArgDef, ExtendsArgT extends ArgDef> = ArgT extends ExtendsArgT
+    ? ArgT['required'] extends true
+        ? ArgT extends { options: (infer U)[] }
+            ? U
+            : Exclude<ExtendsArgT['default'], undefined>
+        : ArgT['default'] extends Exclude<ExtendsArgT['default'], undefined>
+            ? ArgT extends { options: (infer U)[] }
+                ? U
+                : Exclude<ExtendsArgT['default'], undefined>
+            : ArgT extends { options: (infer U)[] }
+                ? U | undefined
+                : ExtendsArgT['default']
+    : never
+
+export type ParsedArgs<T extends ArgsDef = ArgsDef> =
+  { _: string[] } &
+  {
+    [K in keyof T]:
+     | ParsedArg<T[K], BooleanArgDef>
+     | ParsedArg<T[K], StringArgDef>
+     | ParsedArg<T[K], NumberArgDef>
+     | ParsedArg<T[K], EnumArgDef>
+     | ParsedArg<T[K], PositionalArgDef>
+  } &
   Record<string, string | number | boolean | string[]>;
 
 // ----- Command -----
