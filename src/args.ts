@@ -1,6 +1,6 @@
 import { kebabCase, camelCase } from "scule";
 import { parseRawArgs } from "./_parser";
-import type { Arg, ArgAlias, ArgDefault, ArgsDef, ParsedArgs } from "./types";
+import type { Arg, ArgAlias, ArgDefault, ArgsDef, EnumArgDef, ParsedArgs } from "./types";
 import { CLIError, toArray } from "./_utils";
 
 export function parseArgs<T extends ArgsDef = ArgsDef>(
@@ -11,8 +11,7 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
     boolean: string[]
     string: string[]
     number: string[]
-    enum: (string | number)[]
-    mixed: string[]
+    enum: Exclude<EnumArgDef['options'], undefined>
     alias: Record<string, ArgAlias>
     default: Record<string, ArgDefault>
   } = {
@@ -20,7 +19,6 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
     string: [],
     number: [],
     enum: [],
-    mixed: [],
     alias: {},
     default: {}
   };
@@ -38,7 +36,7 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
     } else if (arg.type === "boolean") {
       parseOptions.boolean.push(arg.name);
     } else if (arg.type === "enum") {
-      parseOptions.enum.push(...(arg.options || []));
+      parseOptions.enum.push(...arg.options);
     }
 
     if (arg.default !== undefined) {
@@ -46,7 +44,7 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
     }
 
     if (arg.alias) {
-      parseOptions.alias[arg.name] = arg.alias;
+      parseOptions.alias[arg.name] = toArray(arg.alias);
     }
   }
 
@@ -111,8 +109,7 @@ export function resolveArgs(argsDef: ArgsDef): Arg[] {
   for (const [name, argDef] of Object.entries(argsDef || {})) {
     args.push({
       ...argDef,
-      name,
-      alias: 'alias' in argDef ? toArray(argDef.alias) : [],
+      name
     });
   }
 

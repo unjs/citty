@@ -55,7 +55,7 @@ export type ArgDef =
 
 export type ArgsDef = Record<string, ArgDef>;
 
-export type Arg = ArgDef & { name: string; alias: string[] };
+export type Arg = ArgDef & { name: string; };
 
 export type ParsedArg<ArgT extends ArgDef, ExtendsArgT extends ArgDef> = ArgT extends ExtendsArgT
     ? ArgT['required'] extends true
