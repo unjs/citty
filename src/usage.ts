@@ -1,6 +1,6 @@
 import consola from "consola";
 import { colors } from "consola/utils";
-import { formatLineColumns, resolveValue } from "./_utils";
+import { resolveValue } from "./_utils";
 import type { ArgsDef, CommandDef } from "./types";
 import { resolveArgs } from "./args";
 
@@ -135,4 +135,23 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
   }
 
   return usageLines.filter((l) => typeof l === "string").join("\n");
+}
+
+export function formatLineColumns(lines: string[][], linePrefix = "") {
+  const maxLengh: number[] = [];
+  for (const line of lines) {
+    for (const [i, element] of line.entries()) {
+      maxLengh[i] = Math.max(maxLengh[i] || 0, element.length);
+    }
+  }
+  return lines
+    .map((l) =>
+      l
+        .map(
+          (c, i) =>
+            linePrefix + c[i === 0 ? "padStart" : "padEnd"](maxLengh[i]),
+        )
+        .join("  "),
+    )
+    .join("\n");
 }

@@ -88,6 +88,21 @@ Runs a command with usage support and graceful error handling.
 
 Create a wrapper around command that calls `runMain` when called.
 
+### `runRawMain`
+
+Runs a command. Unlike `runMain`, this function requires you to define command execution handling like `handleCommand` and error handling yourself like `handleError` and specify them as arguments.
+
+> [!NOTE]
+> This function is a low-level function compared to `runMain`. You should also implement your own `showUsage` etc. and specify it as an option.
+
+### `handleCommand`
+
+A handler that implements the logic to execute commands with usage support. It is used inside in `runMain`. You can specify it as a helper to `run`.
+
+### `handleError`
+
+An error handler that implementes the logic to graceful error handling. It is used inside `runMain`. You can specify it as a helper to `run`.
+
 ### `runCommand`
 
 Parses input args and runs command and sub-commands (unsupervised). You can access `result` key from returnd/awaited value to access command's result.
@@ -103,6 +118,10 @@ Renders command usage to a string value.
 ### `showUsage`
 
 Renders usage and prints to the console
+
+### `formatLineColumns`
+
+Formats line columns. If you define custom `showUsage`, it is convenient to adjust the format with this function.
 
 ## Development
 
