@@ -1,20 +1,26 @@
 import { kebabCase, camelCase } from "scule";
 import { parseRawArgs } from "./_parser";
-import type { Arg, ArgsDef, ParsedArgs } from "./types";
+import type { Arg, ArgAlias, ArgDefault, ArgsDef, EnumArgDef, ParsedArgs } from "./types";
 import { CLIError, toArray } from "./_utils";
 
 export function parseArgs<T extends ArgsDef = ArgsDef>(
   rawArgs: string[],
   argsDef: ArgsDef,
 ): ParsedArgs<T> {
-  const parseOptions = {
-    boolean: [] as string[],
-    string: [] as string[],
-    number: [] as string[],
-    enum: [] as (number | string)[],
-    mixed: [] as string[],
-    alias: {} as Record<string, string | string[]>,
-    default: {} as Record<string, boolean | number | string>,
+  const parseOptions: {
+    boolean: string[]
+    string: string[]
+    number: string[]
+    enum: Exclude<EnumArgDef['options'], undefined>
+    alias: Record<string, ArgAlias>
+    default: Record<string, ArgDefault>
+  } = {
+    boolean: [],
+    string: [],
+    number: [],
+    enum: [],
+    alias: {},
+    default: {}
   };
 
   const args = resolveArgs(argsDef);
@@ -23,20 +29,22 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
     if (arg.type === "positional") {
       continue;
     }
+
     // eslint-disable-next-line unicorn/prefer-switch
     if (arg.type === "string" || arg.type === "number") {
       parseOptions.string.push(arg.name);
     } else if (arg.type === "boolean") {
       parseOptions.boolean.push(arg.name);
     } else if (arg.type === "enum") {
-      parseOptions.enum.push(...(arg.options || []));
+      parseOptions.enum.push(...arg.options);
     }
 
     if (arg.default !== undefined) {
       parseOptions.default[arg.name] = arg.default;
     }
+
     if (arg.alias) {
-      parseOptions.alias[arg.name] = arg.alias;
+      parseOptions.alias[arg.name] = toArray(arg.alias);
     }
   }
 
@@ -55,7 +63,7 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
       const nextPositionalArgument = positionalArguments.shift();
       if (nextPositionalArgument !== undefined) {
         parsedArgsProxy[arg.name] = nextPositionalArgument;
-      } else if (arg.default === undefined && arg.required !== false) {
+      } else if (arg.required) {
         throw new CLIError(
           `Missing required positional argument: ${arg.name.toUpperCase()}`,
           "EARG",
@@ -97,12 +105,13 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
 
 export function resolveArgs(argsDef: ArgsDef): Arg[] {
   const args: Arg[] = [];
+
   for (const [name, argDef] of Object.entries(argsDef || {})) {
     args.push({
       ...argDef,
-      name,
-      alias: toArray((argDef as any).alias),
+      name
     });
   }
+
   return args;
 }
