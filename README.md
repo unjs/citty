@@ -14,7 +14,7 @@ Elegant CLI Builder
 - Smart value parsing with typecast, boolean shortcuts and unknown flag handling
 - Nested sub-commands
 - Lazy and Async commands
-- Plugable and composable API
+- Pluggable and composable API
 - Auto generated usage and help
 
 🚧 This project is under heavy development. More features are coming soon!

@@ -8,10 +8,10 @@ export function toArray(val: any) {
 }
 
 export function formatLineColumns(lines: string[][], linePrefix = "") {
-  const maxLengh: number[] = [];
+  const maxLength: number[] = [];
   for (const line of lines) {
     for (const [i, element] of line.entries()) {
-      maxLengh[i] = Math.max(maxLengh[i] || 0, element.length);
+      maxLength[i] = Math.max(maxLength[i] || 0, element.length);
     }
   }
   return lines
@@ -19,7 +19,7 @@ export function formatLineColumns(lines: string[][], linePrefix = "") {
       l
         .map(
           (c, i) =>
-            linePrefix + c[i === 0 ? "padStart" : "padEnd"](maxLengh[i]),
+            linePrefix + c[i === 0 ? "padStart" : "padEnd"](maxLength[i]),
         )
         .join("  "),
     )
