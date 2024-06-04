@@ -40,36 +40,54 @@ export type ArgsDef = Record<string, ArgDef>;
 
 export type Arg = ArgDef & { name: string; alias: string[] };
 
-export type ParsedArgs<T extends ArgsDef = ArgsDef> = { _: string[] } & Record<
-  { [K in keyof T]: T[K] extends { type: "positional" } ? K : never }[keyof T],
-  string
+export type RequiredArgs<T extends Record<string, any>, P> = {
+  [K in keyof T]: K extends P ? NonNullable<T[K]> : T[K];
+};
+
+export type ParsedArgs<T extends ArgsDef = ArgsDef> = {
+  _: string[];
+} & RequiredArgs<
+  Record<
+    {
+      [K in keyof T]: T[K] extends { type: "positional" } ? K : never;
+    }[keyof T],
+    string | undefined
+  > &
+    Record<
+      {
+        [K in keyof T]: T[K] extends { type: "string" } ? K : never;
+      }[keyof T],
+      string | undefined
+    > &
+    Record<
+      {
+        [K in keyof T]: T[K] extends { type: "number" } ? K : never;
+      }[keyof T],
+      number | undefined
+    > &
+    Record<
+      {
+        [K in keyof T]: T[K] extends { type: "boolean" } ? K : never;
+      }[keyof T],
+      boolean | undefined
+    > &
+    Record<
+      {
+        [K in keyof T]: T[K] extends { type: "enum" } ? K : never;
+      }[keyof T],
+      | {
+          [K in keyof T]: T[K] extends { options: infer U } ? U : never;
+        }[keyof T]
+      | undefined
+    >,
+  {
+    [K in keyof T]: T[K] extends
+      | { required: true }
+      | { default: string | number | boolean }
+      ? K
+      : never;
+  }[keyof T]
 > &
-  Record<
-    {
-      [K in keyof T]: T[K] extends { type: "string" } ? K : never;
-    }[keyof T],
-    string
-  > &
-  Record<
-    {
-      [K in keyof T]: T[K] extends { type: "number" } ? K : never;
-    }[keyof T],
-    number
-  > &
-  Record<
-    {
-      [K in keyof T]: T[K] extends { type: "boolean" } ? K : never;
-    }[keyof T],
-    boolean
-  > &
-  Record<
-    {
-      [K in keyof T]: T[K] extends { type: "enum" } ? K : never;
-    }[keyof T],
-    {
-      [K in keyof T]: T[K] extends { options: infer U } ? U : never;
-    }[keyof T]
-  > &
   Record<string, string | number | boolean | string[]>;
 
 // ----- Command -----
