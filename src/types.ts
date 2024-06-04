@@ -76,7 +76,7 @@ export type ParsedArgs<T extends ArgsDef = ArgsDef> = {
         [K in keyof T]: T[K] extends { type: "enum" } ? K : never;
       }[keyof T],
       | {
-          [K in keyof T]: T[K] extends { options: infer U } ? U : never;
+          [K in keyof T]: T[K] extends { options: Array<infer U> } ? U : never;
         }[keyof T]
       | undefined
     >,
