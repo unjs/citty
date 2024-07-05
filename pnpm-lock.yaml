@@ -13,7 +13,7 @@ importers:
         version: 3.2.3
     devDependencies:
       '@types/node':
-        specifier: ^20.14.2
+        specifier: ^20.12.7
         version: 20.14.2
       '@vitest/coverage-v8':
         specifier: ^1.5.2

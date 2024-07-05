@@ -33,7 +33,7 @@
     "consola": "^3.2.3"
   },
   "devDependencies": {
-    "@types/node": "^20.14.2",
+    "@types/node": "^20.12.7",
     "@vitest/coverage-v8": "^1.5.2",
     "automd": "^0.3.7",
     "changelogen": "^0.5.5",
