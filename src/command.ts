@@ -17,8 +17,12 @@ export interface RunCommandOptions {
 export async function runCommand<T extends ArgsDef = ArgsDef>(
   cmd: CommandDef<T>,
   opts: RunCommandOptions,
+  sharedArgs?: T,
 ): Promise<{ result: unknown }> {
-  const cmdArgs = await resolveValue(cmd.args || {});
+  const cmdArgs = await resolveValue({
+    ...(cmd.args || ({} as T)),
+    ...sharedArgs,
+  });
   const parsedArgs = parseArgs<T>(opts.rawArgs, cmdArgs);
 
   const context: CommandContext<T> = {
@@ -51,9 +55,13 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
         }
         const subCommand = await resolveValue(subCommands[subCommandName]);
         if (subCommand) {
-          await runCommand(subCommand, {
-            rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
-          });
+          await runCommand(
+            subCommand,
+            {
+              rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
+            },
+            cmd.sharedArgs,
+          );
         }
       } else if (!cmd.run) {
         throw new CLIError(`No command specified.`, "E_NO_COMMAND");
