@@ -60,7 +60,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
             {
               rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
             },
-            cmd.sharedArgs,
+            { ...(await resolveValue(cmd.sharedArgs)), ...sharedArgs },
           );
         }
       } else if (!cmd.run) {
