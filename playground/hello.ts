@@ -1,5 +1,6 @@
 import consola from "consola";
 import { defineCommand, createMain } from "../src";
+import logPlugin from "./plugins/log";
 
 const command = defineCommand({
   meta: {
@@ -30,6 +31,7 @@ const command = defineCommand({
       required: false,
     },
   },
+  plugins: [logPlugin],
   run({ args }) {
     consola.log(args);
     const msg = [
