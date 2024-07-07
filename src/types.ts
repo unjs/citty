@@ -109,8 +109,8 @@ export type CommandContext<T extends ArgsDef = ArgsDef> = {
 
 export type CittyPlugin = {
   name: string;
-  setup(): Promise<void> | void;
-  cleanup(): Promise<void> | void;
+  setup?(): Promise<void> | void;
+  cleanup?(): Promise<void> | void;
 };
 
 // ----- Utils -----

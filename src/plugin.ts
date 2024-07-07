@@ -20,11 +20,11 @@ import { CittyPlugin, Resolvable } from "./types";
  * });
  * ```
  */
-export const defineCittyPlugin = (
+export function defineCittyPlugin(
   plugin: Resolvable<CittyPlugin>,
-): Resolvable<CittyPlugin> => {
+): Resolvable<CittyPlugin> {
   return plugin;
-};
+}
 
 /**
  * Resolve a Citty plugin since it can be a function that returns a plugin object.
