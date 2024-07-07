@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { CommandDef, defineCommand, runCommand } from "../src";
+import { defineCommand, runCommand } from "../src";
 import {
   defineCittyPlugin,
   resolvePlugin,
