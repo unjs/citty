@@ -11,11 +11,13 @@ describe("usage", () => {
       },
       args: {
         foo: {
+          type: "string",
           required: true,
           description: "A foo",
         },
         bar: {
           alias: ["b"],
+          type: "string",
           description: "A bar",
         },
         pos: {
@@ -54,6 +56,95 @@ describe("usage", () => {
                \`-b, --bar\`    A bar    
             \`--enum=<a|b>\`    An enum  
                \`--boolean\`    A boolean
+      "
+    `);
+  });
+
+  it("renders the negative description when a boolean default is true", async () => {
+    const command = defineCommand({
+      meta: {
+        name: "Commander",
+        description: "A command",
+      },
+      args: {
+        boolean: {
+          type: "boolean",
+          name: "boolean",
+          default: true,
+          description: "A boolean",
+          negativeDescription: "A negative boolean",
+        },
+      },
+    });
+
+    const usage = await renderUsage(command);
+
+    expect(usage).toMatchInlineSnapshot(`
+      "[90mA command (Commander)[39m
+
+      [4m[1mUSAGE[22m[24m \`Commander [OPTIONS] \`
+
+      [4m[1mOPTIONS[22m[24m
+
+        \`--no-boolean\`    A negative boolean
+      "
+    `);
+  });
+
+  it('renders arguments hints when "valueHint" is provided', async () => {
+    const command = defineCommand({
+      meta: {
+        name: "Commander",
+        description: "A command",
+      },
+      args: {
+        foo: {
+          type: "string",
+          description: "A foo",
+          valueHint: "FOO",
+        },
+      },
+    });
+
+    const usage = await renderUsage(command);
+
+    expect(usage).toMatchInlineSnapshot(`
+      "[90mA command (Commander)[39m
+
+      [4m[1mUSAGE[22m[24m \`Commander [OPTIONS] \`
+
+      [4m[1mOPTIONS[22m[24m
+
+        \`--foo=<FOO>\`    A foo
+      "
+    `);
+  });
+
+  it("renders the default value when provided", async () => {
+    const command = defineCommand({
+      meta: {
+        name: "Commander",
+        description: "A command",
+      },
+      args: {
+        foo: {
+          type: "string",
+          description: "A foo",
+          default: "bar",
+        },
+      },
+    });
+
+    const usage = await renderUsage(command);
+
+    expect(usage).toMatchInlineSnapshot(`
+      "[90mA command (Commander)[39m
+
+      [4m[1mUSAGE[22m[24m \`Commander [OPTIONS] \`
+
+      [4m[1mOPTIONS[22m[24m
+
+        \`--foo="bar"\`    A foo
       "
     `);
   });
@@ -165,6 +256,51 @@ describe("usage", () => {
         \`start\`    A start
 
       Use \`Commander <command> --help\` for more information about a command."
+    `);
+  });
+
+  it("uses parents meta to explain how to run sub commands", async () => {
+    const childCommand = defineCommand({
+      meta: {
+        name: "child-command",
+        description: "A child command",
+      },
+      args: {
+        foo: {
+          type: "string",
+          description: "A foo",
+        },
+      },
+      subCommands: {
+        "sub-command": defineCommand({}),
+      },
+    });
+
+    const parentCommand = defineCommand({
+      meta: {
+        name: "parent-command",
+      },
+      subCommands: {
+        sub: childCommand,
+      },
+    });
+
+    const usage = await renderUsage(childCommand, parentCommand);
+
+    expect(usage).toMatchInlineSnapshot(`
+      "[90mA child command (parent-command child-command)[39m
+
+      [4m[1mUSAGE[22m[24m \`parent-command child-command [OPTIONS] sub-command\`
+
+      [4m[1mOPTIONS[22m[24m
+
+        \`--foo\`    A foo
+
+      [4m[1mCOMMANDS[22m[24m
+
+        \`sub-command\`    
+
+      Use \`parent-command child-command <command> --help\` for more information about a command."
     `);
   });
 });
