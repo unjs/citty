@@ -10,6 +10,10 @@ describe("runMain", () => {
     .spyOn(consola, "log")
     .mockImplementation(() => undefined);
 
+  const consolaErrorMock = vi
+    .spyOn(consola, "error")
+    .mockImplementation(() => undefined);
+
   afterAll(() => {
     consoleMock.mockReset();
   });
@@ -58,6 +62,7 @@ describe("runMain", () => {
 
     const usage = await renderUsage(command);
     expect(consoleMock).toHaveBeenCalledWith(usage + "\n");
+    expect(consolaErrorMock).toHaveBeenCalledWith("No version specified");
   });
 
   it.each([["--help"], ["-h"]])("shows usage with flag `%s`", async (flag) => {
