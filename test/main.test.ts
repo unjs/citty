@@ -1,6 +1,13 @@
 import { describe, it, expect, vi, afterAll } from "vitest";
 import consola from "consola";
-import { defineCommand, renderUsage, runMain, showUsage } from "../src";
+import {
+  createMain,
+  defineCommand,
+  renderUsage,
+  runMain,
+  showUsage,
+} from "../src";
+import * as mainModule from "../src/main";
 import * as commandModule from "../src/command";
 
 describe("runMain", () => {
@@ -23,9 +30,6 @@ describe("runMain", () => {
       meta: {
         version: "1.0.0",
       },
-      run() {
-        console.log("Hello, World!");
-      },
     });
 
     await runMain(command, { rawArgs: ["--version"] });
@@ -37,9 +41,6 @@ describe("runMain", () => {
     const command = defineCommand({
       // eslint-disable-next-line unicorn/no-useless-promise-resolve-reject, require-await
       meta: async () => Promise.resolve({ version: "1.0.0" }),
-      run() {
-        console.log("Hello, World!");
-      },
     });
 
     await runMain(command, { rawArgs: ["--version"] });
@@ -52,9 +53,6 @@ describe("runMain", () => {
       meta: {
         name: "test",
         description: "Test command",
-      },
-      run() {
-        console.log("Hello, World!");
       },
     });
 
@@ -70,9 +68,6 @@ describe("runMain", () => {
       meta: {
         name: "test",
         description: "Test command",
-      },
-      run() {
-        console.log("Hello, World!");
       },
     });
 
@@ -90,9 +85,6 @@ describe("runMain", () => {
           name: "test",
           description: "Test command",
         },
-        run() {
-          console.log("Hello, World!");
-        },
       });
 
       // eslint-disable-next-line require-await, unicorn/consistent-function-scoping
@@ -109,9 +101,7 @@ describe("runMain", () => {
   it("runs the command", async () => {
     const mockRunCommand = vi.spyOn(commandModule, "runCommand");
 
-    const command = defineCommand({
-      run() {},
-    });
+    const command = defineCommand({});
 
     await runMain(command);
 
@@ -121,14 +111,20 @@ describe("runMain", () => {
   it("runs the command with raw arguments", async () => {
     const mockRunCommand = vi.spyOn(commandModule, "runCommand");
 
-    const command = defineCommand({
-      run() {},
-    });
+    const command = defineCommand({});
 
     const rawArgs = ["--foo", "bar"];
 
     await runMain(command, { rawArgs });
 
     expect(mockRunCommand).toHaveBeenCalledWith(command, { rawArgs });
+  });
+});
+
+describe("createMain", () => {
+  it("creates and returns a function", () => {
+    const main = createMain(defineCommand({}));
+
+    expect(main).toBeInstanceOf(Function);
   });
 });
