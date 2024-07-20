@@ -1,5 +1,5 @@
 import type { CommandContext, CommandDef, ArgsDef } from "./types";
-import { CLIError, resolveValue } from "./_utils";
+import { CLIError, getSubCommand, resolveValue } from "./_utils";
 import { parseArgs } from "./args";
 
 export function defineCommand<T extends ArgsDef = ArgsDef>(
@@ -43,13 +43,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
       );
       const subCommandName = opts.rawArgs[subCommandArgIndex];
       if (subCommandName) {
-        if (!subCommands[subCommandName]) {
-          throw new CLIError(
-            `Unknown command \`${subCommandName}\``,
-            "E_UNKNOWN_COMMAND",
-          );
-        }
-        const subCommand = await resolveValue(subCommands[subCommandName]);
+        const subCommand = await getSubCommand(subCommands, subCommandName);
         if (subCommand) {
           await runCommand(subCommand, {
             rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
