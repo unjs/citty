@@ -1,11 +1,21 @@
 import consola from "consola";
-import { defineCommand } from "../../src";
+import { defineCittyPlugin, defineCommand } from "../../src";
+
+const buildPlugin = defineCittyPlugin({
+  name: "build",
+  setup() {
+    consola.info("Setting up build plugin");
+  },
+  cleanup() {
+    consola.info("Cleaning up build plugin");
+  },
+});
 
 export default defineCommand({
   meta: {
     name: "debug",
     description: "Debug the project",
-    hidden: true
+    hidden: true,
   },
   args: {
     verbose: {
@@ -18,6 +28,7 @@ export default defineCommand({
       description: "Only debug a specific function",
     },
   },
+  plugins: [buildPlugin],
   run({ args }) {
     consola.log("Debug");
     consola.log("Parsed args:", args);
