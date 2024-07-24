@@ -22,7 +22,7 @@ export type BooleanArgDef = Omit<_ArgDef<"boolean", boolean>, "options"> & {
   negativeDescription?: string;
 };
 export type StringArgDef = Omit<_ArgDef<"string", string>, "options">;
-export type NumberArgDef = Omit<_ArgDef<"number", boolean>, "options">;
+export type NumberArgDef = Omit<_ArgDef<"number", number>, "options">;
 export type EnumArgDef = _ArgDef<"enum", string>;
 export type PositionalArgDef = Omit<
   _ArgDef<"positional", string>,
