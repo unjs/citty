@@ -27,7 +27,7 @@
     "prepack": "pnpm run build",
     "play": "jiti ./playground/cli.ts",
     "release": "pnpm test && changelogen --release --push && npm publish",
-    "test": "pnpm lint && vitest run --coverage"
+    "test": "pnpm lint && vitest run --coverage --coverage.exclude playground"
   },
   "dependencies": {
     "consola": "^3.2.3"
