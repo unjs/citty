@@ -1,3 +1,4 @@
+import { consola } from "consola";
 import type { CommandContext, CommandDef, ArgsDef } from "./types";
 import { CLIError, resolveValue } from "./_utils";
 import { parseArgs } from "./args";
@@ -50,7 +51,15 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
           );
         }
         const subCommand = await resolveValue(subCommands[subCommandName]);
-        if (subCommand) {
+        // Same behavior as for runMain (see src/main.ts)
+        if (opts.rawArgs.includes("--version")) {
+          const meta =
+            typeof cmd.meta === "function" ? await cmd.meta() : await cmd.meta;
+          if (!meta?.version) {
+            throw new CLIError("No version specified", "E_NO_VERSION");
+          }
+          consola.log(meta.version);
+        } else if (subCommand) {
           await runCommand(subCommand, {
             rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
           });
