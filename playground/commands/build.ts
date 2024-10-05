@@ -4,6 +4,7 @@ import { defineCommand } from "../../src";
 export default defineCommand({
   meta: {
     name: "build",
+    aliases: ["b"],
     description: "Build the project from current directory",
   },
   args: {
