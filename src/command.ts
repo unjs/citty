@@ -43,13 +43,27 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
       );
       const subCommandName = opts.rawArgs[subCommandArgIndex];
       if (subCommandName) {
-        if (!subCommands[subCommandName]) {
+        let subCommand = await resolveValue(subCommands[subCommandName]);
+
+        if (!subCommand) {
+          for (const _subCmd of Object.values(subCommands)) {
+            const subCmd = await resolveValue(_subCmd);
+            const subCmdMeta = await resolveValue(subCmd.meta);
+            for (const alias of subCmdMeta?.aliases || []) {
+              if (alias === subCommandName) {
+                subCommand = subCmd;
+                break;
+              }
+            }
+          }
+        }
+
+        if (!subCommand) {
           throw new CLIError(
             `Unknown command \`${subCommandName}\``,
             "E_UNKNOWN_COMMAND",
           );
         }
-        const subCommand = await resolveValue(subCommands[subCommandName]);
         if (subCommand) {
           await runCommand(subCommand, {
             rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
@@ -81,7 +95,21 @@ export async function resolveSubCommand<T extends ArgsDef = ArgsDef>(
   if (subCommands && Object.keys(subCommands).length > 0) {
     const subCommandArgIndex = rawArgs.findIndex((arg) => !arg.startsWith("-"));
     const subCommandName = rawArgs[subCommandArgIndex];
-    const subCommand = await resolveValue(subCommands[subCommandName]);
+    let subCommand = await resolveValue(subCommands[subCommandName]);
+
+    if (!subCommand) {
+      for (const _subCmd of Object.values(subCommands)) {
+        const subCmd = await resolveValue(_subCmd);
+        const subCmdMeta = await resolveValue(subCmd.meta);
+        for (const alias of subCmdMeta?.aliases || []) {
+          if (alias === subCommandName) {
+            subCommand = subCmd;
+            break;
+          }
+        }
+      }
+    }
+
     if (subCommand) {
       return resolveSubCommand(
         subCommand,
