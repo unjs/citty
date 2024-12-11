@@ -84,14 +84,21 @@ type RawArgs = {
   _: string[];
 };
 
-export type ParsedArgs<T extends ArgsDef = ArgsDef> = RawArgs & {
-  [K in keyof T]:
-    | ParsedPositionalArg<T[K]>
-    | ParsedStringArg<T[K]>
-    | ParsedNumberArg<T[K]>
-    | ParsedBooleanArg<T[K]>
-    | ParsedEnumArg<T[K]>;
-} & Record<string, string | number | boolean | string[]>;
+// prettier-ignore
+type ParsedArg<T extends ArgDef> =
+  T["type"] extends "positional" ? ParsedPositionalArg<T> :
+  T["type"] extends "boolean" ? ParsedBooleanArg<T> :
+  T["type"] extends "string" ? ParsedStringArg<T> :
+  T["type"] extends "number" ? ParsedNumberArg<T> :
+  T["type"] extends "enum" ? ParsedEnumArg<T> :
+  never;
+
+// prettier-ignore
+export type ParsedArgs<T extends ArgsDef = ArgsDef> = RawArgs &
+  { [K in keyof T]: ParsedArg<T[K]>; } & 
+  { [K in keyof T as T[K] extends { alias: string } ? T[K]["alias"] : never]: ParsedArg<T[K]> } &
+  { [K in keyof T as T[K] extends { alias: string[] } ? T[K]["alias"][number] : never]: ParsedArg<T[K]> } &
+  Record<string, string | number | boolean | string[]>;
 
 // ----- Command -----
 
