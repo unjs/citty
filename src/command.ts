@@ -2,32 +2,9 @@ import type { CommandContext, CommandDef, ArgsDef } from "./types";
 import { CLIError, resolveValue } from "./_utils";
 import { parseArgs } from "./args";
 
-type DefineCommandOptions<Strict extends boolean = false> = {
-  /**
-   * Opt into accurate type inference
-   * - optional arguments (not required, default unset) can be `undefined`
-   * - enum arguments resolve to union of configured options
-   */
-  strict?: Strict;
-};
-
 export function defineCommand<const T extends ArgsDef = ArgsDef>(
-  def: CommandDef<T, true>,
-  options: DefineCommandOptions<true>,
-): CommandDef<T, true>;
-
-export function defineCommand<T extends ArgsDef = ArgsDef>(
-  def: CommandDef<T, false>,
-  options?: DefineCommandOptions<false>,
-): CommandDef<T, false>;
-
-export function defineCommand<
-  T extends ArgsDef = ArgsDef,
-  Strict extends boolean = false,
->(
-  def: CommandDef<T, Strict>,
-  options?: DefineCommandOptions<Strict>,
-): CommandDef<T, Strict> {
+  def: CommandDef<T>,
+): CommandDef<T> {
   return def;
 }
 

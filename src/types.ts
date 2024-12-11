@@ -44,11 +44,7 @@ export type Arg = ArgDef & { name: string; alias: string[] };
 
 // Args: Parsed
 
-type ResolveParsedArgType<
-  T extends ArgDef,
-  VT,
-  Strict extends boolean = false,
-> = T extends {
+type ResolveParsedArgType<T extends ArgDef, VT> = T extends {
   default?: any;
   required?: boolean;
 }
@@ -56,50 +52,31 @@ type ResolveParsedArgType<
     ? VT
     : T["required"] extends true
       ? VT
-      : Strict extends false
-        ? VT
-        : VT | undefined
-  : Strict extends false
-    ? VT
-    : VT | undefined;
+      : VT | undefined
+  : VT | undefined;
 
-type ParsedPositionalArg<
-  T extends ArgDef,
-  Strict extends boolean = false,
-> = T extends { type: "positional" }
-  ? ResolveParsedArgType<T, string, Strict>
+type ParsedPositionalArg<T extends ArgDef> = T extends { type: "positional" }
+  ? ResolveParsedArgType<T, string>
   : never;
 
-type ParsedStringArg<
-  T extends ArgDef,
-  Strict extends boolean = false,
-> = T extends { type: "string" }
-  ? ResolveParsedArgType<T, string, Strict>
+type ParsedStringArg<T extends ArgDef> = T extends { type: "string" }
+  ? ResolveParsedArgType<T, string>
   : never;
 
-type ParsedNumberArg<
-  T extends ArgDef,
-  Strict extends boolean = false,
-> = T extends { type: "number" }
-  ? ResolveParsedArgType<T, number, Strict>
+type ParsedNumberArg<T extends ArgDef> = T extends { type: "number" }
+  ? ResolveParsedArgType<T, number>
   : never;
 
-type ParsedBooleanArg<
-  T extends ArgDef,
-  Strict extends boolean = false,
-> = T extends { type: "boolean" }
-  ? ResolveParsedArgType<T, boolean, Strict>
+type ParsedBooleanArg<T extends ArgDef> = T extends { type: "boolean" }
+  ? ResolveParsedArgType<T, boolean>
   : never;
 
-type ParsedEnumArg<
-  T extends ArgDef,
-  Strict extends boolean = false,
-> = T extends {
+type ParsedEnumArg<T extends ArgDef> = T extends {
   type: "enum";
   options: infer U;
 }
   ? U extends Array<any>
-    ? ResolveParsedArgType<T, U[number], Strict>
+    ? ResolveParsedArgType<T, U[number]>
     : never
   : never;
 
@@ -107,16 +84,13 @@ type RawArgs = {
   _: string[];
 };
 
-export type ParsedArgs<
-  T extends ArgsDef = ArgsDef,
-  Strict extends boolean = false,
-> = RawArgs & {
+export type ParsedArgs<T extends ArgsDef = ArgsDef> = RawArgs & {
   [K in keyof T]:
-    | ParsedPositionalArg<T[K], Strict>
-    | ParsedStringArg<T[K], Strict>
-    | ParsedNumberArg<T[K], Strict>
-    | ParsedBooleanArg<T[K], Strict>
-    | ParsedEnumArg<T[K], Strict>;
+    | ParsedPositionalArg<T[K]>
+    | ParsedStringArg<T[K]>
+    | ParsedNumberArg<T[K]>
+    | ParsedBooleanArg<T[K]>
+    | ParsedEnumArg<T[K]>;
 } & Record<string, string | number | boolean | string[]>;
 
 // ----- Command -----
@@ -134,26 +108,20 @@ export interface CommandMeta {
 
 export type SubCommandsDef = Record<string, Resolvable<CommandDef<any>>>;
 
-export type CommandDef<
-  T extends ArgsDef = ArgsDef,
-  Strict extends boolean = false,
-> = {
+export type CommandDef<T extends ArgsDef = ArgsDef> = {
   meta?: Resolvable<CommandMeta>;
   args?: Resolvable<T>;
   subCommands?: Resolvable<SubCommandsDef>;
-  setup?: (context: CommandContext<T, Strict>) => any | Promise<any>;
-  cleanup?: (context: CommandContext<T, Strict>) => any | Promise<any>;
-  run?: (context: CommandContext<T, Strict>) => any | Promise<any>;
+  setup?: (context: CommandContext<T>) => any | Promise<any>;
+  cleanup?: (context: CommandContext<T>) => any | Promise<any>;
+  run?: (context: CommandContext<T>) => any | Promise<any>;
 };
 
-export type CommandContext<
-  T extends ArgsDef = ArgsDef,
-  Strict extends boolean = false,
-> = {
+export type CommandContext<T extends ArgsDef = ArgsDef> = {
   rawArgs: string[];
-  args: ParsedArgs<T, Strict>;
-  cmd: CommandDef<T, Strict>;
-  subCommand?: CommandDef<T, Strict>;
+  args: ParsedArgs<T>;
+  cmd: CommandDef<T>;
+  subCommand?: CommandDef<T>;
   data?: any;
 };
 
