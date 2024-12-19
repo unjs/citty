@@ -16,7 +16,7 @@ export async function showUsage<T extends ArgsDef = ArgsDef>(
 }
 
 // `no` prefix matcher (kebab-case or camelCase)
-const negativePrefixRe = /^no[\-[A-Z]/;
+const negativePrefixRe = /^no[-A-Z]/;
 
 export async function renderUsage<T extends ArgsDef = ArgsDef>(
   cmd: CommandDef<T>,
