@@ -54,7 +54,6 @@ describe("resolveValue()", () => {
   });
 
   it("should resolve a function value correctly", () => {
-    // eslint-disable-next-line unicorn/consistent-function-scoping
     const value: Resolvable<number> = () => 42;
     const result = resolveValue(value);
     expect(result).toBe(42);
