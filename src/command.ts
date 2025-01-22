@@ -1,4 +1,9 @@
-import type { CommandContext, CommandDef, ArgsDef } from "./types";
+import type {
+  CommandContext,
+  CommandDef,
+  ArgsDef,
+  SubCommandsDef,
+} from "./types";
 import { CLIError, resolveValue } from "./_utils";
 import { parseArgs } from "./args";
 
@@ -12,6 +17,27 @@ export interface RunCommandOptions {
   rawArgs: string[];
   data?: any;
   showUsage?: boolean;
+}
+
+async function getSubCommand(
+  subCommandsList: SubCommandsDef,
+  subCommandName: string,
+): Promise<CommandDef<any> | undefined> {
+  const subCommand = await resolveValue(subCommandsList[subCommandName]);
+
+  if (subCommand) {
+    return subCommand;
+  }
+
+  for (const _subCmd of Object.values(subCommandsList)) {
+    const subCmd = await resolveValue(_subCmd);
+    const subCmdMeta = await resolveValue(subCmd.meta);
+    if ((subCmdMeta?.aliases || []).includes(subCommandName)) {
+      return subCmd;
+    }
+  }
+
+  return undefined;
 }
 
 export async function runCommand<T extends ArgsDef = ArgsDef>(
@@ -43,13 +69,14 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
       );
       const subCommandName = opts.rawArgs[subCommandArgIndex];
       if (subCommandName) {
-        if (!subCommands[subCommandName]) {
+        const subCommand = await getSubCommand(subCommands, subCommandName);
+
+        if (!subCommand) {
           throw new CLIError(
             `Unknown command \`${subCommandName}\``,
             "E_UNKNOWN_COMMAND",
           );
         }
-        const subCommand = await resolveValue(subCommands[subCommandName]);
         if (subCommand) {
           await runCommand(subCommand, {
             rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
@@ -81,7 +108,8 @@ export async function resolveSubCommand<T extends ArgsDef = ArgsDef>(
   if (subCommands && Object.keys(subCommands).length > 0) {
     const subCommandArgIndex = rawArgs.findIndex((arg) => !arg.startsWith("-"));
     const subCommandName = rawArgs[subCommandArgIndex];
-    const subCommand = await resolveValue(subCommands[subCommandName]);
+    const subCommand = await getSubCommand(subCommands, subCommandName);
+
     if (subCommand) {
       return resolveSubCommand(
         subCommand,
