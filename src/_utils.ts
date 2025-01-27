@@ -1,4 +1,4 @@
-import type { Resolvable } from "./types";
+import type { CommandDef, Resolvable, SubCommandsDef } from "./types";
 
 export function toArray(val: any) {
   if (Array.isArray(val)) {
@@ -28,6 +28,25 @@ export function formatLineColumns(lines: string[][], linePrefix = "") {
 
 export function resolveValue<T>(input: Resolvable<T>): T | Promise<T> {
   return typeof input === "function" ? (input as any)() : input;
+}
+
+export async function getSubCommand(
+  subCommands: SubCommandsDef,
+  command: string,
+): Promise<CommandDef<any>> {
+  if (Object.keys(subCommands).includes(command)) {
+    return resolveValue(subCommands[command]);
+  }
+
+  for (const subCommand of Object.values(subCommands)) {
+    const resolvedSubCommand = await resolveValue(subCommand);
+    for (const alias of toArray(resolvedSubCommand.alias)) {
+      if (alias === command) {
+        return resolvedSubCommand;
+      }
+    }
+  }
+  throw new CLIError(`Unknown command \`${command}\``, "E_UNKNOWN_COMMAND");
 }
 
 export class CLIError extends Error {
