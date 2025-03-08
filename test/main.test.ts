@@ -39,7 +39,7 @@ describe("runMain", () => {
 
   it("shows version with flag `--version` with meta specified as async function", async () => {
     const command = defineCommand({
-      // eslint-disable-next-line unicorn/no-useless-promise-resolve-reject, require-await
+      // eslint-disable-next-line unicorn/no-useless-promise-resolve-reject
       meta: async () => Promise.resolve({ version: "1.0.0" }),
     });
 
@@ -87,7 +87,6 @@ describe("runMain", () => {
         },
       });
 
-      // eslint-disable-next-line require-await, unicorn/consistent-function-scoping
       const customUsage: typeof showUsage = async () => {
         consola.log("Custom usage");
       };
