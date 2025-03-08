@@ -64,11 +64,13 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
     if (typeof cmd.run === "function") {
       result = await cmd.run(context);
     }
-  } catch (error_) {
+  } catch (originalError) {
     const error =
-      error_ instanceof Error
-        ? error_
-        : new Error(error_?.toString() ?? "Unknown Error", { cause: error_ });
+      originalError instanceof Error
+        ? originalError
+        : new Error((originalError as any) ?? "Unknown Error", {
+            cause: originalError,
+          });
     if (typeof cmd.onError === "function") {
       await cmd.onError(error, context);
     } else {
