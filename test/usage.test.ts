@@ -42,15 +42,15 @@ describe("usage", () => {
     const usage = await renderUsage(command);
 
     expect(usage).toMatchInlineSnapshot(`
-      "[90mA command (Commander)[39m
+      "A command (Commander)
 
-      [4m[1mUSAGE[22m[24m \`Commander [OPTIONS] --foo <POS>\`
+      USAGE \`Commander [OPTIONS] --foo <POS>\`
 
-      [4m[1mARGUMENTS[22m[24m
+      ARGUMENTS
 
         \`POS\`    A pos    
 
-      [4m[1mOPTIONS[22m[24m
+      OPTIONS
 
         \`--foo (required)\`    A foo    
                \`-b, --bar\`    A bar    
@@ -80,12 +80,13 @@ describe("usage", () => {
     const usage = await renderUsage(command);
 
     expect(usage).toMatchInlineSnapshot(`
-      "[90mA command (Commander)[39m
+      "A command (Commander)
 
-      [4m[1mUSAGE[22m[24m \`Commander [OPTIONS] \`
+      USAGE \`Commander [OPTIONS] \`
 
-      [4m[1mOPTIONS[22m[24m
+      OPTIONS
 
+           \`--boolean\`    A boolean         
         \`--no-boolean\`    A negative boolean
       "
     `);
@@ -109,11 +110,11 @@ describe("usage", () => {
     const usage = await renderUsage(command);
 
     expect(usage).toMatchInlineSnapshot(`
-      "[90mA command (Commander)[39m
+      "A command (Commander)
 
-      [4m[1mUSAGE[22m[24m \`Commander [OPTIONS] \`
+      USAGE \`Commander [OPTIONS] \`
 
-      [4m[1mOPTIONS[22m[24m
+      OPTIONS
 
         \`--foo=<FOO>\`    A foo
       "
@@ -138,11 +139,11 @@ describe("usage", () => {
     const usage = await renderUsage(command);
 
     expect(usage).toMatchInlineSnapshot(`
-      "[90mA command (Commander)[39m
+      "A command (Commander)
 
-      [4m[1mUSAGE[22m[24m \`Commander [OPTIONS] \`
+      USAGE \`Commander [OPTIONS] \`
 
-      [4m[1mOPTIONS[22m[24m
+      OPTIONS
 
         \`--foo="bar"\`    A foo
       "
@@ -168,11 +169,11 @@ describe("usage", () => {
     const usage = await renderUsage(command);
 
     expect(usage).toMatchInlineSnapshot(`
-      "[90mA command (Commander)[39m
+      "A command (Commander)
 
-      [4m[1mUSAGE[22m[24m \`Commander sub\`
+      USAGE \`Commander sub\`
 
-      [4m[1mCOMMANDS[22m[24m
+      COMMANDS
 
         \`sub\`    A subcommand
 
@@ -205,15 +206,15 @@ describe("usage", () => {
     const usage = await renderUsage(command);
 
     expect(usage).toMatchInlineSnapshot(`
-      "[90mA command (Commander)[39m
+      "A command (Commander)
 
-      [4m[1mUSAGE[22m[24m \`Commander [OPTIONS] --foo sub\`
+      USAGE \`Commander [OPTIONS] --foo sub\`
 
-      [4m[1mOPTIONS[22m[24m
+      OPTIONS
 
         \`--foo (required)\`    A foo
 
-      [4m[1mCOMMANDS[22m[24m
+      COMMANDS
 
         \`sub\`    A subcommand
 
@@ -247,11 +248,11 @@ describe("usage", () => {
     const usage = await renderUsage(command);
 
     expect(usage).toMatchInlineSnapshot(`
-      "[90mA command (Commander)[39m
+      "A command (Commander)
 
-      [4m[1mUSAGE[22m[24m \`Commander start\`
+      USAGE \`Commander start\`
 
-      [4m[1mCOMMANDS[22m[24m
+      COMMANDS
 
         \`start\`    A start
 
@@ -288,15 +289,15 @@ describe("usage", () => {
     const usage = await renderUsage(childCommand, parentCommand);
 
     expect(usage).toMatchInlineSnapshot(`
-      "[90mA child command (parent-command child-command)[39m
+      "A child command (parent-command child-command)
 
-      [4m[1mUSAGE[22m[24m \`parent-command child-command [OPTIONS] sub-command\`
+      USAGE \`parent-command child-command [OPTIONS] sub-command\`
 
-      [4m[1mOPTIONS[22m[24m
+      OPTIONS
 
         \`--foo\`    A foo
 
-      [4m[1mCOMMANDS[22m[24m
+      COMMANDS
 
         \`sub-command\`    
 
