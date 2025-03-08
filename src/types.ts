@@ -95,7 +95,7 @@ type ParsedArg<T extends ArgDef> =
 
 // prettier-ignore
 export type ParsedArgs<T extends ArgsDef = ArgsDef> = RawArgs &
-  { [K in keyof T]: ParsedArg<T[K]>; } & 
+  { [K in keyof T]: ParsedArg<T[K]>; } &
   { [K in keyof T as T[K] extends { alias: string } ? T[K]["alias"] : never]: ParsedArg<T[K]> } &
   { [K in keyof T as T[K] extends { alias: string[] } ? T[K]["alias"][number] : never]: ParsedArg<T[K]> } &
   Record<string, string | number | boolean | string[]>;
@@ -121,7 +121,7 @@ export type CommandDef<T extends ArgsDef = ArgsDef> = {
   subCommands?: Resolvable<SubCommandsDef>;
   setup?: (context: CommandContext<T>) => any | Promise<any>;
   cleanup?: (context: CommandContext<T>) => any | Promise<any>;
-  catch?: (context: CommandContext<T>, e: Error) => any | Promise<any>;
+  onError?: (error: Error, context: CommandContext<T>) => any | Promise<any>;
   run?: (context: CommandContext<T>) => any | Promise<any>;
 };
 

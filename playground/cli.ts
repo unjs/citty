@@ -15,10 +15,10 @@ export const main = defineCommand({
   subCommands: {
     build: () => import("./commands/build").then((r) => r.default),
     deploy: () => import("./commands/deploy").then((r) => r.default),
-    error: () => import("./commands/error").then((r) => r.default),
-    "error-no-catch": () =>
-      import("./commands/error-no-catch").then((r) => r.default),
     debug: () => import("./commands/debug").then((r) => r.default),
+    error: () => import("./commands/error").then((r) => r.error),
+    "error-handled": () =>
+      import("./commands/error").then((r) => r.errorHandled),
   },
 });
 

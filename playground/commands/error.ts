@@ -1,19 +1,39 @@
 import consola from "consola";
 import { defineCommand } from "../../src";
 
-export default defineCommand({
-  meta: {
-    name: "error",
-    description: "Throws an error to test .catch functionality",
+export const error = defineCommand({
+  args: {
+    throwType: {
+      type: "string",
+    },
   },
+  run({ args }) {
+    switch (args.throwType) {
+      case "string": {
+        console.log("Throw string");
+        // we intentionally are throwing something invalid for testing purposes
 
-  run() {
-    throw new Error("Hello World");
-  },
-  catch(_, e) {
-    consola.error(`Caught error: ${e}`);
-    if (!(e instanceof Error)) {
-      throw new TypeError("Recieved non-error value");
+        throw "Not an error!";
+      }
+      case "empty": {
+        console.log("Throw undefined");
+        // we intentionally are throwing something invalid for testing purposes
+
+        throw undefined;
+      }
+      default: {
+        console.log("Throw Error");
+        throw new Error("Error!");
+      }
     }
+  },
+});
+
+export const errorHandled = defineCommand({
+  run() {
+    throw new Error("intentional error");
+  },
+  onError(error) {
+    consola.error(`Caught error: ${error}`);
   },
 });
