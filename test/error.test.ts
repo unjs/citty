@@ -14,13 +14,13 @@ describe("citty", () => {
           runCommand(main, { rawArgs: ["error"] }),
         ).not.toThrowError();
       });
-      it("should still recieve an error when a string is thrown from the command", () =>
+      it("should still receive an error when a string is thrown from the command", () =>
         expect(
           runCommand(main, {
             rawArgs: ["error-no-catch", "--throwType", "string"],
           }),
         ).rejects.toThrowError());
-      it("should still recieve an error when undefined is thrown from the command", () =>
+      it("should still receive an error when undefined is thrown from the command", () =>
         expect(
           runCommand(main, {
             rawArgs: ["error-no-catch", "--throwType", "empty"],

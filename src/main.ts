@@ -31,16 +31,12 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
     }
   } catch (error: any) {
     const isCLIError = error instanceof CLIError;
-    if (!isCLIError) {
-      consola.error(error, "\n");
-    }
     if (isCLIError) {
       await showUsage(...(await resolveSubCommand(cmd, rawArgs)));
+    } else {
+      consola.error(error, "\n");
     }
-    consola.error(error.message);
-    if (process.env.NODE_ENV !== "test") {
-      process.exit(1);
-    }
+    process.exit(1);
   }
 }
 
