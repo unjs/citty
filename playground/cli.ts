@@ -1,4 +1,5 @@
 import { defineCommand, runMain } from "../src";
+import logPlugin from "./plugins/log";
 
 const main = defineCommand({
   meta: {
@@ -12,6 +13,7 @@ const main = defineCommand({
   cleanup() {
     console.log("Cleanup");
   },
+  plugins: [logPlugin],
   subCommands: {
     build: () => import("./commands/build").then((r) => r.default),
     deploy: () => import("./commands/deploy").then((r) => r.default),
