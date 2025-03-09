@@ -3,18 +3,18 @@ import { renderUsage } from "../src/usage";
 import { defineCommand } from "../src";
 
 vi.mock("consola/utils", async () => {
-const mod = await vi.importActual('consola/utils')
+  const mod = await vi.importActual("consola/utils");
 
-return {
-  ...mod,
-  colors: {
-    ...mod.colors,
-    underline(val) {
-      return val
-    }
-  }
-}
-})
+  return {
+    ...mod,
+    colors: {
+      ...mod.colors,
+      underline(val) {
+        return val;
+      },
+    },
+  };
+});
 
 describe("usage", () => {
   it("renders arguments", async () => {
