@@ -17,6 +17,7 @@ export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
   alias?: string | string[];
   default?: VT;
   required?: boolean;
+  validate?: (value: ParsedArgType<T>) => boolean | string;
   options?: (string | number)[];
 };
 
@@ -99,6 +100,14 @@ export type ParsedArgs<T extends ArgsDef = ArgsDef> = RawArgs &
   { [K in keyof T as T[K] extends { alias: string } ? T[K]["alias"] : never]: ParsedArg<T[K]> } &
   { [K in keyof T as T[K] extends { alias: string[] } ? T[K]["alias"][number] : never]: ParsedArg<T[K]> } &
   Record<string, string | number | boolean | string[]>;
+
+export type ParsedArgType<T extends ArgType = ArgType> = T extends "positional"
+  ? string
+  : T extends "string"
+    ? string
+    : T extends "boolean"
+      ? boolean
+      : string | boolean;
 
 // ----- Command -----
 
