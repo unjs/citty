@@ -9,12 +9,9 @@ vi.mock("consola/utils", async () => {
     ...mod,
     colors: {
       ...mod.colors,
-      underline(val) {
-        return val;
-      },
-      bold(val) {
-        return val;
-      },
+      underline: (val) => val,
+      bold: (val) => val,
+      gray: (val) => val,
     },
   };
 });
