@@ -64,6 +64,18 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
     if (typeof cmd.run === "function") {
       result = await cmd.run(context);
     }
+  } catch (originalError) {
+    const error =
+      originalError instanceof Error
+        ? originalError
+        : new Error((originalError as any) ?? "Unknown Error", {
+            cause: originalError,
+          });
+    if (typeof cmd.onError === "function") {
+      await cmd.onError(error, context);
+    } else {
+      throw error;
+    }
   } finally {
     if (typeof cmd.cleanup === "function") {
       await cmd.cleanup(context);
