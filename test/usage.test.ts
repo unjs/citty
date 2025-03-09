@@ -12,6 +12,9 @@ vi.mock("consola/utils", async () => {
       underline(val) {
         return val;
       },
+      bold(val) {
+        return val;
+      },
     },
   };
 });
