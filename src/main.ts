@@ -33,6 +33,7 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
     const isCLIError = error instanceof CLIError;
     if (isCLIError) {
       await showUsage(...(await resolveSubCommand(cmd, rawArgs)));
+      consola.error(error.message);
     } else {
       consola.error(error, "\n");
     }
