@@ -52,6 +52,19 @@ export default defineCommand({
       description: "Deployment provider",
       valueHint: "foo|bar|baz|qux",
     },
+    port: {
+      type: "string",
+      description: "Port number to listen on",
+      required: true,
+      validate: {
+        notToThrowCLIError: false,
+        verify: async (value) => {
+          return Number(value) >= 1 && Number(value) <= 65_536
+            ? true
+            : "Port number must be greater than 1 and less than 65536";
+        },
+      },
+    },
   },
   run({ args }) {
     consola.log("Build");

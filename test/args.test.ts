@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseArgs } from "../src/args";
+import { parseArgs, resolveArgsValidate } from "../src/args";
 import { ArgsDef, ParsedArgs } from "../src";
 
 describe("args", () => {
@@ -135,5 +135,92 @@ describe("args", () => {
 
     expect(parsed.userName).toBe("Jane");
     expect(parsed._).toEqual([]);
+  });
+});
+
+describe("resolveArgsValidate", () => {
+  it("should pass validation for valid arguments", async () => {
+    const definition: ArgsDef = {
+      name: {
+        type: "string",
+        validate: {
+          verify: async (value) => (value === "John" ? false : "Invalid name"),
+        },
+      },
+    };
+    const parsedArgs = { name: "John", _: [] } as any;
+
+    const result = await resolveArgsValidate(parsedArgs, definition);
+
+    expect(result).toBeUndefined();
+  });
+
+  it("should fail validation for invalid arguments", async () => {
+    const definition: ArgsDef = {
+      name: {
+        type: "string",
+        validate: {
+          verify: async (value) => (value === "John" ? "" : "Invalid name"),
+        },
+      },
+    };
+    const parsedArgs = { name: "Jane", _: [] } as any;
+
+    const result = await resolveArgsValidate(parsedArgs, definition);
+
+    expect(result).toBe("Argument validation failed: name - Invalid name");
+  });
+
+  it("should not throw CLIError if notToThrowCLIError is set", async () => {
+    const definition: ArgsDef = {
+      name: {
+        type: "string",
+        validate: {
+          verify: async (value) => (value === "John" ? "" : "Invalid name"),
+          notToThrowCLIError: true,
+        },
+      },
+    };
+    const parsedArgs = { name: "Jane", _: [] } as any;
+
+    const result = await resolveArgsValidate(parsedArgs, definition);
+
+    expect(result).toBeUndefined();
+  });
+
+  it("should handle optional arguments without validation errors", async () => {
+    const definition: ArgsDef = {
+      name: {
+        type: "string",
+      },
+    };
+    const parsedArgs = { _: [] } as any;
+
+    const result = await resolveArgsValidate(parsedArgs, definition);
+
+    expect(result).toBeUndefined();
+  });
+
+  it("multiple arguments, return the first one caught.", async () => {
+    const definition: ArgsDef = {
+      name: {
+        type: "string",
+        validate: {
+          verify: async (value) => (value === "John" ? "" : "Invalid name"),
+        },
+      },
+      age: {
+        type: "number",
+        validate: {
+          verify: async (value) =>
+            value >= 18 ? "" : "Age must be at least 18",
+        },
+      },
+    };
+    const parsedArgs = { name: "John", age: 17, _: [] } as any;
+
+    const result = await resolveArgsValidate(parsedArgs, definition);
+
+    expect(result).toBe("Argument validation failed: name");
   });
 });
