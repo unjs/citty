@@ -7,7 +7,6 @@ import {
   runMain,
   showUsage,
 } from "../src";
-import * as mainModule from "../src/main";
 import * as commandModule from "../src/command";
 
 describe("runMain", () => {
@@ -117,6 +116,70 @@ describe("runMain", () => {
     await runMain(command, { rawArgs });
 
     expect(mockRunCommand).toHaveBeenCalledWith(command, { rawArgs });
+  });
+});
+
+describe("sub command", () => {
+  it("runs the sub command", async () => {
+    const setupMock = vi.fn();
+    const runMock = vi.fn();
+    const cleanupMock = vi.fn();
+
+    const command = defineCommand({
+      subCommands: {
+        foo: {
+          args: {
+            bar: {
+              type: "positional",
+            },
+          },
+          setup: async ({ args }) => {
+            setupMock(args.bar);
+          },
+          cleanup: async ({ args }) => {
+            cleanupMock(args.bar);
+          },
+          run: async ({ args }) => {
+            runMock(args.bar);
+          },
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["foo", "bar"] });
+
+    expect(setupMock).toHaveBeenCalledOnce();
+    expect(setupMock).toHaveBeenCalledWith("bar");
+    expect(runMock).toHaveBeenCalledOnce();
+    expect(runMock).toHaveBeenCalledWith("bar");
+    expect(cleanupMock).toHaveBeenCalledOnce();
+    expect(cleanupMock).toHaveBeenCalledWith("bar");
+  });
+});
+
+describe("resolveSubCommand", () => {
+  it("resolves the sub command", async () => {
+    const command = defineCommand({
+      subCommands: {
+        foo: {
+          args: {
+            bar: {
+              type: "positional",
+            },
+          },
+        },
+      },
+    });
+
+    const [subCommand] = await commandModule.resolveSubCommand(command, [
+      "foo",
+      "bar",
+    ]);
+
+    expect(subCommand).toBeDefined();
+    expect(subCommand.args).toEqual({
+      bar: { type: "positional" },
+    });
   });
 });
 
