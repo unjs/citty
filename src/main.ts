@@ -26,8 +26,10 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
         throw new CLIError("No version specified", "E_NO_VERSION");
       }
       consola.log(meta.version);
+      process.exit(0);
     } else {
       await runCommand(cmd, { rawArgs });
+      process.exit(0);
     }
   } catch (error: any) {
     const isCLIError = error instanceof CLIError;
