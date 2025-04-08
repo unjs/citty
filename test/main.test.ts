@@ -117,6 +117,88 @@ describe("runMain", () => {
 
     expect(mockRunCommand).toHaveBeenCalledWith(command, { rawArgs });
   });
+
+  it("not throw CLIError if verification success", async () => {
+    const command = defineCommand({
+      meta: {
+        version: "1.0.0",
+      },
+      args: {
+        foo: {
+          type: "string",
+          validate: {
+            verify: async (value) => {
+              if (value === "bar") {
+                return true;
+              }
+              return "Invalid value";
+            },
+          },
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["--foo", "bar"] });
+
+    expect(consolaErrorMock).not.toHaveBeenCalledWith(
+      "Argument validation failed: foo - Invalid value",
+    );
+  });
+
+  it("not throw CLIError if verification fail, but notToThrowCLIError is true", async () => {
+    const command = defineCommand({
+      meta: {
+        version: "1.0.0",
+      },
+      args: {
+        foo: {
+          type: "string",
+          validate: {
+            notToThrowCLIError: true,
+            verify: async (value) => {
+              if (value === "bar") {
+                return true;
+              }
+              return "Invalid value";
+            },
+          },
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["--foo", "baz"] });
+
+    expect(consolaErrorMock).not.toHaveBeenCalledWith(
+      "Argument validation failed: foo - Invalid value",
+    );
+  });
+
+  it("throw CLIError if verification fails", async () => {
+    const command = defineCommand({
+      meta: {
+        version: "1.0.0",
+      },
+      args: {
+        foo: {
+          type: "string",
+          validate: {
+            verify: async (value) => {
+              if (value === "bar") {
+                return true;
+              }
+              return "Invalid value";
+            },
+          },
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["--foo", "baz"] });
+
+    expect(consolaErrorMock).toHaveBeenCalledWith(
+      "Argument validation failed: foo - Invalid value",
+    );
+  });
 });
 
 describe("sub command", () => {

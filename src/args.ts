@@ -1,6 +1,6 @@
 import { kebabCase, camelCase } from "scule";
 import { parseRawArgs } from "./_parser";
-import type { Arg, ArgsDef, ParsedArgs } from "./types";
+import type { Arg, ArgsDef, ParsedArgs, ArgType } from "./types";
 import { CLIError, toArray } from "./_utils";
 
 export function parseArgs<T extends ArgsDef = ArgsDef>(
@@ -115,4 +115,23 @@ export function resolveArgs(argsDef: ArgsDef): Arg[] {
     });
   }
   return args;
+}
+
+export async function resolveArgsValidate<T extends ArgsDef = ArgsDef>(
+  parsedArgs: ParsedArgs<T>,
+  argsDef: ArgsDef,
+): Promise<string | undefined> {
+  for (const [name, argDef] of Object.entries(argsDef || {})) {
+    const value = parsedArgs[name] as never;
+    if (!argDef.validate?.verify) {
+      continue;
+    }
+    const result = await argDef.validate.verify(value);
+    // For optional arguments, validation may always fail depending on the implementation of the validation function.
+    // If notToThrowCLIError is set, then the verification result can be prevented from propagating to the caller
+    if (typeof result === "string" && !argDef.validate.notToThrowCLIError) {
+      const message = result ? ` - ${result}` : "";
+      return `Argument validation failed: ${name}${message}`;
+    }
+  }
 }
