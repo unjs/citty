@@ -1,6 +1,6 @@
 import type { CommandContext, CommandDef, ArgsDef } from "./types";
 import { CLIError, resolveValue } from "./_utils";
-import { parseArgs } from "./args";
+import { parseArgs, resolveArgs } from "./args";
 
 export function defineCommand<const T extends ArgsDef = ArgsDef>(
   def: CommandDef<T>,
@@ -91,4 +91,30 @@ export async function resolveSubCommand<T extends ArgsDef = ArgsDef>(
     }
   }
   return [cmd, parent];
+}
+
+export async function extendCmd<T extends ArgsDef = ArgsDef>(
+  cmd: CommandDef<T>,
+  rawArgs: string[],
+  extendedArgs: string[],
+  extendedCmd: (
+    cmd: CommandDef<T>,
+    parent?: CommandDef<T>,
+  ) => void | Promise<void>,
+) {
+  const extendedArg = rawArgs.find((arg) => extendedArgs.includes(arg));
+
+  if (extendedArg) {
+    const [subCmd, parent] = await resolveSubCommand(cmd, rawArgs);
+    const cmdArgs = resolveArgs(await resolveValue(subCmd.args || {}));
+
+    const supportedArgs = cmdArgs.flatMap((arg) => [
+      `--${arg.name}`,
+      ...arg.alias.map((a) => `-${a}`),
+    ]);
+
+    if (!supportedArgs.includes(extendedArg)) {
+      await extendedCmd(subCmd, parent);
+    }
+  }
 }

@@ -1,6 +1,6 @@
 import consola from "consola";
 import type { ArgsDef, CommandDef } from "./types";
-import { resolveSubCommand, runCommand } from "./command";
+import { extendCmd, resolveSubCommand, runCommand } from "./command";
 import { CLIError } from "./_utils";
 import { showUsage as _showUsage } from "./usage";
 
@@ -15,20 +15,24 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
 ) {
   const rawArgs = opts.rawArgs || process.argv.slice(2);
   const showUsage = opts.showUsage || _showUsage;
+
   try {
-    if (rawArgs.includes("--help") || rawArgs.includes("-h")) {
-      await showUsage(...(await resolveSubCommand(cmd, rawArgs)));
+    await extendCmd(cmd, rawArgs, ["--help", "-h"], async (cmd, parent) => {
+      await showUsage(cmd, parent);
       process.exit(0);
-    } else if (rawArgs.length === 1 && rawArgs[0] === "--version") {
+    });
+
+    await extendCmd(cmd, rawArgs, ["--version", "-v"], async (cmd) => {
       const meta =
         typeof cmd.meta === "function" ? await cmd.meta() : await cmd.meta;
       if (!meta?.version) {
         throw new CLIError("No version specified", "E_NO_VERSION");
       }
       consola.log(meta.version);
-    } else {
-      await runCommand(cmd, { rawArgs });
-    }
+      process.exit(0);
+    });
+
+    await runCommand(cmd, { rawArgs });
   } catch (error: any) {
     const isCLIError = error instanceof CLIError;
     if (isCLIError) {
