@@ -8,6 +8,7 @@ type Default = Dict<any>;
 export interface Options {
   boolean?: Arrayable<string>;
   string?: Arrayable<string>;
+  number?: Arrayable<string>;
   alias?: Dict<Arrayable<string>>;
   default?: Dict<any>;
   unknown?(flag: string): void;
@@ -26,18 +27,22 @@ function toVal(out, key, val, opts) {
   const old = out[key];
   const nxt = ~opts.string.indexOf(key)
     ? val == undefined || val === true
-      ? ""
+      ? undefined
       : String(val)
-    : typeof val === "boolean"
-      ? val
-      : ~opts.boolean.indexOf(key)
-        ? val === "false"
-          ? false
-          : val === "true" ||
-            (out._.push(((x = +val), x * 0 === 0) ? x : val), !!val)
-        : ((x = +val), x * 0 === 0)
-          ? x
-          : val;
+    : ~opts.number.indexOf(key)
+      ? val == undefined || val === true
+        ? undefined
+        : val
+      : typeof val === "boolean"
+        ? val
+        : ~opts.boolean.indexOf(key)
+          ? val === "false"
+            ? false
+            : val === "true" ||
+              (out._.push(((x = +val), x * 0 === 0) ? x : val), !!val)
+          : ((x = +val), x * 0 === 0)
+            ? x
+            : val;
   out[key] =
     old == undefined ? nxt : Array.isArray(old) ? old.concat(nxt) : [old, nxt];
 }
@@ -64,6 +69,7 @@ export function parseRawArgs<T = Default>(
   opts.alias = opts.alias || {};
   opts.string = toArr(opts.string);
   opts.boolean = toArr(opts.boolean);
+  opts.number = toArr(opts.number);
 
   if (alibi) {
     for (k in opts.alias) {
