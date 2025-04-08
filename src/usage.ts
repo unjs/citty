@@ -55,7 +55,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
           ? `=${
               arg.valueHint ? `<${arg.valueHint}>` : `"${arg.default || ""}"`
             }`
-          : "") +
+          : (arg.type === "string" && arg.type ? `=<${arg.type}>` : "")) +
         (arg.type === "enum" && arg.options
           ? `=<${arg.options.join("|")}>`
           : "");
