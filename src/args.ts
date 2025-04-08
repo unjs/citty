@@ -77,6 +77,13 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
         );
       }
     } else if (arg.type === "number") {
+      if(parsedArgsProxy[arg.name] === undefined) {
+        if(arg.required) {
+          throw new CLIError(`Missing required argument: --${arg.name}`, "EARG");
+        }
+        continue;
+      }
+
       const _originalValue = parsedArgsProxy[arg.name];
       parsedArgsProxy[arg.name] = Number.parseFloat(
         parsedArgsProxy[arg.name] as string,
