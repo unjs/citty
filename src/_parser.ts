@@ -25,17 +25,17 @@ function toArr(any: any) {
 function toVal(out, key, val, opts) {
   let x;
   const old = out[key];
-  const nxt = ~opts.string.indexOf(key)
+  const nxt = opts.string.includes(key)
     ? val == undefined || val === true
       ? undefined
       : String(val)
-    : ~opts.number.indexOf(key)
+    : opts.number.includes(key)
       ? val == undefined || val === true
         ? undefined
         : val
       : typeof val === "boolean"
         ? val
-        : ~opts.boolean.indexOf(key)
+        : opts.boolean.includes(key)
           ? val === "false"
             ? false
             : val === "true" ||
@@ -127,7 +127,7 @@ export function parseRawArgs<T = Default>(
       out._.push(arg);
     } else if (arg.substring(j, j + 3) === "no-") {
       name = arg.slice(Math.max(0, j + 3));
-      if (strict && !~keys.indexOf(name)) {
+      if (strict && !keys.includes(name)) {
         return opts.unknown(arg);
       }
       out[name] = false;
@@ -148,7 +148,7 @@ export function parseRawArgs<T = Default>(
 
       for (idx = 0; idx < arr.length; idx++) {
         name = arr[idx];
-        if (strict && !~keys.indexOf(name)) {
+        if (strict && !keys.includes(name)) {
           return opts.unknown("-".repeat(j) + name);
         }
         toVal(out, name, idx + 1 < arr.length || val, opts);
