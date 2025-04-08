@@ -77,9 +77,12 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
         );
       }
     } else if (arg.type === "number") {
-      if(parsedArgsProxy[arg.name] === undefined) {
-        if(arg.required) {
-          throw new CLIError(`Missing required argument: --${arg.name}`, "EARG");
+      if (parsedArgsProxy[arg.name] === undefined) {
+        if (arg.required) {
+          throw new CLIError(
+            `Missing required argument: --${arg.name}`,
+            "EARG",
+          );
         }
         continue;
       }
