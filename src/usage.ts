@@ -1,7 +1,8 @@
 import consola from "consola";
 import { colors } from "consola/utils";
+import { snakeCase } from "scule";
 import { formatLineColumns, resolveValue } from "./_utils";
-import type { ArgsDef, CommandDef } from "./types";
+import type { Arg, ArgsDef, CommandDef } from "./types";
 import { resolveArgs } from "./args";
 
 export async function showUsage<T extends ArgsDef = ArgsDef>(
@@ -39,30 +40,17 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
     if (arg.type === "positional") {
       const name = arg.name.toUpperCase();
       const isRequired = arg.required !== false && arg.default === undefined;
-      // (isRequired ? " (required)" : " (optional)"
-      const defaultHint = arg.default ? `="${arg.default}"` : "";
       posLines.push([
-        "`" + name + defaultHint + "`",
-        arg.description || "",
-        arg.valueHint ? `<${arg.valueHint}>` : "",
+        "`" + name + renderValueHint(arg) + "`",
+        renderDescription(arg, isRequired),
       ]);
       usageLine.push(isRequired ? `<${name}>` : `[${name}]`);
     } else {
       const isRequired = arg.required === true && arg.default === undefined;
       const argStr =
         [...(arg.alias || []).map((a) => `-${a}`), `--${arg.name}`].join(", ") +
-        (arg.type === "string" && (arg.valueHint || arg.default)
-          ? `=${
-              arg.valueHint ? `<${arg.valueHint}>` : `"${arg.default || ""}"`
-            }`
-          : "") +
-        (arg.type === "enum" && arg.options
-          ? `=<${arg.options.join("|")}>`
-          : "");
-      argLines.push([
-        "`" + argStr + (isRequired ? " (required)" : "") + "`",
-        arg.description || "",
-      ]);
+        renderValueHint(arg);
+      argLines.push(["`" + argStr + "`", renderDescription(arg, isRequired)]);
 
       /**
        * print negative boolean arg variant usage when
@@ -79,13 +67,15 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
           `--no-${arg.name}`,
         ].join(", ");
         argLines.push([
-          "`" + negativeArgStr + (isRequired ? " (required)" : "") + "`",
-          arg.negativeDescription || "",
+          "`" + negativeArgStr + "`",
+          [arg.negativeDescription, isRequired ? colors.gray("(Required)") : ""]
+            .filter(Boolean)
+            .join(" "),
         ]);
       }
 
       if (isRequired) {
-        usageLine.push(argStr);
+        usageLine.push(`--${arg.name}` + renderValueHint(arg));
       }
     }
   }
@@ -148,4 +138,30 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
   }
 
   return usageLines.filter((l) => typeof l === "string").join("\n");
+}
+
+function renderValueHint(arg: Arg) {
+  const valueHint = arg.valueHint ? `=<${arg.valueHint}>` : "";
+  const fallbackValueHint = valueHint || `=<${snakeCase(arg.name)}>`;
+
+  if (!arg.type || arg.type === "positional" || arg.type === "boolean") {
+    return valueHint;
+  }
+
+  if (arg.type === "enum" && arg.options?.length) {
+    return `=<${arg.options.join("|")}>`;
+  }
+
+  return fallbackValueHint;
+}
+
+function renderDescription(arg: Arg, required: boolean) {
+  const requiredHint = required ? colors.gray("(Required)") : "";
+  const defaultHint =
+    arg.default === undefined ? "" : colors.gray(`(Default: ${arg.default})`);
+  const description = [arg.description, requiredHint, defaultHint]
+    .filter(Boolean)
+    .join(" ");
+
+  return description;
 }
