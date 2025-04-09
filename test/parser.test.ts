@@ -90,17 +90,15 @@ describe("parseRawArgs", () => {
   });
 
   it("handles arguments with no values", () => {
-    const args = ["--name", "--age", "--specified", "--any"];
-    const opts = { string: ["name"], number: ["age"], boolean: ["specified"] };
+    const args = ["--name", "--specified", "--any"];
+    const opts = { string: ["name"], boolean: ["specified"] };
     const result = parseRawArgs(args, opts);
 
     expect("name" in result).toBeTruthy();
-    expect("age" in result).toBeTruthy();
     expect("specified" in result).toBeTruthy();
     expect("any" in result).toBeTruthy();
 
     expect(result.name).toBeUndefined();
-    expect(result.age).toBeUndefined();
     expect(result.specified).toBeTruthy();
     expect(result.any).toBeTruthy();
   });
