@@ -58,18 +58,18 @@ describe("usage", () => {
     expect(usage).toMatchInlineSnapshot(`
       "A command (Commander)
 
-      USAGE \`Commander [OPTIONS] --foo <POS>\`
+      USAGE \`Commander [OPTIONS] --foo=<foo> <POS>\`
 
       ARGUMENTS
 
-        \`POS\`    A pos    
+        \`POS\`    A pos (Required)
 
       OPTIONS
 
-        \`--foo (required)\`    A foo    
-               \`-b, --bar\`    A bar    
-            \`--enum=<a|b>\`    An enum  
-               \`--boolean\`    A boolean
+            \`--foo=<foo>\`    A foo (Required)
+        \`-b, --bar=[bar]\`    A bar           
+           \`--enum=[a|b]\`    An enum         
+              \`--boolean\`    A boolean       
       "
     `);
   });
@@ -100,8 +100,8 @@ describe("usage", () => {
 
       OPTIONS
 
-           \`--boolean\`    A boolean         
-        \`--no-boolean\`    A negative boolean
+           \`--boolean\`    A boolean (Default: true)
+        \`--no-boolean\`    A negative boolean       
       "
     `);
   });
@@ -130,7 +130,7 @@ describe("usage", () => {
 
       OPTIONS
 
-        \`--foo=<FOO>\`    A foo
+        \`--foo=[FOO]\`    A foo
       "
     `);
   });
@@ -159,7 +159,7 @@ describe("usage", () => {
 
       OPTIONS
 
-        \`--foo="bar"\`    A foo
+        \`--foo=[foo]\`    A foo (Default: bar)
       "
     `);
   });
@@ -226,7 +226,7 @@ describe("usage", () => {
 
       OPTIONS
 
-        \`--foo (required)\`    A foo
+        \`--foo\`    A foo (Required)
 
       COMMANDS
 
@@ -309,7 +309,7 @@ describe("usage", () => {
 
       OPTIONS
 
-        \`--foo\`    A foo
+        \`--foo=[foo]\`    A foo
 
       COMMANDS
 
