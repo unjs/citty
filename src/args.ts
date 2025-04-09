@@ -10,7 +10,6 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
   const parseOptions = {
     boolean: [] as string[],
     string: [] as string[],
-    number: [] as string[],
     enum: [] as (number | string)[],
     mixed: [] as string[],
     alias: {} as Record<string, string | string[]>,
