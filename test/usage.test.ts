@@ -67,8 +67,8 @@ describe("usage", () => {
       OPTIONS
 
             \`--foo=<foo>\`    A foo (Required)
-        \`-b, --bar=[bar]\`    A bar           
-           \`--enum=[a|b]\`    An enum         
+        \`-b, --bar=<bar>\`    A bar           
+           \`--enum=<a|b>\`    An enum         
               \`--boolean\`    A boolean       
       "
     `);
@@ -130,7 +130,7 @@ describe("usage", () => {
 
       OPTIONS
 
-        \`--foo=[FOO]\`    A foo
+        \`--foo=<FOO>\`    A foo
       "
     `);
   });
@@ -159,7 +159,7 @@ describe("usage", () => {
 
       OPTIONS
 
-        \`--foo=[foo]\`    A foo (Default: bar)
+        \`--foo=<foo>\`    A foo (Default: bar)
       "
     `);
   });
@@ -309,7 +309,7 @@ describe("usage", () => {
 
       OPTIONS
 
-        \`--foo=[foo]\`    A foo
+        \`--foo=<foo>\`    A foo
 
       COMMANDS
 

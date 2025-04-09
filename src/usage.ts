@@ -41,7 +41,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
       const name = arg.name.toUpperCase();
       const isRequired = arg.required !== false && arg.default === undefined;
       posLines.push([
-        "`" + name + renderValueHint(arg, isRequired) + "`",
+        "`" + name + renderValueHint(arg) + "`",
         renderDescription(arg, isRequired),
       ]);
       usageLine.push(isRequired ? `<${name}>` : `[${name}]`);
@@ -49,7 +49,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
       const isRequired = arg.required === true && arg.default === undefined;
       const argStr =
         [...(arg.alias || []).map((a) => `-${a}`), `--${arg.name}`].join(", ") +
-        renderValueHint(arg, isRequired);
+        renderValueHint(arg);
       argLines.push(["`" + argStr + "`", renderDescription(arg, isRequired)]);
 
       /**
@@ -75,7 +75,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
       }
 
       if (isRequired) {
-        usageLine.push(`--${arg.name}` + renderValueHint(arg, isRequired));
+        usageLine.push(`--${arg.name}` + renderValueHint(arg));
       }
     }
   }
@@ -140,18 +140,16 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
   return usageLines.filter((l) => typeof l === "string").join("\n");
 }
 
-function renderValueHint(arg: Arg, required: boolean) {
-  const pre = required ? "<" : "[";
-  const post = required ? ">" : "]";
-  const valueHint = arg.valueHint ? `=${pre}${arg.valueHint}${post}` : "";
-  const fallbackValueHint = valueHint || `=${pre}${snakeCase(arg.name)}${post}`;
+function renderValueHint(arg: Arg) {
+  const valueHint = arg.valueHint ? `=<${arg.valueHint}>` : "";
+  const fallbackValueHint = valueHint || `=<${snakeCase(arg.name)}>`;
 
   if (!arg.type || arg.type === "positional" || arg.type === "boolean") {
     return valueHint;
   }
 
   if (arg.type === "enum" && arg.options?.length) {
-    return `=${pre}${arg.options.join("|")}${post}`;
+    return `=<${arg.options.join("|")}>`;
   }
 
   return fallbackValueHint;
