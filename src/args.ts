@@ -52,7 +52,7 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
   for (const [, arg] of args.entries()) {
     // eslint-disable-next-line unicorn/prefer-switch
     if (arg.type === "multiPositional") {
-      if(positionalArguments.length > 0) {
+      if (positionalArguments.length > 0) {
         parsedArgsProxy[arg.name] = [...positionalArguments];
         positionalArguments.length = 0;
       } else if (arg.default === undefined && arg.required !== false) {
