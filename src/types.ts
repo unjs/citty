@@ -6,11 +6,15 @@ export type ArgType =
   | "number"
   | "enum"
   | "positional"
+  | "multiPositional"
   | undefined;
 
 // Args: Definition
 
-export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
+export type _ArgDef<
+  T extends ArgType,
+  VT extends boolean | number | string | string[],
+> = {
   type?: T;
   description?: string;
   valueHint?: string;
@@ -30,12 +34,17 @@ export type PositionalArgDef = Omit<
   _ArgDef<"positional", string>,
   "alias" | "options"
 >;
+export type MultiPositionalArgDef = Omit<
+  _ArgDef<"multiPositional", string[]>,
+  "alias" | "options"
+>;
 
 export type ArgDef =
   | BooleanArgDef
   | StringArgDef
   | NumberArgDef
   | PositionalArgDef
+  | MultiPositionalArgDef
   | EnumArgDef;
 
 export type ArgsDef = Record<string, ArgDef>;
@@ -57,6 +66,12 @@ type ResolveParsedArgType<T extends ArgDef, VT> = T extends {
 
 type ParsedPositionalArg<T extends ArgDef> = T extends { type: "positional" }
   ? ResolveParsedArgType<T, string>
+  : never;
+
+type ParsedMultiPositionalArg<T extends ArgDef> = T extends {
+  type: "multiPositional";
+}
+  ? ResolveParsedArgType<T, string[]>
   : never;
 
 type ParsedStringArg<T extends ArgDef> = T extends { type: "string" }
@@ -87,6 +102,7 @@ type RawArgs = {
 // prettier-ignore
 type ParsedArg<T extends ArgDef> =
   T["type"] extends "positional" ? ParsedPositionalArg<T> :
+  T["type"] extends "multiPositional" ? ParsedMultiPositionalArg<T> :
   T["type"] extends "boolean" ? ParsedBooleanArg<T> :
   T["type"] extends "string" ? ParsedStringArg<T> :
   T["type"] extends "number" ? ParsedNumberArg<T> :

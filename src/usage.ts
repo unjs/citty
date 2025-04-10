@@ -36,7 +36,18 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
   const usageLine = [];
 
   for (const arg of cmdArgs) {
-    if (arg.type === "positional") {
+    if (arg.type === "multiPositional") {
+      const name = arg.name.toUpperCase();
+      const isRequired = arg.required !== false && arg.default === undefined;
+      // (isRequired ? " (required)" : " (optional)"
+      const defaultHint = arg.default ? `=[${arg.default}]` : "";
+      posLines.push([
+        "`" + name + defaultHint + "`",
+        arg.description || "",
+        arg.valueHint ? `<${arg.valueHint}>` : "",
+      ]);
+      usageLine.push(isRequired ? `<...${name}>` : `[...${name}]`);
+    } else if (arg.type === "positional") {
       const name = arg.name.toUpperCase();
       const isRequired = arg.required !== false && arg.default === undefined;
       // (isRequired ? " (required)" : " (optional)"
