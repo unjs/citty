@@ -29,6 +29,11 @@ const command = defineCommand({
       default: "awesome",
       required: false,
     },
+    likes: {
+      type: "multiPositional",
+      description: "Most liked things",
+      default: ["orange", "strawberry"],
+    }
   },
   run({ args }) {
     consola.log(args);
@@ -37,6 +42,7 @@ const command = defineCommand({
       args.adj || "",
       args.name,
       args.age ? `You are ${args.age} years old.` : "",
+      args.likes?.length ? `You like ${args.likes.join(", ")}.` : "",
     ]
       .filter(Boolean)
       .join(" ");

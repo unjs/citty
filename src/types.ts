@@ -11,7 +11,7 @@ export type ArgType =
 
 // Args: Definition
 
-export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
+export type _ArgDef<T extends ArgType, VT extends boolean | number | string | string[]> = {
   type?: T;
   description?: string;
   valueHint?: string;
@@ -32,7 +32,7 @@ export type PositionalArgDef = Omit<
   "alias" | "options"
 >;
 export type MultiPositionalArgDef = Omit<
-  _ArgDef<"multiPositional", string>,
+  _ArgDef<"multiPositional", string[]>,
   "alias" | "options"
 >;
 
