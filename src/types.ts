@@ -11,7 +11,10 @@ export type ArgType =
 
 // Args: Definition
 
-export type _ArgDef<T extends ArgType, VT extends boolean | number | string | string[]> = {
+export type _ArgDef<
+  T extends ArgType,
+  VT extends boolean | number | string | string[],
+> = {
   type?: T;
   description?: string;
   valueHint?: string;
