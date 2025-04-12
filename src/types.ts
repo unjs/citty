@@ -106,6 +106,7 @@ export type ParsedArgs<T extends ArgsDef = ArgsDef> = RawArgs &
 
 export interface CommandMeta {
   name?: string;
+  aliases?: string[];
   version?: string;
   description?: string;
   hidden?: boolean;
