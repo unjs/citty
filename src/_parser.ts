@@ -136,7 +136,8 @@ export function parseRawArgs<T = Default>(
       val =
         arg.slice(Math.max(0, ++idx)) ||
         i + 1 === len ||
-        ("" + args[i + 1]).charCodeAt(0) === 45 ||
+        (("" + args[i + 1]).charCodeAt(0) === 45 &&
+          !("" + args[i + 1]).includes(" ")) ||
         args[++i];
       arr = j === 2 ? [name] : name;
 
