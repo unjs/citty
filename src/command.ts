@@ -1,6 +1,7 @@
 import type { CommandContext, CommandDef, ArgsDef } from "./types";
 import { CLIError, resolveValue } from "./_utils";
 import { parseArgs } from "./args";
+import { validateUnknownOptions } from "./validate";
 
 export function defineCommand<const T extends ArgsDef = ArgsDef>(
   def: CommandDef<T>,
@@ -18,8 +19,13 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
   cmd: CommandDef<T>,
   opts: RunCommandOptions,
 ): Promise<{ result: unknown }> {
+  const cmdMeta = await resolveValue(cmd.meta);
   const cmdArgs = await resolveValue(cmd.args || {});
   const parsedArgs = parseArgs<T>(opts.rawArgs, cmdArgs);
+
+  if (!cmdMeta || !cmdMeta.allowUnknownOptions) {
+    validateUnknownOptions(cmdArgs, parsedArgs);
+  }
 
   const context: CommandContext<T> = {
     rawArgs: opts.rawArgs,
