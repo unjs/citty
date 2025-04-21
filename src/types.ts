@@ -109,6 +109,7 @@ export interface CommandMeta {
   version?: string;
   description?: string;
   hidden?: boolean;
+  allowUnknownOptions?: boolean;
 }
 
 // Command: Definition
