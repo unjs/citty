@@ -8,6 +8,8 @@ export type ArgType =
   | "positional"
   | undefined;
 
+// Args: Definition
+
 export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
   type?: T;
   description?: string;
@@ -19,9 +21,11 @@ export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
   options?: (string | number)[];
 };
 
-export type BooleanArgDef = Omit<_ArgDef<"boolean", boolean>, "options">;
+export type BooleanArgDef = Omit<_ArgDef<"boolean", boolean>, "options"> & {
+  negativeDescription?: string;
+};
 export type StringArgDef = Omit<_ArgDef<"string", string>, "options">;
-export type NumberArgDef = Omit<_ArgDef<"number", boolean>, "options">;
+export type NumberArgDef = Omit<_ArgDef<"number", number>, "options">;
 export type EnumArgDef = _ArgDef<"enum", string>;
 export type PositionalArgDef = Omit<
   _ArgDef<"positional", string>,
@@ -39,36 +43,62 @@ export type ArgsDef = Record<string, ArgDef>;
 
 export type Arg = ArgDef & { name: string; alias: string[] };
 
-export type ParsedArgs<T extends ArgsDef = ArgsDef> = { _: string[] } & Record<
-  { [K in keyof T]: T[K] extends { type: "positional" } ? K : never }[keyof T],
-  string
-> &
-  Record<
-    {
-      [K in keyof T]: T[K] extends { type: "string" } ? K : never;
-    }[keyof T],
-    string
-  > &
-  Record<
-    {
-      [K in keyof T]: T[K] extends { type: "number" } ? K : never;
-    }[keyof T],
-    number
-  > &
-  Record<
-    {
-      [K in keyof T]: T[K] extends { type: "boolean" } ? K : never;
-    }[keyof T],
-    boolean
-  > &
-  Record<
-    {
-      [K in keyof T]: T[K] extends { type: "enum" } ? K : never;
-    }[keyof T],
-    {
-      [K in keyof T]: T[K] extends { options: infer U } ? U : never;
-    }[keyof T]
-  > &
+// Args: Parsed
+
+type ResolveParsedArgType<T extends ArgDef, VT> = T extends {
+  default?: any;
+  required?: boolean;
+}
+  ? T["default"] extends NonNullable<VT>
+    ? VT
+    : T["required"] extends true
+      ? VT
+      : VT | undefined
+  : VT | undefined;
+
+type ParsedPositionalArg<T extends ArgDef> = T extends { type: "positional" }
+  ? ResolveParsedArgType<T, string>
+  : never;
+
+type ParsedStringArg<T extends ArgDef> = T extends { type: "string" }
+  ? ResolveParsedArgType<T, string>
+  : never;
+
+type ParsedNumberArg<T extends ArgDef> = T extends { type: "number" }
+  ? ResolveParsedArgType<T, number>
+  : never;
+
+type ParsedBooleanArg<T extends ArgDef> = T extends { type: "boolean" }
+  ? ResolveParsedArgType<T, boolean>
+  : never;
+
+type ParsedEnumArg<T extends ArgDef> = T extends {
+  type: "enum";
+  options: infer U;
+}
+  ? U extends Array<any>
+    ? ResolveParsedArgType<T, U[number]>
+    : never
+  : never;
+
+type RawArgs = {
+  _: string[];
+};
+
+// prettier-ignore
+type ParsedArg<T extends ArgDef> =
+  T["type"] extends "positional" ? ParsedPositionalArg<T> :
+  T["type"] extends "boolean" ? ParsedBooleanArg<T> :
+  T["type"] extends "string" ? ParsedStringArg<T> :
+  T["type"] extends "number" ? ParsedNumberArg<T> :
+  T["type"] extends "enum" ? ParsedEnumArg<T> :
+  never;
+
+// prettier-ignore
+export type ParsedArgs<T extends ArgsDef = ArgsDef> = RawArgs &
+  { [K in keyof T]: ParsedArg<T[K]>; } & 
+  { [K in keyof T as T[K] extends { alias: string } ? T[K]["alias"] : never]: ParsedArg<T[K]> } &
+  { [K in keyof T as T[K] extends { alias: string[] } ? T[K]["alias"][number] : never]: ParsedArg<T[K]> } &
   Record<string, string | number | boolean | string[]>;
 
 export type ParsedArgType<T extends ArgType = ArgType> = T extends "positional"

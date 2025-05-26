@@ -15,6 +15,9 @@ export async function showUsage<T extends ArgsDef = ArgsDef>(
   }
 }
 
+// `no` prefix matcher (kebab-case or camelCase)
+const negativePrefixRe = /^no[-A-Z]/;
+
 export async function renderUsage<T extends ArgsDef = ArgsDef>(
   cmd: CommandDef<T>,
   parent?: CommandDef<T>,
@@ -47,14 +50,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
     } else {
       const isRequired = arg.required === true && arg.default === undefined;
       const argStr =
-        (arg.type === "boolean" && arg.default === true
-          ? [
-              ...(arg.alias || []).map((a) => `--no-${a}`),
-              `--no-${arg.name}`,
-            ].join(", ")
-          : [...(arg.alias || []).map((a) => `-${a}`), `--${arg.name}`].join(
-              ", ",
-            )) +
+        [...(arg.alias || []).map((a) => `-${a}`), `--${arg.name}`].join(", ") +
         (arg.type === "string" && (arg.valueHint || arg.default)
           ? `=${
               arg.valueHint ? `<${arg.valueHint}>` : `"${arg.default || ""}"`
@@ -67,6 +63,27 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
         "`" + argStr + (isRequired ? " (required)" : "") + "`",
         arg.description || "",
       ]);
+
+      /**
+       * print negative boolean arg variant usage when
+       * - enabled by default or has `negativeDescription`
+       * - not prefixed with `no-` or `no[A-Z]`
+       */
+      if (
+        arg.type === "boolean" &&
+        (arg.default === true || arg.negativeDescription) &&
+        !negativePrefixRe.test(arg.name)
+      ) {
+        const negativeArgStr = [
+          ...(arg.alias || []).map((a) => `--no-${a}`),
+          `--no-${arg.name}`,
+        ].join(", ");
+        argLines.push([
+          "`" + negativeArgStr + (isRequired ? " (required)" : "") + "`",
+          arg.negativeDescription || "",
+        ]);
+      }
+
       if (isRequired) {
         usageLine.push(argStr);
       }

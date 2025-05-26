@@ -2,7 +2,7 @@ import type { CommandContext, CommandDef, ArgsDef } from "./types";
 import { CLIError, resolveValue } from "./_utils";
 import { parseArgs, resolveArgsValidate } from "./args";
 
-export function defineCommand<T extends ArgsDef = ArgsDef>(
+export function defineCommand<const T extends ArgsDef = ArgsDef>(
   def: CommandDef<T>,
 ): CommandDef<T> {
   return def;
