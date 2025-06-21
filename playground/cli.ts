@@ -1,6 +1,6 @@
 import { defineCommand, runMain } from "../src";
 
-const main = defineCommand({
+export const main = defineCommand({
   meta: {
     name: "citty",
     version: "1.0.0",
@@ -16,7 +16,12 @@ const main = defineCommand({
     build: () => import("./commands/build").then((r) => r.default),
     deploy: () => import("./commands/deploy").then((r) => r.default),
     debug: () => import("./commands/debug").then((r) => r.default),
+    error: () => import("./commands/error").then((r) => r.error),
+    "error-handled": () =>
+      import("./commands/error").then((r) => r.errorHandled),
   },
 });
 
-runMain(main);
+if (process.env.NODE_ENV !== "test") {
+  runMain(main);
+}
