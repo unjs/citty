@@ -14,7 +14,7 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
     enum: [] as (number | string)[],
     mixed: [] as string[],
     alias: {} as Record<string, string | string[]>,
-    default: {} as Record<string, boolean | number | string>,
+    default: {} as Record<string, boolean | number | string | string[]>,
   };
 
   const args = resolveArgs(argsDef);
@@ -51,7 +51,19 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
 
   for (const [, arg] of args.entries()) {
     // eslint-disable-next-line unicorn/prefer-switch
-    if (arg.type === "positional") {
+    if (arg.type === "multiPositional") {
+      if (positionalArguments.length > 0) {
+        parsedArgsProxy[arg.name] = [...positionalArguments];
+        positionalArguments.length = 0;
+      } else if (arg.default === undefined && arg.required !== false) {
+        throw new CLIError(
+          `Missing required multiPositional argument: ${arg.name.toUpperCase()}`,
+          "EARG",
+        );
+      } else {
+        parsedArgsProxy[arg.name] = arg.default;
+      }
+    } else if (arg.type === "positional") {
       const nextPositionalArgument = positionalArguments.shift();
       if (nextPositionalArgument !== undefined) {
         parsedArgsProxy[arg.name] = nextPositionalArgument;
