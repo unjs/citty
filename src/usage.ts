@@ -9,7 +9,7 @@ export async function showUsage<T extends ArgsDef = ArgsDef>(
   parent?: CommandDef<T>,
 ) {
   try {
-    consola.log((await renderUsage(cmd, parent)) + "\n");
+    consola.log(await renderUsage(cmd, parent));
   } catch (error) {
     consola.error(error);
   }
@@ -118,27 +118,35 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
     "",
   );
 
-  const hasOptions = argLines.length > 0 || posLines.length > 0;
+  const hasOptions = version || argLines.length > 0 || posLines.length > 0;
+
   usageLines.push(
     `${colors.underline(colors.bold("USAGE"))} \`${commandName}${
       hasOptions ? " [OPTIONS]" : ""
     } ${usageLine.join(" ")}\``,
-    "",
   );
 
   if (posLines.length > 0) {
+    usageLines.push("");
     usageLines.push(colors.underline(colors.bold("ARGUMENTS")), "");
     usageLines.push(formatLineColumns(posLines, "  "));
-    usageLines.push("");
   }
 
   if (argLines.length > 0) {
-    usageLines.push(colors.underline(colors.bold("OPTIONS")), "");
-    usageLines.push(formatLineColumns(argLines, "  "));
     usageLines.push("");
+    usageLines.push(colors.underline(colors.bold("OPTIONS")), "");
+
+    if (version) {
+      usageLines.push(
+        formatLineColumns([["`--version`", "Show version"], ...argLines], "  "),
+      );
+    } else {
+      usageLines.push(formatLineColumns(argLines, "  "));
+    }
   }
 
   if (commandsLines.length > 0) {
+    usageLines.push("");
     usageLines.push(colors.underline(colors.bold("COMMANDS")), "");
     usageLines.push(formatLineColumns(commandsLines, "  "));
     usageLines.push(
