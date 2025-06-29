@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterAll } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import consola from "consola";
 import {
   createMain,
@@ -20,8 +20,9 @@ describe("runMain", () => {
     .spyOn(consola, "error")
     .mockImplementation(() => undefined);
 
-  afterAll(() => {
+  afterEach(() => {
     consoleMock.mockReset();
+    consolaErrorMock.mockReset();
   });
 
   it("shows version with flag `--version`", async () => {
@@ -116,6 +117,22 @@ describe("runMain", () => {
     await runMain(command, { rawArgs });
 
     expect(mockRunCommand).toHaveBeenCalledWith(command, { rawArgs });
+    expect(consolaErrorMock).toHaveBeenCalledWith("Unknown option `--foo`");
+  });
+
+  it("should allow unknown options with `allowUnknownOptions` enabled", async () => {
+    const mockRunCommand = vi.spyOn(commandModule, "runCommand");
+
+    const command = defineCommand({
+      meta: { allowUnknownOptions: true },
+    });
+
+    const rawArgs = ["--foo", "bar"];
+
+    await runMain(command, { rawArgs });
+
+    expect(mockRunCommand).toHaveBeenCalledWith(command, { rawArgs });
+    expect(consolaErrorMock).not.toHaveBeenCalledWith("Unknown option `--foo`");
   });
 });
 
