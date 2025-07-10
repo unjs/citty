@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterAll } from "vitest";
+import { describe, it, expect, vi, afterAll, beforeEach } from "vitest";
 import consola from "consola";
 import {
   createMain,
@@ -19,6 +19,11 @@ describe("runMain", () => {
   const consolaErrorMock = vi
     .spyOn(consola, "error")
     .mockImplementation(() => undefined);
+
+  beforeEach(() => {
+    consoleMock.mockClear();
+    consolaErrorMock.mockClear();
+  });
 
   afterAll(() => {
     consoleMock.mockReset();
@@ -62,6 +67,54 @@ describe("runMain", () => {
     expect(consolaErrorMock).toHaveBeenCalledWith("No version specified");
   });
 
+  it.each([["--version"], ["-v"]])(
+    "can override default `%s` behavior",
+    async (flag) => {
+      const calls: string[] = [];
+      const command = defineCommand({
+        meta: {
+          version: "1.0.0",
+        },
+        args: {
+          version: {
+            type: "boolean",
+            description: "Override default `version` behavior",
+            alias: "v",
+          },
+        },
+        subCommands: {
+          foo: {
+            args: {
+              version: {
+                type: "boolean",
+                description: "Override subcommand's default `version` behavior",
+                alias: "v",
+              },
+            },
+            run() {
+              calls.push("SubCommand Overridden");
+            },
+          },
+        },
+        run() {
+          calls.push("TopCommand Overridden");
+        },
+      });
+
+      await runMain(command, { rawArgs: [flag] });
+      expect(calls).toMatchObject(["TopCommand Overridden"]);
+      expect(consoleMock).not.toHaveBeenCalledWith("1.0.0");
+
+      calls.length = 0;
+      await runMain(command, { rawArgs: ["foo", flag] });
+      expect(calls).toMatchObject([
+        "SubCommand Overridden",
+        "TopCommand Overridden",
+      ]);
+      expect(consoleMock).not.toHaveBeenCalledWith("1.0.0");
+    },
+  );
+
   it.each([["--help"], ["-h"]])("shows usage with flag `%s`", async (flag) => {
     const command = defineCommand({
       meta: {
@@ -93,6 +146,55 @@ describe("runMain", () => {
       await runMain(command, { rawArgs: [flag], showUsage: customUsage });
 
       expect(consoleMock).toHaveBeenCalledWith("Custom usage");
+    },
+  );
+
+  it.each([["--help"], ["-h"]])(
+    "can override default `%s` behavior",
+    async (flag) => {
+      const calls: string[] = [];
+      const command = defineCommand({
+        meta: {
+          name: "test",
+          description: "Test command",
+        },
+        args: {
+          help: {
+            type: "boolean",
+            description: "Override default `help` behavior",
+            alias: "h",
+          },
+        },
+        subCommands: {
+          foo: {
+            args: {
+              help: {
+                type: "boolean",
+                description: "Override subcommand's default `help` behavior",
+                alias: "h",
+              },
+            },
+            run() {
+              calls.push("SubCommand Overridden");
+            },
+          },
+        },
+        run() {
+          calls.push("TopCommand Overridden");
+        },
+      });
+
+      await runMain(command, { rawArgs: [flag] });
+      expect(calls).toMatchObject(["TopCommand Overridden"]);
+      expect(consoleMock).not.toHaveBeenCalledWith("Test command");
+
+      calls.length = 0;
+      await runMain(command, { rawArgs: ["foo", flag] });
+      expect(calls).toMatchObject([
+        "SubCommand Overridden",
+        "TopCommand Overridden",
+      ]);
+      expect(consoleMock).not.toHaveBeenCalledWith("Test command");
     },
   );
 
