@@ -1,6 +1,7 @@
 import type { CommandContext, CommandDef, ArgsDef } from "./types";
 import { CLIError, resolveValue } from "./_utils";
 import { parseArgs } from "./args";
+import { resolvePlugins } from "./plugin";
 
 export function defineCommand<const T extends ArgsDef = ArgsDef>(
   def: CommandDef<T>,
@@ -27,6 +28,16 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
     data: opts.data,
     cmd,
   };
+
+  const plugins = await resolvePlugins(cmd.plugins ?? []);
+
+  // Apply setup hooks from plugins
+  for (const plugin of plugins) {
+    if (typeof plugin.setup === "function") {
+      // TODO: Pass plugin context?
+      await plugin.setup();
+    }
+  }
 
   // Setup hook
   if (typeof cmd.setup === "function") {
@@ -67,6 +78,13 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
   } finally {
     if (typeof cmd.cleanup === "function") {
       await cmd.cleanup(context);
+    }
+    // Apply cleanup hooks from plugins
+    for (const plugin of plugins) {
+      if (typeof plugin.cleanup === "function") {
+        // TODO: Pass plugin context?
+        await plugin.cleanup();
+      }
     }
   }
   return { result };
