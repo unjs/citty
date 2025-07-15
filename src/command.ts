@@ -1,6 +1,6 @@
 import type { CommandContext, CommandDef, ArgsDef } from "./types";
 import { CLIError, resolveValue } from "./_utils";
-import { parseArgs } from "./args";
+import { parseArgs, resolveArgsValidate } from "./args";
 
 export function defineCommand<const T extends ArgsDef = ArgsDef>(
   def: CommandDef<T>,
@@ -58,6 +58,11 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
       } else if (!cmd.run) {
         throw new CLIError(`No command specified.`, "E_NO_COMMAND");
       }
+    }
+
+    const word = await resolveArgsValidate(parsedArgs, cmdArgs);
+    if (word) {
+      throw new CLIError(word, "E_VALIDATE_FAILED");
     }
 
     // Handle main command
