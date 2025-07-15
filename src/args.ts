@@ -116,3 +116,20 @@ export function resolveArgs(argsDef: ArgsDef): Arg[] {
   }
   return args;
 }
+
+export function resolveArgsValidate(
+  parsedArgs: ParsedArgs,
+  argsDef: ArgsDef,
+): string | undefined {
+  for (const [name, argDef] of Object.entries(argsDef || {})) {
+    const value = parsedArgs[name] as never;
+    if (argDef.validate) {
+      const word = argDef.validate(value) || "";
+      if (argDef.required && typeof word === "string") {
+        return (
+          `Argument validation failed: ${name}` + (word ? ` - ${word}` : "")
+        );
+      }
+    }
+  }
+}
