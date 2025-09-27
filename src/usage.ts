@@ -1,7 +1,7 @@
 import consola from "consola";
 import { colors } from "consola/utils";
 import { formatLineColumns, resolveValue } from "./_utils";
-import type { ArgsDef, CommandDef } from "./types";
+import type { Arg, ArgDef, ArgsDef, CommandDef } from "./types";
 import { resolveArgs } from "./args";
 
 export async function showUsage<T extends ArgsDef = ArgsDef>(
@@ -18,6 +18,48 @@ export async function showUsage<T extends ArgsDef = ArgsDef>(
 // `no` prefix matcher (kebab-case or camelCase)
 const negativePrefixRe = /^no[-A-Z]/;
 
+/**
+ * Formats argument string with value hints, defaults, and enum options if applicable
+ * @remark Default values are only rendered for string and positional args
+ */
+function formatArgString(name: string, arg: ArgDef) {
+  switch (arg.type) {
+    case "boolean": {
+      return name;
+    }
+    case "enum": {
+      if (arg.options) {
+        return `${name}=<${arg.options.join("|")}>`;
+      }
+      break;
+    }
+    case "string": {
+      if (arg.valueHint) {
+        return `${name}=<${arg.valueHint}>`;
+      }
+      // fall through (same as positional formatting)
+    }
+    case "positional": {
+      if (arg.default != undefined) {
+        return `${name}="${arg.default}"`;
+      }
+      break;
+    }
+  }
+
+  return name;
+}
+
+// Formats and prefixes argument name + aliases (e.g. `-f, --foo`, `-no-f, --no-foo`)
+function formatArgName(arg: Arg, negative: boolean = false) {
+  const short = negative ? "-no-" : "-";
+  const long = negative ? "--no-" : "--";
+  return [
+    ...(arg.alias || []).map((a: string) => short + a),
+    long + arg.name,
+  ].join(", ");
+}
+
 export async function renderUsage<T extends ArgsDef = ArgsDef>(
   cmd: CommandDef<T>,
   parent?: CommandDef<T>,
@@ -30,39 +72,31 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
     `${parentMeta.name ? `${parentMeta.name} ` : ""}` +
     (cmdMeta.name || process.argv[1]);
 
-  const argLines: string[][] = [];
-  const posLines: string[][] = [];
-  const commandsLines: string[][] = [];
+  const argLines: [string, string][] = [];
+  const posLines: [string, string, string][] = [];
+  const commandsLines: [string, string][] = [];
   const usageLine = [];
 
   for (const arg of cmdArgs) {
     if (arg.type === "positional") {
       const name = arg.name.toUpperCase();
-      const isRequired = arg.required !== false && arg.default === undefined;
-      // (isRequired ? " (required)" : " (optional)"
-      const defaultHint = arg.default ? `="${arg.default}"` : "";
       posLines.push([
-        "`" + name + defaultHint + "`",
+        `\`${formatArgString(name, arg)}\``,
         arg.description || "",
         arg.valueHint ? `<${arg.valueHint}>` : "",
       ]);
+
+      const isRequired = arg.required !== false && arg.default === undefined;
       usageLine.push(isRequired ? `<${name}>` : `[${name}]`);
     } else {
-      const isRequired = arg.required === true && arg.default === undefined;
-      const argStr =
-        [...(arg.alias || []).map((a) => `-${a}`), `--${arg.name}`].join(", ") +
-        (arg.type === "string" && (arg.valueHint || arg.default)
-          ? `=${
-              arg.valueHint ? `<${arg.valueHint}>` : `"${arg.default || ""}"`
-            }`
-          : "") +
-        (arg.type === "enum" && arg.options
-          ? `=<${arg.options.join("|")}>`
-          : "");
-      argLines.push([
-        "`" + argStr + (isRequired ? " (required)" : "") + "`",
-        arg.description || "",
-      ]);
+      const argString = formatArgString(formatArgName(arg, false), arg);
+      const requiredHint =
+        arg.required === true && arg.default === undefined ? " (required)" : "";
+
+      argLines.push([`\`${argString + requiredHint}\``, arg.description || ""]);
+      if (requiredHint) {
+        usageLine.push(argString);
+      }
 
       /**
        * print negative boolean arg variant usage when
@@ -74,18 +108,10 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
         (arg.default === true || arg.negativeDescription) &&
         !negativePrefixRe.test(arg.name)
       ) {
-        const negativeArgStr = [
-          ...(arg.alias || []).map((a) => `--no-${a}`),
-          `--no-${arg.name}`,
-        ].join(", ");
         argLines.push([
-          "`" + negativeArgStr + (isRequired ? " (required)" : "") + "`",
+          `\`${formatArgName(arg, true)}\``,
           arg.negativeDescription || "",
         ]);
-      }
-
-      if (isRequired) {
-        usageLine.push(argStr);
       }
     }
   }
