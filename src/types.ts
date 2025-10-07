@@ -95,9 +95,9 @@ type ParsedArg<T extends ArgDef> =
 
 // prettier-ignore
 export type ParsedArgs<T extends ArgsDef = ArgsDef> = RawArgs &
-  { [K in keyof T]: ParsedArg<T[K]>; } & 
-  { [K in keyof T as T[K] extends { alias: string } ? T[K]["alias"] : never]: ParsedArg<T[K]> } &
-  { [K in keyof T as T[K] extends { alias: string[] } ? T[K]["alias"][number] : never]: ParsedArg<T[K]> } &
+{ [K in keyof T]: ParsedArg<T[K]>; } &
+{ [K in keyof T as T[K] extends { alias: string } ? T[K]["alias"] : never]: ParsedArg<T[K]> } &
+{ [K in keyof T as T[K] extends { alias: string[] } ? T[K]["alias"][number] : never]: ParsedArg<T[K]> } &
   Record<string, string | number | boolean | string[]>;
 
 // ----- Command -----
@@ -115,10 +115,26 @@ export interface CommandMeta {
 
 export type SubCommandsDef = Record<string, Resolvable<CommandDef<any>>>;
 
+export type CompletionHandler = (
+  complete: (value: string, description?: string) => void,
+) => void | Promise<void>;
+
+export interface CompletionConfig {
+  options?: Record<string, CompletionHandler>;
+  args?: Record<string, CompletionHandler>;
+  subCommands?: Record<string, CompletionConfig>;
+}
+
+export interface CompletionOptions {
+  enabled?: boolean;
+  config?: CompletionConfig;
+}
+
 export type CommandDef<T extends ArgsDef = ArgsDef> = {
   meta?: Resolvable<CommandMeta>;
   args?: Resolvable<T>;
   subCommands?: Resolvable<SubCommandsDef>;
+  completions?: CompletionOptions;
   setup?: (context: CommandContext<T>) => any | Promise<any>;
   cleanup?: (context: CommandContext<T>) => any | Promise<any>;
   run?: (context: CommandContext<T>) => any | Promise<any>;

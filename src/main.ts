@@ -15,6 +15,18 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
 ) {
   const rawArgs = opts.rawArgs || process.argv.slice(2);
   const showUsage = opts.showUsage || _showUsage;
+
+  const isCompletionsDisabled =
+    cmd.completions && cmd.completions.enabled === false;
+
+  if (!isCompletionsDisabled) {
+    const tab = await import("@bomb.sh/tab/citty");
+    const config = cmd.completions ? cmd.completions.config : undefined;
+    // tab has citty in node_modules causing duplicate type definitions
+    // @ts-expect-error
+    await tab.default(cmd, config);
+  }
+
   try {
     if (rawArgs.includes("--help") || rawArgs.includes("-h")) {
       await showUsage(...(await resolveSubCommand(cmd, rawArgs)));
