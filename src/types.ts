@@ -10,6 +10,10 @@ export type ArgType =
 
 // Args: Definition
 
+export type CompletionHandler = (
+  complete: (value: string, description?: string) => void,
+) => void | Promise<void>;
+
 export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
   type?: T;
   description?: string;
@@ -18,6 +22,7 @@ export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
   default?: VT;
   required?: boolean;
   options?: (string | number)[];
+  complete?: CompletionHandler;
 };
 
 export type BooleanArgDef = Omit<_ArgDef<"boolean", boolean>, "options"> & {
@@ -49,10 +54,10 @@ type ResolveParsedArgType<T extends ArgDef, VT> = T extends {
   required?: boolean;
 }
   ? T["default"] extends NonNullable<VT>
-    ? VT
-    : T["required"] extends true
-      ? VT
-      : VT | undefined
+  ? VT
+  : T["required"] extends true
+  ? VT
+  : VT | undefined
   : VT | undefined;
 
 type ParsedPositionalArg<T extends ArgDef> = T extends { type: "positional" }
@@ -76,8 +81,8 @@ type ParsedEnumArg<T extends ArgDef> = T extends {
   options: infer U;
 }
   ? U extends Array<any>
-    ? ResolveParsedArgType<T, U[number]>
-    : never
+  ? ResolveParsedArgType<T, U[number]>
+  : never
   : never;
 
 type RawArgs = {
@@ -115,26 +120,11 @@ export interface CommandMeta {
 
 export type SubCommandsDef = Record<string, Resolvable<CommandDef<any>>>;
 
-export type CompletionHandler = (
-  complete: (value: string, description?: string) => void,
-) => void | Promise<void>;
-
-export interface CompletionConfig {
-  options?: Record<string, CompletionHandler>;
-  args?: Record<string, CompletionHandler>;
-  subCommands?: Record<string, CompletionConfig>;
-}
-
-export interface CompletionOptions {
-  enabled?: boolean;
-  config?: CompletionConfig;
-}
-
 export type CommandDef<T extends ArgsDef = ArgsDef> = {
   meta?: Resolvable<CommandMeta>;
   args?: Resolvable<T>;
   subCommands?: Resolvable<SubCommandsDef>;
-  completions?: CompletionOptions;
+  disableCompletions?: boolean;
   setup?: (context: CommandContext<T>) => any | Promise<any>;
   cleanup?: (context: CommandContext<T>) => any | Promise<any>;
   run?: (context: CommandContext<T>) => any | Promise<any>;

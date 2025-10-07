@@ -1,4 +1,5 @@
 import consola from "consola";
+import tab from "@bomb.sh/tab/citty";
 import type { ArgsDef, CommandDef } from "./types";
 import { resolveSubCommand, runCommand } from "./command";
 import { CLIError } from "./_utils";
@@ -16,15 +17,9 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
   const rawArgs = opts.rawArgs || process.argv.slice(2);
   const showUsage = opts.showUsage || _showUsage;
 
-  const isCompletionsDisabled =
-    cmd.completions && cmd.completions.enabled === false;
-
-  if (!isCompletionsDisabled) {
-    const tab = await import("@bomb.sh/tab/citty");
-    const config = cmd.completions ? cmd.completions.config : undefined;
-    // tab has citty in node_modules causing duplicate type definitions
-    // @ts-expect-error
-    await tab.default(cmd, config);
+  if (!cmd.disableCompletions) {
+    // @ts-expect-error tab has citty in node_modules causing duplicate type definitions
+    await tab(cmd);
   }
 
   try {
