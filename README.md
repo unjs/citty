@@ -16,6 +16,7 @@ Elegant CLI Builder
 - Lazy and Async commands
 - Pluggable and composable API
 - Auto generated usage and help
+- Shell autocompletion support via [tab](https://github.com/bombshell-dev/tab) integration
 
 🚧 This project is under heavy development. More features are coming soon!
 
@@ -103,6 +104,86 @@ Renders command usage to a string value.
 ### `showUsage`
 
 Renders usage and prints to the console
+
+## Autocompletions
+
+Citty integrates seamlessly with [tab](https://github.com/bombshell-dev/tab) to provide shell autocompletions across `zsh`, `bash`, `fish`, and `powershell`.
+
+```sh
+npm install @bomb.sh/tab
+```
+
+Add autocompletions to your citty CLI:
+
+```ts
+import { defineCommand, createMain } from "citty";
+import tab from "@bomb.sh/tab/citty";
+
+const main = defineCommand({
+  meta: {
+    name: "my-cli",
+    description: "My CLI tool",
+  },
+  subCommands: {
+    dev: defineCommand({
+      meta: {
+        name: "dev",
+        description: "Start dev server",
+      },
+      args: {
+        port: {
+          type: "string",
+          description: "Specify port",
+        },
+        host: {
+          type: "string",
+          description: "Specify host",
+        },
+      },
+    }),
+  },
+});
+
+const completion = await tab(main);
+
+// Add custom completions for option values
+const devCommand = completion.commands.get("dev");
+const portOption = devCommand.options.get("port");
+if (portOption) {
+  portOption.handler = (complete) => {
+    complete("3000", "Development port");
+    complete("8080", "Production port");
+  };
+}
+
+const cli = createMain(main);
+cli();
+```
+
+### Testing Completions
+
+Test your completions locally:
+
+```sh
+node my-cli.js complete -- dev --port=<TAB>
+# Output: --port=3000  Development port
+#         --port=8080  Production port
+```
+
+### Installing Completions
+
+For end users, completions can be installed:
+
+```sh
+# One-time setup (zsh example)
+source <(my-cli complete zsh)
+
+# Permanent setup
+my-cli complete zsh > ~/.my-cli-completion.zsh
+echo 'source ~/.my-cli-completion.zsh' >> ~/.zshrc
+```
+
+Learn more about tab at [github.com/bombshell-dev/tab](https://github.com/bombshell-dev/tab).
 
 ## Development
 
