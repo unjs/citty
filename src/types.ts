@@ -54,10 +54,10 @@ type ResolveParsedArgType<T extends ArgDef, VT> = T extends {
   required?: boolean;
 }
   ? T["default"] extends NonNullable<VT>
-  ? VT
-  : T["required"] extends true
-  ? VT
-  : VT | undefined
+    ? VT
+    : T["required"] extends true
+      ? VT
+      : VT | undefined
   : VT | undefined;
 
 type ParsedPositionalArg<T extends ArgDef> = T extends { type: "positional" }
@@ -81,8 +81,8 @@ type ParsedEnumArg<T extends ArgDef> = T extends {
   options: infer U;
 }
   ? U extends Array<any>
-  ? ResolveParsedArgType<T, U[number]>
-  : never
+    ? ResolveParsedArgType<T, U[number]>
+    : never
   : never;
 
 type RawArgs = {
