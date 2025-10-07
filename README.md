@@ -107,7 +107,7 @@ Renders usage and prints to the console
 
 ## Autocompletions
 
-Citty integrates seamlessly with [tab](https://github.com/bombshell-dev/tab) to provide shell autocompletions across `zsh`, `bash`, `fish`, and `powershell`.
+Citty works with [tab](https://github.com/bombshell-dev/tab) to provide shell autocompletions across `zsh`, `bash`, `fish`, and `powershell`.
 
 ```sh
 npm install @bomb.sh/tab
