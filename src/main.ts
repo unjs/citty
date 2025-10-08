@@ -5,6 +5,7 @@ import { resolveSubCommand, runCommand } from "./command";
 import { CLIError } from "./_utils";
 import { showUsage as _showUsage } from "./usage";
 
+type TabCommand = Parameters<typeof tab>[0];
 export interface RunMainOptions {
   rawArgs?: string[];
   showUsage?: typeof _showUsage;
@@ -17,10 +18,7 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
   const rawArgs = opts.rawArgs || process.argv.slice(2);
   const showUsage = opts.showUsage || _showUsage;
 
-  if (!cmd.disableCompletions) {
-    // @ts-expect-error tab has citty in node_modules causing duplicate type definitions
-    await tab(cmd);
-  }
+  await tab(cmd as TabCommand);
 
   try {
     if (rawArgs.includes("--help") || rawArgs.includes("-h")) {
