@@ -11,7 +11,7 @@ export type ArgType =
 // Args: Definition
 
 export type CompletionHandler = (
-  complete: (value: string, description?: string) => void,
+  complete: (value: string, description: string) => void,
 ) => void | Promise<void>;
 
 export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {

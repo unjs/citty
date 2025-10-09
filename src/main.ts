@@ -1,11 +1,10 @@
 import consola from "consola";
-import tab from "@bomb.sh/tab/citty";
 import type { ArgsDef, CommandDef } from "./types";
 import { resolveSubCommand, runCommand } from "./command";
 import { CLIError } from "./_utils";
 import { showUsage as _showUsage } from "./usage";
+import { setupCompletions } from "./_completions";
 
-type TabCommand = Parameters<typeof tab>[0];
 export interface RunMainOptions {
   rawArgs?: string[];
   showUsage?: typeof _showUsage;
@@ -18,7 +17,7 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
   const rawArgs = opts.rawArgs || process.argv.slice(2);
   const showUsage = opts.showUsage || _showUsage;
 
-  await tab(cmd as TabCommand);
+  await setupCompletions(cmd);
 
   try {
     if (rawArgs.includes("--help") || rawArgs.includes("-h")) {
