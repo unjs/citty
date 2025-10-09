@@ -185,15 +185,7 @@ echo 'source ~/.my-cli-completion.zsh' >> ~/.zshrc
 
 ### Package Manager Completions
 
-When users install tab, they also get autocompletions for package managers! Tab provides completions for `pnpm`, `npm`, `yarn`, and `bun` out of the box:
-
-```sh
-# Install completions for your package manager
-npx @bomb.sh/tab pnpm zsh > ~/.pnpm-completion.zsh && echo 'source ~/.pnpm-completion.zsh' >> ~/.zshrc
-npx @bomb.sh/tab npm bash > ~/.npm-completion.bash && echo 'source ~/.npm-completion.bash' >> ~/.bashrc
-npx @bomb.sh/tab yarn fish > ~/.config/fish/completions/yarn.fish
-```
-
+When users install tab, they also get autocompletions for package managers! Tab provides completions for `pnpm`, `npm`, `yarn`, and `bun` out of the box.
 This means your users will enjoy autocompletions not only for your citty CLI but also for their everyday package manager commands!
 
 Learn more about tab at [github.com/bombshell-dev/tab](https://github.com/bombshell-dev/tab).
