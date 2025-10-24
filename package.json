@@ -30,7 +30,7 @@
     "test": "pnpm lint && vitest run --coverage"
   },
   "dependencies": {
-    "@bomb.sh/tab": "^0.0.5",
+    "@bomb.sh/tab": "^0.0.7",
     "consola": "^3.4.0"
   },
   "devDependencies": {
