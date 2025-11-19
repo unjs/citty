@@ -119,7 +119,7 @@ export function parseRawArgs<T = Default>(
 
     if (j === 0) {
       out._.push(arg);
-    } else if (arg.substring(j, j + 3) === "no-") {
+    } else if (j === 2 && arg.substring(j, j + 3) === "no-") {
       name = arg.slice(Math.max(0, j + 3));
       if (strict && !~keys.indexOf(name)) {
         return opts.unknown(arg);
