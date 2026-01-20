@@ -1,4 +1,5 @@
 import { defineCommand, runMain } from "../src/index.ts";
+import { registerTabCompletions } from "../src/tab.ts";
 
 const main = defineCommand({
   meta: {
@@ -18,5 +19,7 @@ const main = defineCommand({
     debug: () => import("./commands/debug.ts").then((r) => r.default),
   },
 });
+
+await registerTabCompletions(main);
 
 runMain(main);

@@ -4,6 +4,10 @@ export type ArgType = "boolean" | "string" | "enum" | "positional" | undefined;
 
 // Args: Definition
 
+export type CompletionHandler = (
+  complete: (value: string, description: string) => void,
+) => void | Promise<void>;
+
 export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
   type?: T;
   description?: string;
@@ -11,6 +15,7 @@ export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
   alias?: string | string[];
   default?: VT;
   required?: boolean;
+  complete?: CompletionHandler;
   options?: string[];
 };
 
