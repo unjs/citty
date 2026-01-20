@@ -30,9 +30,6 @@ importers:
       eslint-config-unjs:
         specifier: ^0.6.2
         version: 0.6.2(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
-      jiti:
-        specifier: ^2.6.1
-        version: 2.6.1
       obuild:
         specifier: ^0.4.18
         version: 0.4.18(magicast@0.5.1)(typescript@5.9.3)
