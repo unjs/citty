@@ -34,6 +34,15 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
     await cmd.setup(context);
   }
 
+  // Checkout default sub command
+  const defaultSubCommand = await resolveValue(cmd.default);
+  if (defaultSubCommand && cmd.run) {
+    throw new CLIError(
+      `Command has a handler specified and a default sub command.`,
+      "E_DUPLICATE_COMMAND",
+    );
+  }
+
   // Handle sub command
   let result: unknown;
   try {
@@ -42,7 +51,8 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
       const subCommandArgIndex = opts.rawArgs.findIndex(
         (arg) => !arg.startsWith("-"),
       );
-      const subCommandName = opts.rawArgs[subCommandArgIndex];
+      const subCommandName =
+        opts.rawArgs[subCommandArgIndex] || defaultSubCommand;
       if (subCommandName) {
         if (!subCommands[subCommandName]) {
           throw new CLIError(

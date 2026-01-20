@@ -105,6 +105,7 @@ export type SubCommandsDef = Record<string, Resolvable<CommandDef<any>>>;
 export type CommandDef<T extends ArgsDef = ArgsDef> = {
   meta?: Resolvable<CommandMeta>;
   args?: Resolvable<T>;
+  default?: Resolvable<keyof ArgsDef | string>;
   subCommands?: Resolvable<SubCommandsDef>;
   setup?: (context: CommandContext<T>) => any | Promise<any>;
   cleanup?: (context: CommandContext<T>) => any | Promise<any>;
