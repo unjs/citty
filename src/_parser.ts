@@ -1,29 +1,22 @@
 import { parseArgs } from "node:util";
 
-type Dict<T> = Record<string, T>;
-type Arrayable<T> = T | T[];
-
 export interface ParseOptions {
-  boolean?: Arrayable<string>;
-  string?: Arrayable<string>;
-  alias?: Dict<Arrayable<string>>;
-  default?: Dict<any>;
+  boolean?: string[];
+  string?: string[];
+  alias?: Record<string, string[]>;
+  default?: Record<string, any>;
 }
 
-export type Argv<T = Dict<any>> = T & {
+export type Argv<T = Record<string, any>> = T & {
   _: string[];
 };
 
-function toArr<T>(any: Arrayable<T> | undefined): T[] {
-  return any == undefined ? [] : Array.isArray(any) ? any : [any];
-}
-
-export function parseRawArgs<T = Dict<any>>(
+export function parseRawArgs<T = Record<string, any>>(
   args: string[] = [],
   opts: ParseOptions = {},
 ): Argv<T> {
-  const booleans = new Set(toArr(opts.boolean));
-  const strings = new Set(toArr(opts.string));
+  const booleans = new Set(opts.boolean || []);
+  const strings = new Set(opts.string || []);
   const aliasMap = opts.alias || {};
   const defaults = opts.default || {};
 
@@ -34,7 +27,7 @@ export function parseRawArgs<T = Dict<any>>(
   const mainToAliases: Map<string, string[]> = new Map();
 
   for (const [key, value] of Object.entries(aliasMap)) {
-    const targets = toArr(value);
+    const targets = value;
     for (const target of targets) {
       // key is an alias for target
       aliasToMain.set(key, target);
@@ -79,7 +72,7 @@ export function parseRawArgs<T = Dict<any>>(
     ...booleans,
     ...strings,
     ...Object.keys(aliasMap),
-    ...Object.values(aliasMap).flatMap((v) => toArr(v)),
+    ...Object.values(aliasMap).flat(),
     ...Object.keys(defaults),
   ]);
 

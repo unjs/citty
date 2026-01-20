@@ -25,7 +25,7 @@ describe("parseRawArgs", () => {
   });
 
   it("handles aliases", () => {
-    const result = parseRawArgs(["-n", "John"], { alias: { n: "name" } });
+    const result = parseRawArgs(["-n", "John"], { alias: { n: ["name"] } });
 
     expect(result).toEqual({
       _: [],

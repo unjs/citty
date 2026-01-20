@@ -10,10 +10,9 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
   const parseOptions = {
     boolean: [] as string[],
     string: [] as string[],
-    enum: [] as string[],
-    alias: {} as Record<string, string | string[]>,
+    alias: {} as Record<string, string[]>,
     default: {} as Record<string, boolean | string>,
-  } satisfies ParseOptions & { enum: string[] };
+  } satisfies ParseOptions;
 
   const args = resolveArgs(argsDef);
 
@@ -21,16 +20,11 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
     if (arg.type === "positional") {
       continue;
     }
-    // eslint-disable-next-line unicorn/prefer-switch
-    if (arg.type === "string") {
+    if (arg.type === "string" || arg.type === "enum") {
       parseOptions.string.push(arg.name);
     } else if (arg.type === "boolean") {
       parseOptions.boolean.push(arg.name);
-    } else if (arg.type === "enum") {
-      parseOptions.string.push(arg.name);
-      parseOptions.enum.push(...(arg.options || []));
     }
-
     if (arg.default !== undefined) {
       parseOptions.default[arg.name] = arg.default;
     }
