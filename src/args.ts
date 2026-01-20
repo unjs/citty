@@ -29,6 +29,7 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
     } else if (arg.type === "boolean") {
       parseOptions.boolean.push(arg.name);
     } else if (arg.type === "enum") {
+      parseOptions.string.push(arg.name);
       parseOptions.enum.push(...(arg.options || []));
     }
 
@@ -37,6 +38,22 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
     }
     if (arg.alias) {
       parseOptions.alias[arg.name] = arg.alias;
+    }
+
+    // Add camelCase/kebab-case variants as aliases for case-insensitive matching
+    const camelName = camelCase(arg.name);
+    const kebabName = kebabCase(arg.name);
+    if (camelName !== arg.name || kebabName !== arg.name) {
+      const existingAliases = toArray(parseOptions.alias[arg.name] || []);
+      if (camelName !== arg.name && !existingAliases.includes(camelName)) {
+        existingAliases.push(camelName);
+      }
+      if (kebabName !== arg.name && !existingAliases.includes(kebabName)) {
+        existingAliases.push(kebabName);
+      }
+      if (existingAliases.length > 0) {
+        parseOptions.alias[arg.name] = existingAliases;
+      }
     }
   }
 
