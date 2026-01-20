@@ -1,5 +1,5 @@
 import { kebabCase, camelCase } from "scule";
-import { parseRawArgs } from "./_parser.ts";
+import { parseRawArgs, type ParseOptions } from "./_parser.ts";
 import type { Arg, ArgsDef, ParsedArgs } from "./types.ts";
 import { CLIError, toArray } from "./_utils.ts";
 
@@ -10,10 +10,10 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
   const parseOptions = {
     boolean: [] as string[],
     string: [] as string[],
-    enum: [] as (number | string)[],
+    enum: [] as string[],
     alias: {} as Record<string, string | string[]>,
     default: {} as Record<string, boolean | string>,
-  };
+  } satisfies ParseOptions & { enum: string[] };
 
   const args = resolveArgs(argsDef);
 

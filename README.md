@@ -11,7 +11,7 @@
 Elegant CLI Builder
 
 - Fast and lightweight argument parser based on [mri](https://github.com/lukeed/mri)
-- Smart value parsing with typecast, boolean shortcuts and unknown flag handling
+- Smart value parsing with typecast and boolean shortcuts
 - Nested sub-commands
 - Lazy and Async commands
 - Pluggable and composable API

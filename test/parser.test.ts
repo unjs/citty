@@ -15,14 +15,6 @@ describe("parseRawArgs", () => {
     });
   });
 
-  it("handles unknown options", () => {
-    const result = parseRawArgs(["--unknown", "value"], {
-      unknown: () => false,
-    });
-
-    expect(result).toEqual(false);
-  });
-
   it("handles default values", () => {
     const result = parseRawArgs([], { default: { name: "Default" } });
 

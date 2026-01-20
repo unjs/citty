@@ -3,12 +3,11 @@ import { parseArgs } from "node:util";
 type Dict<T> = Record<string, T>;
 type Arrayable<T> = T | T[];
 
-export interface Options {
+export interface ParseOptions {
   boolean?: Arrayable<string>;
   string?: Arrayable<string>;
   alias?: Dict<Arrayable<string>>;
   default?: Dict<any>;
-  unknown?(flag: string): void;
 }
 
 export type Argv<T = Dict<any>> = T & {
@@ -21,13 +20,12 @@ function toArr<T>(any: Arrayable<T> | undefined): T[] {
 
 export function parseRawArgs<T = Dict<any>>(
   args: string[] = [],
-  opts: Options = {},
+  opts: ParseOptions = {},
 ): Argv<T> {
   const booleans = new Set(toArr(opts.boolean));
   const strings = new Set(toArr(opts.string));
   const aliasMap = opts.alias || {};
   const defaults = opts.default || {};
-  const strict = opts.unknown !== undefined;
 
   // Build a normalized alias map where we track primary -> aliases relationships
   // The input format is { alias: primary } or { alias: [primary1, primary2] }
@@ -65,9 +63,6 @@ export function parseRawArgs<T = Dict<any>>(
     }
   > = {};
 
-  // Track all known option names (including aliases)
-  const knownOptions = new Set<string>();
-
   // Helper to get option type
   function getType(name: string): "boolean" | "string" {
     if (booleans.has(name)) return "boolean";
@@ -90,7 +85,6 @@ export function parseRawArgs<T = Dict<any>>(
 
   // Register all options
   for (const name of allOptions) {
-    knownOptions.add(name);
     if (!options[name]) {
       const type = getType(name);
       options[name] = {
@@ -123,37 +117,11 @@ export function parseRawArgs<T = Dict<any>>(
     // Handle --no-flag syntax
     if (arg.startsWith("--no-")) {
       const flagName = arg.slice(5);
-      if (!strict || knownOptions.has(flagName)) {
-        negatedFlags[flagName] = true;
-        continue;
-      }
+      negatedFlags[flagName] = true;
+      continue;
     }
 
     processedArgs.push(arg);
-  }
-
-  // Handle unknown option detection for strict mode
-  if (strict) {
-    for (const arg of processedArgs) {
-      if (arg === "--") break;
-
-      if (arg.startsWith("--")) {
-        const eqIndex = arg.indexOf("=");
-        const name = eqIndex > -1 ? arg.slice(2, eqIndex) : arg.slice(2);
-        if (!knownOptions.has(name) && !options[name]) {
-          return opts.unknown!(arg) as any;
-        }
-      } else if (arg.startsWith("-") && arg.length > 1 && arg[1] !== "-") {
-        // Short option(s)
-        for (let j = 1; j < arg.length; j++) {
-          const char = arg[j];
-          if (char === "=") break;
-          if (!knownOptions.has(char!)) {
-            return opts.unknown!("-" + char) as any;
-          }
-        }
-      }
-    }
   }
 
   let parsed: { values: Record<string, any>; positionals: string[] };
@@ -163,7 +131,7 @@ export function parseRawArgs<T = Dict<any>>(
       args: processedArgs,
       options: Object.keys(options).length > 0 ? options : undefined,
       allowPositionals: true,
-      strict: false, // We handle strict mode ourselves above
+      strict: false,
     });
   } catch {
     // Fallback for parsing errors

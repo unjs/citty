@@ -18,7 +18,7 @@ const command = defineCommand({
       description: "Use friendly greeting",
     },
     age: {
-      type: "number",
+      type: "string",
       description: "Your age",
       required: false,
     },

@@ -1,11 +1,6 @@
 // ----- Args -----
 
-export type ArgType =
-  | "boolean"
-  | "string"
-  | "enum"
-  | "positional"
-  | undefined;
+export type ArgType = "boolean" | "string" | "enum" | "positional" | undefined;
 
 // Args: Definition
 
@@ -16,7 +11,7 @@ export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
   alias?: string | string[];
   default?: VT;
   required?: boolean;
-  options?: (string | number)[];
+  options?: string[];
 };
 
 export type BooleanArgDef = Omit<_ArgDef<"boolean", boolean>, "options"> & {
@@ -87,7 +82,7 @@ type ParsedArg<T extends ArgDef> =
 
 // prettier-ignore
 export type ParsedArgs<T extends ArgsDef = ArgsDef> = RawArgs &
-  { [K in keyof T]: ParsedArg<T[K]>; } & 
+  { [K in keyof T]: ParsedArg<T[K]>; } &
   { [K in keyof T as T[K] extends { alias: string } ? T[K]["alias"] : never]: ParsedArg<T[K]> } &
   { [K in keyof T as T[K] extends { alias: string[] } ? T[K]["alias"][number] : never]: ParsedArg<T[K]> } &
   Record<string, string | number | boolean | string[]>;
