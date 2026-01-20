@@ -86,7 +86,7 @@ describe("args", () => {
     [
       ["--value", "three"],
       { value: { type: "enum", options: ["one", "two"] } },
-      "Invalid value for argument: `--value` (`three`). Expected one of: `one`, `two`.",
+      "Invalid value for argument: --value (three). Expected one of: one, two.",
     ],
   ])("should throw error with %o (%o)", (rawArgs, definition, result) => {
     // TODO: should check for exact match

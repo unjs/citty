@@ -1,4 +1,3 @@
-import consola from "consola";
 import { defineCommand, createMain } from "../src/index.ts";
 
 const command = defineCommand({
@@ -31,7 +30,7 @@ const command = defineCommand({
     },
   },
   run({ args }) {
-    consola.log(args);
+    console.log(args);
     const msg = [
       args.friendly ? "Hi" : "Greetings",
       args.adj || "",
@@ -41,7 +40,7 @@ const command = defineCommand({
       .filter(Boolean)
       .join(" ");
 
-    consola.log(msg);
+    console.log(msg);
   },
 });
 

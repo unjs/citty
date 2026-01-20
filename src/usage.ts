@@ -1,5 +1,4 @@
-import consola from "consola";
-import { colors } from "consola/utils";
+import * as colors from "./_color.ts";
 import { formatLineColumns, resolveValue } from "./_utils.ts";
 import type { ArgsDef, CommandDef } from "./types.ts";
 import { resolveArgs } from "./args.ts";
@@ -9,9 +8,9 @@ export async function showUsage<T extends ArgsDef = ArgsDef>(
   parent?: CommandDef<T>,
 ) {
   try {
-    consola.log((await renderUsage(cmd, parent)) + "\n");
+    console.log((await renderUsage(cmd, parent)) + "\n");
   } catch (error) {
-    consola.error(error);
+    console.error(error);
   }
 }
 
@@ -42,7 +41,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
       // (isRequired ? " (required)" : " (optional)"
       const defaultHint = arg.default ? `="${arg.default}"` : "";
       posLines.push([
-        "`" + name + defaultHint + "`",
+        colors.cyan(name + defaultHint),
         arg.description || "",
         arg.valueHint ? `<${arg.valueHint}>` : "",
       ]);
@@ -60,7 +59,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
           ? `=<${arg.options.join("|")}>`
           : "");
       argLines.push([
-        "`" + argStr + (isRequired ? " (required)" : "") + "`",
+        colors.cyan(argStr + (isRequired ? " (required)" : "")),
         arg.description || "",
       ]);
 
@@ -79,7 +78,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
           `--no-${arg.name}`,
         ].join(", ");
         argLines.push([
-          "`" + negativeArgStr + (isRequired ? " (required)" : "") + "`",
+          colors.cyan(negativeArgStr + (isRequired ? " (required)" : "")),
           arg.negativeDescription || "",
         ]);
       }
@@ -99,7 +98,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
       if (meta?.hidden) {
         continue;
       }
-      commandsLines.push([`\`${name}\``, meta?.description || ""]);
+      commandsLines.push([colors.cyan(name), meta?.description || ""]);
       commandNames.push(name);
     }
     usageLine.push(commandNames.join("|"));
@@ -120,9 +119,9 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
 
   const hasOptions = argLines.length > 0 || posLines.length > 0;
   usageLines.push(
-    `${colors.underline(colors.bold("USAGE"))} \`${commandName}${
-      hasOptions ? " [OPTIONS]" : ""
-    } ${usageLine.join(" ")}\``,
+    `${colors.underline(colors.bold("USAGE"))} ${colors.cyan(
+      `${commandName}${hasOptions ? " [OPTIONS]" : ""} ${usageLine.join(" ")}`,
+    )}`,
     "",
   );
 
@@ -143,7 +142,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
     usageLines.push(formatLineColumns(commandsLines, "  "));
     usageLines.push(
       "",
-      `Use \`${commandName} <command> --help\` for more information about a command.`,
+      `Use ${colors.cyan(`${commandName} <command> --help`)} for more information about a command.`,
     );
   }
 

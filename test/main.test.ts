@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, afterAll } from "vitest";
-import consola from "consola";
 import {
   createMain,
   defineCommand,
@@ -13,11 +12,11 @@ describe("runMain", () => {
   vi.spyOn(process, "exit").mockImplementation(() => 0 as never);
 
   const consoleMock = vi
-    .spyOn(consola, "log")
+    .spyOn(console, "log")
     .mockImplementation(() => undefined);
 
-  const consolaErrorMock = vi
-    .spyOn(consola, "error")
+  const consoleErrorMock = vi
+    .spyOn(console, "error")
     .mockImplementation(() => undefined);
 
   afterAll(() => {
@@ -59,7 +58,7 @@ describe("runMain", () => {
 
     const usage = await renderUsage(command);
     expect(consoleMock).toHaveBeenCalledWith(usage + "\n");
-    expect(consolaErrorMock).toHaveBeenCalledWith("No version specified");
+    expect(consoleErrorMock).toHaveBeenCalledWith("No version specified");
   });
 
   it.each([["--help"], ["-h"]])("shows usage with flag `%s`", async (flag) => {
@@ -87,7 +86,7 @@ describe("runMain", () => {
       });
 
       const customUsage: typeof showUsage = async () => {
-        consola.log("Custom usage");
+        console.log("Custom usage");
       };
 
       await runMain(command, { rawArgs: [flag], showUsage: customUsage });

@@ -1,4 +1,3 @@
-import consola from "consola";
 import type { ArgsDef, CommandDef } from "./types.ts";
 import { resolveSubCommand, runCommand } from "./command.ts";
 import { CLIError } from "./_utils.ts";
@@ -25,7 +24,7 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
       if (!meta?.version) {
         throw new CLIError("No version specified", "E_NO_VERSION");
       }
-      consola.log(meta.version);
+      console.log(meta.version);
     } else {
       await runCommand(cmd, { rawArgs });
     }
@@ -33,9 +32,9 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
     const isCLIError = error instanceof CLIError;
     if (isCLIError) {
       await showUsage(...(await resolveSubCommand(cmd, rawArgs)));
-      consola.error(error.message);
+      console.error(error.message);
     } else {
-      consola.error(error, "\n");
+      console.error(error, "\n");
     }
     process.exit(1);
   }

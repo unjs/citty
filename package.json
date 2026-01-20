@@ -24,9 +24,6 @@
     "test": "pnpm lint && pnpm test:types && vitest run --coverage",
     "test:types": "tsc --noEmit"
   },
-  "dependencies": {
-    "consola": "^3.4.2"
-  },
   "devDependencies": {
     "@types/node": "^25.0.9",
     "@vitest/coverage-v8": "^4.0.17",

@@ -7,10 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      consola:
-        specifier: ^3.4.2
-        version: 3.4.2
     devDependencies:
       '@types/node':
         specifier: ^25.0.9
