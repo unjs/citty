@@ -10,38 +10,25 @@
 
 Elegant CLI Builder
 
-- Fast and lightweight argument parser based on [mri](https://github.com/lukeed/mri)
+- Fast and lightweight argument parser
 - Smart value parsing with typecast and boolean shortcuts
 - Nested sub-commands
 - Lazy and Async commands
 - Pluggable and composable API
 - Auto generated usage and help
 
-🚧 This project is under heavy development. More features are coming soon!
-
 ## Usage
 
 Install package:
 
 ```sh
-# npm
-npm install citty
-
-# yarn
-yarn add citty
-
-# pnpm
-pnpm install citty
+npx nypm add -D citty
 ```
 
 Import:
 
 ```js
-// ESM
 import { defineCommand, runMain } from "citty";
-
-// CommonJS
-const { defineCommand, runMain } = require("citty");
 ```
 
 Define main command to run:
@@ -115,5 +102,3 @@ Renders usage and prints to the console
 ## License
 
 Made with 💛 Published under [MIT License](./LICENSE).
-
-Argument parser is based on [lukeed/mri](https://github.com/lukeed/mri) by Luke Edwards ([@lukeed](https://github.com/lukeed)).
