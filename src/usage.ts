@@ -119,9 +119,9 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
 
   const hasOptions = argLines.length > 0 || posLines.length > 0;
   usageLines.push(
-    `${colors.underline(colors.bold("USAGE"))} ${colors.cyan(`${commandName}${
-      hasOptions ? " [OPTIONS]" : ""
-    } ${usageLine.join(" ")}`)}`,
+    `${colors.underline(colors.bold("USAGE"))} ${colors.cyan(
+      `${commandName}${hasOptions ? " [OPTIONS]" : ""} ${usageLine.join(" ")}`,
+    )}`,
     "",
   );
 
