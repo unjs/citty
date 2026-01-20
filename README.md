@@ -10,7 +10,8 @@
 
 Elegant CLI Builder
 
-- Fast and lightweight argument parser
+- Zero dependency
+- Fast and lightweight argument parser (based on native [node utils](arg parser](https://nodejs.org/api/util.html#utilparseargsconfig))
 - Smart value parsing with typecast and boolean shortcuts
 - Nested sub-commands
 - Lazy and Async commands
