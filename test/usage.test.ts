@@ -42,20 +42,20 @@ describe("usage", () => {
     const usage = await renderUsage(command);
 
     expect(usage).toMatchInlineSnapshot(`
-      "[90mA command (Commander)[39m
+      "A command (Commander)
 
-      [4m[1mUSAGE[22m[24m [36mCommander [OPTIONS] --foo <POS>[39m
+      USAGE Commander [OPTIONS] --foo <POS>
 
-      [4m[1mARGUMENTS[22m[24m
+      ARGUMENTS
 
-        [36mPOS[39m    A pos    
+        POS    A pos    
 
-      [4m[1mOPTIONS[22m[24m
+      OPTIONS
 
-        [36m--foo (required)[39m    A foo    
-               [36m-b, --bar[39m    A bar    
-            [36m--enum=<a|b>[39m    An enum  
-               [36m--boolean[39m    A boolean
+        --foo (required)    A foo    
+               -b, --bar    A bar    
+            --enum=<a|b>    An enum  
+               --boolean    A boolean
       "
     `);
   });
@@ -80,14 +80,14 @@ describe("usage", () => {
     const usage = await renderUsage(command);
 
     expect(usage).toMatchInlineSnapshot(`
-      "[90mA command (Commander)[39m
+      "A command (Commander)
 
-      [4m[1mUSAGE[22m[24m [36mCommander [OPTIONS] [39m
+      USAGE Commander [OPTIONS] 
 
-      [4m[1mOPTIONS[22m[24m
+      OPTIONS
 
-           [36m--boolean[39m    A boolean         
-        [36m--no-boolean[39m    A negative boolean
+           --boolean    A boolean         
+        --no-boolean    A negative boolean
       "
     `);
   });
@@ -110,13 +110,13 @@ describe("usage", () => {
     const usage = await renderUsage(command);
 
     expect(usage).toMatchInlineSnapshot(`
-      "[90mA command (Commander)[39m
+      "A command (Commander)
 
-      [4m[1mUSAGE[22m[24m [36mCommander [OPTIONS] [39m
+      USAGE Commander [OPTIONS] 
 
-      [4m[1mOPTIONS[22m[24m
+      OPTIONS
 
-        [36m--foo=<FOO>[39m    A foo
+        --foo=<FOO>    A foo
       "
     `);
   });
@@ -139,13 +139,13 @@ describe("usage", () => {
     const usage = await renderUsage(command);
 
     expect(usage).toMatchInlineSnapshot(`
-      "[90mA command (Commander)[39m
+      "A command (Commander)
 
-      [4m[1mUSAGE[22m[24m [36mCommander [OPTIONS] [39m
+      USAGE Commander [OPTIONS] 
 
-      [4m[1mOPTIONS[22m[24m
+      OPTIONS
 
-        [36m--foo="bar"[39m    A foo
+        --foo="bar"    A foo
       "
     `);
   });
@@ -169,15 +169,15 @@ describe("usage", () => {
     const usage = await renderUsage(command);
 
     expect(usage).toMatchInlineSnapshot(`
-      "[90mA command (Commander)[39m
+      "A command (Commander)
 
-      [4m[1mUSAGE[22m[24m [36mCommander sub[39m
+      USAGE Commander sub
 
-      [4m[1mCOMMANDS[22m[24m
+      COMMANDS
 
-        [36msub[39m    A subcommand
+        sub    A subcommand
 
-      Use [36mCommander <command> --help[39m for more information about a command."
+      Use Commander <command> --help for more information about a command."
     `);
   });
 
@@ -206,19 +206,19 @@ describe("usage", () => {
     const usage = await renderUsage(command);
 
     expect(usage).toMatchInlineSnapshot(`
-      "[90mA command (Commander)[39m
+      "A command (Commander)
 
-      [4m[1mUSAGE[22m[24m [36mCommander [OPTIONS] --foo sub[39m
+      USAGE Commander [OPTIONS] --foo sub
 
-      [4m[1mOPTIONS[22m[24m
+      OPTIONS
 
-        [36m--foo (required)[39m    A foo
+        --foo (required)    A foo
 
-      [4m[1mCOMMANDS[22m[24m
+      COMMANDS
 
-        [36msub[39m    A subcommand
+        sub    A subcommand
 
-      Use [36mCommander <command> --help[39m for more information about a command."
+      Use Commander <command> --help for more information about a command."
     `);
   });
 
@@ -248,15 +248,15 @@ describe("usage", () => {
     const usage = await renderUsage(command);
 
     expect(usage).toMatchInlineSnapshot(`
-      "[90mA command (Commander)[39m
+      "A command (Commander)
 
-      [4m[1mUSAGE[22m[24m [36mCommander start[39m
+      USAGE Commander start
 
-      [4m[1mCOMMANDS[22m[24m
+      COMMANDS
 
-        [36mstart[39m    A start
+        start    A start
 
-      Use [36mCommander <command> --help[39m for more information about a command."
+      Use Commander <command> --help for more information about a command."
     `);
   });
 
@@ -289,19 +289,19 @@ describe("usage", () => {
     const usage = await renderUsage(childCommand, parentCommand as any);
 
     expect(usage).toMatchInlineSnapshot(`
-      "[90mA child command (parent-command child-command)[39m
+      "A child command (parent-command child-command)
 
-      [4m[1mUSAGE[22m[24m [36mparent-command child-command [OPTIONS] sub-command[39m
+      USAGE parent-command child-command [OPTIONS] sub-command
 
-      [4m[1mOPTIONS[22m[24m
+      OPTIONS
 
-        [36m--foo[39m    A foo
+        --foo    A foo
 
-      [4m[1mCOMMANDS[22m[24m
+      COMMANDS
 
-        [36msub-command[39m    
+        sub-command    
 
-      Use [36mparent-command child-command <command> --help[39m for more information about a command."
+      Use parent-command child-command <command> --help for more information about a command."
     `);
   });
 });
