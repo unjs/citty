@@ -99,7 +99,10 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
       if (meta?.hidden) {
         continue;
       }
-      commandsLines.push([`\`${name}\``, meta?.description || ""]);
+      commandsLines.push([
+        `\`${[name, ...(meta?.aliases || [])].join(", ")}\``,
+        meta?.description || "",
+      ]);
       commandNames.push(name);
     }
     usageLine.push(commandNames.join("|"));
