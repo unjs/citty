@@ -10,11 +10,9 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
   const parseOptions = {
     boolean: [] as string[],
     string: [] as string[],
-    number: [] as string[],
     enum: [] as (number | string)[],
-    mixed: [] as string[],
     alias: {} as Record<string, string | string[]>,
-    default: {} as Record<string, boolean | number | string>,
+    default: {} as Record<string, boolean | string>,
   };
 
   const args = resolveArgs(argsDef);
@@ -24,7 +22,7 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
       continue;
     }
     // eslint-disable-next-line unicorn/prefer-switch
-    if (arg.type === "string" || arg.type === "number") {
+    if (arg.type === "string") {
       parseOptions.string.push(arg.name);
     } else if (arg.type === "boolean") {
       parseOptions.boolean.push(arg.name);
@@ -67,7 +65,6 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
   });
 
   for (const [, arg] of args.entries()) {
-    // eslint-disable-next-line unicorn/prefer-switch
     if (arg.type === "positional") {
       const nextPositionalArgument = positionalArguments.shift();
       if (nextPositionalArgument !== undefined) {
@@ -90,27 +87,6 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
       ) {
         throw new CLIError(
           `Invalid value for argument: \`--${arg.name}\` (\`${argument}\`). Expected one of: ${options.map((o) => `\`${o}\``).join(", ")}.`,
-          "EARG",
-        );
-      }
-    } else if (arg.type === "number") {
-      if (parsedArgsProxy[arg.name] === undefined) {
-        if (arg.required) {
-          throw new CLIError(
-            `Missing required argument: --${arg.name}`,
-            "EARG",
-          );
-        }
-        continue;
-      }
-
-      const _originalValue = parsedArgsProxy[arg.name];
-      parsedArgsProxy[arg.name] = Number.parseFloat(
-        parsedArgsProxy[arg.name] as string,
-      );
-      if (Number.isNaN(parsedArgsProxy[arg.name])) {
-        throw new CLIError(
-          `Invalid value for argument: \`--${arg.name}\` (\`${_originalValue}\`). Expected a number.`,
           "EARG",
         );
       }

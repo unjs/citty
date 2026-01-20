@@ -92,7 +92,11 @@ export function parseRawArgs<T = Dict<any>>(
   for (const name of allOptions) {
     knownOptions.add(name);
     if (!options[name]) {
-      options[name] = { type: getType(name) };
+      const type = getType(name);
+      options[name] = {
+        type,
+        default: defaults[name],
+      };
     }
   }
 
@@ -102,11 +106,6 @@ export function parseRawArgs<T = Dict<any>>(
       options[main].short = alias;
     }
   }
-
-  // Note: We don't pass defaults to node:util parseArgs because it requires
-  // the default type to match the option type (e.g., string default for string option).
-  // Citty allows number defaults for "number" type args which are parsed as strings.
-  // We apply defaults manually after parsing instead.
 
   // Handle --no- prefixed arguments by preprocessing
   const processedArgs: string[] = [];
@@ -185,13 +184,6 @@ export function parseRawArgs<T = Dict<any>>(
   // Apply negated flags
   for (const [name] of Object.entries(negatedFlags)) {
     (out as any)[name] = false;
-  }
-
-  // Apply defaults for missing values
-  for (const [name, defaultValue] of Object.entries(defaults)) {
-    if ((out as any)[name] === undefined) {
-      (out as any)[name] = defaultValue;
-    }
   }
 
   // Propagate values between aliases
