@@ -1,6 +1,78 @@
 # Changelog
 
 
+## v0.2.0
+
+[compare changes](https://github.com/unjs/citty/compare/v0.1.6...v0.2.0)
+
+### 🚀 Enhancements
+
+- Support `hidden` meta to hide command ([#111](https://github.com/unjs/citty/pull/111))
+- Support `enum` arg type ([#83](https://github.com/unjs/citty/pull/83))
+- Support `number` arg type ([#73](https://github.com/unjs/citty/pull/73))
+- Support `negativeDescription` for args ([#40](https://github.com/unjs/citty/pull/40))
+- ⚠️  Parsed optionals and enum type safety ([#174](https://github.com/unjs/citty/pull/174))
+
+### 🩹 Fixes
+
+- ⚠️  Conditionally print negative boolean argument usage ([#177](https://github.com/unjs/citty/pull/177))
+- **types:** Value type of NumberArgDef should be number ([#183](https://github.com/unjs/citty/pull/183))
+- Show cli error message ([#186](https://github.com/unjs/citty/pull/186))
+- Allow `number` arg to be optional ([#194](https://github.com/unjs/citty/pull/194))
+
+### 💅 Refactors
+
+- Show error once ([#167](https://github.com/unjs/citty/pull/167))
+- More strict types ([f597897](https://github.com/unjs/citty/commit/f597897))
+- ⚠️  Use `node:util.parseArgs` for arg parsing ([#218](https://github.com/unjs/citty/pull/218))
+- Use simple console formatting ([#219](https://github.com/unjs/citty/pull/219))
+
+### 📦 Build
+
+- ⚠️  Esm-only dist ([42b57b0](https://github.com/unjs/citty/commit/42b57b0))
+
+### 🏡 Chore
+
+- Use automd for badges ([b8371c4](https://github.com/unjs/citty/commit/b8371c4))
+- Apply automated lint fixes ([34c52a2](https://github.com/unjs/citty/commit/34c52a2))
+- Fix typos ([#143](https://github.com/unjs/citty/pull/143))
+- Update repo ([d1ed3b4](https://github.com/unjs/citty/commit/d1ed3b4))
+- Fix ci script ([e13cb1e](https://github.com/unjs/citty/commit/e13cb1e))
+- Apply automated updates ([3838771](https://github.com/unjs/citty/commit/3838771))
+- Add vitest.config ([eb5c799](https://github.com/unjs/citty/commit/eb5c799))
+- Update dependencies ([5d0a84e](https://github.com/unjs/citty/commit/5d0a84e))
+- Remove extra file ([b90a84a](https://github.com/unjs/citty/commit/b90a84a))
+
+### ✅ Tests
+
+- Add unit tests for internal utils ([#77](https://github.com/unjs/citty/pull/77))
+- Add test for args ([#160](https://github.com/unjs/citty/pull/160))
+- Add test for runMain ([#162](https://github.com/unjs/citty/pull/162))
+- Add test for usage ([#161](https://github.com/unjs/citty/pull/161))
+- Add test for parser ([#192](https://github.com/unjs/citty/pull/192))
+- Add test for subcommand ([#191](https://github.com/unjs/citty/pull/191))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Parsed optionals and enum type safety ([#174](https://github.com/unjs/citty/pull/174))
+- ⚠️  Conditionally print negative boolean argument usage ([#177](https://github.com/unjs/citty/pull/177))
+- ⚠️  Use `node:util.parseArgs` for arg parsing ([#218](https://github.com/unjs/citty/pull/218))
+- ⚠️  Esm-only dist ([42b57b0](https://github.com/unjs/citty/commit/42b57b0))
+
+### ❤️ Contributors
+
+- Pooya Parsa ([@pi0](https://github.com/pi0))
+- Kricsleo ([@kricsleo](https://github.com/kricsleo))
+- Kanon ([@ysknsid25](https://github.com/ysknsid25))
+- Bobbie Goede <bobbiegoede@gmail.com>
+- Estéban ([@Barbapapazes](https://github.com/Barbapapazes))
+- IWANABETHATGUY <974153916@qq.com>
+- Kentaro Suzuki <mail@sushichan.live>
+- Xjccc ([@xjccc](https://github.com/xjccc))
+- Zuixinwang ([@zuixinwang](https://github.com/zuixinwang))
+- K-Sato <satokatsuki0130@gmail.com>
+- Lsh ([@peterroe](https://github.com/peterroe))
+
 ## v0.1.6
 
 [compare changes](https://github.com/unjs/citty/compare/v0.1.5...v0.1.6)
