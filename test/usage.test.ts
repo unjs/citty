@@ -1,6 +1,6 @@
 import { expect, it, describe, vi } from "vitest";
-import { renderUsage } from "../src/usage";
-import { defineCommand } from "../src";
+import { renderUsage } from "../src/usage.ts";
+import { defineCommand } from "../src/index.ts";
 
 vi.mock("consola/utils", async () => {
   const mod = await vi.importActual("consola/utils");
@@ -8,10 +8,10 @@ vi.mock("consola/utils", async () => {
   return {
     ...mod,
     colors: {
-      ...mod.colors,
-      underline: (val) => val,
-      bold: (val) => val,
-      gray: (val) => val,
+      ...(mod.colors as any),
+      underline: (val: string) => val,
+      bold: (val: string) => val,
+      gray: (val: string) => val,
     },
   };
 });
@@ -300,7 +300,7 @@ describe("usage", () => {
       },
     });
 
-    const usage = await renderUsage(childCommand, parentCommand);
+    const usage = await renderUsage(childCommand, parentCommand as any);
 
     expect(usage).toMatchInlineSnapshot(`
       "A child command (parent-command child-command)

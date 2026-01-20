@@ -1,169 +1,159 @@
-// Parser is based on https://github.com/lukeed/mri 1.2.0 (MIT)
-// Check the main LICENSE file for more info.
+import { parseArgs } from "node:util";
 
-type Dict<T> = Record<string, T>;
-type Arrayable<T> = T | T[];
-type Default = Dict<any>;
-
-export interface Options {
-  boolean?: Arrayable<string>;
-  string?: Arrayable<string>;
-  alias?: Dict<Arrayable<string>>;
-  default?: Dict<any>;
-  unknown?(flag: string): void;
+export interface ParseOptions {
+  boolean?: string[];
+  string?: string[];
+  alias?: Record<string, string[]>;
+  default?: Record<string, any>;
 }
 
-export type Argv<T = Default> = T & {
+export type Argv<T = Record<string, any>> = T & {
   _: string[];
 };
 
-function toArr(any: any) {
-  return any == undefined ? [] : Array.isArray(any) ? any : [any];
-}
-
-function toVal(out, key, val, opts) {
-  let x;
-  const old = out[key];
-  const nxt = ~opts.string.indexOf(key)
-    ? val == undefined || val === true
-      ? ""
-      : String(val)
-    : typeof val === "boolean"
-      ? val
-      : ~opts.boolean.indexOf(key)
-        ? val === "false"
-          ? false
-          : val === "true" ||
-            (out._.push(((x = +val), x * 0 === 0) ? x : val), !!val)
-        : ((x = +val), x * 0 === 0)
-          ? x
-          : val;
-  out[key] =
-    old == undefined ? nxt : Array.isArray(old) ? old.concat(nxt) : [old, nxt];
-}
-
-export function parseRawArgs<T = Default>(
+export function parseRawArgs<T = Record<string, any>>(
   args: string[] = [],
-  opts: Options = {},
+  opts: ParseOptions = {},
 ): Argv<T> {
-  let k;
-  let arr;
-  let arg;
-  let name;
-  let val;
-  const out = { _: [] };
-  let i = 0;
-  let j = 0;
-  let idx = 0;
-  const len = args.length;
+  const booleans = new Set(opts.boolean || []);
+  const strings = new Set(opts.string || []);
+  const aliasMap = opts.alias || {};
+  const defaults = opts.default || {};
 
-  const alibi = opts.alias !== void 0;
-  const strict = opts.unknown !== void 0;
-  const defaults = opts.default !== void 0;
+  // Build a normalized alias map where we track primary -> aliases relationships
+  // The input format is { alias: primary } or { alias: [primary1, primary2] }
+  // We also need to handle { primary: alias } format used by args.ts
+  const aliasToMain: Map<string, string> = new Map();
+  const mainToAliases: Map<string, string[]> = new Map();
 
-  opts.alias = opts.alias || {};
-  opts.string = toArr(opts.string);
-  opts.boolean = toArr(opts.boolean);
-
-  if (alibi) {
-    for (k in opts.alias) {
-      arr = opts.alias[k] = toArr(opts.alias[k]);
-      for (i = 0; i < arr.length; i++) {
-        (opts.alias[arr[i]] = arr.concat(k)).splice(i, 1);
+  for (const [key, value] of Object.entries(aliasMap)) {
+    const targets = value;
+    for (const target of targets) {
+      // key is an alias for target
+      aliasToMain.set(key, target);
+      if (!mainToAliases.has(target)) {
+        mainToAliases.set(target, []);
       }
-    }
-  }
+      mainToAliases.get(target)!.push(key);
 
-  for (i = opts.boolean.length; i-- > 0; ) {
-    arr = opts.alias[opts.boolean[i]] || [];
-    for (j = arr.length; j-- > 0; ) {
-      opts.boolean.push(arr[j]);
-    }
-  }
-
-  for (i = opts.string.length; i-- > 0; ) {
-    arr = opts.alias[opts.string[i]] || [];
-    for (j = arr.length; j-- > 0; ) {
-      opts.string.push(arr[j]);
-    }
-  }
-
-  if (defaults) {
-    for (k in opts.default) {
-      name = typeof opts.default[k];
-      arr = opts.alias[k] = opts.alias[k] || [];
-      if (opts[name] !== void 0) {
-        opts[name].push(k);
-        for (i = 0; i < arr.length; i++) {
-          opts[name].push(arr[i]);
-        }
+      // Also set up reverse: target is an alias for key
+      aliasToMain.set(target, key);
+      if (!mainToAliases.has(key)) {
+        mainToAliases.set(key, []);
       }
+      mainToAliases.get(key)!.push(target);
     }
   }
 
-  const keys = strict ? Object.keys(opts.alias) : [];
+  // Build options for node:util parseArgs
+  const options: Record<
+    string,
+    {
+      type: "boolean" | "string";
+      short?: string;
+      default?: any;
+      multiple?: boolean;
+    }
+  > = {};
 
-  for (i = 0; i < len; i++) {
-    arg = args[i];
+  // Helper to get option type
+  function getType(name: string): "boolean" | "string" {
+    if (booleans.has(name)) return "boolean";
+    // Check aliases
+    const aliases = mainToAliases.get(name) || [];
+    for (const alias of aliases) {
+      if (booleans.has(alias)) return "boolean";
+    }
+    return "string";
+  }
+
+  // Collect all option names
+  const allOptions = new Set<string>([
+    ...booleans,
+    ...strings,
+    ...Object.keys(aliasMap),
+    ...Object.values(aliasMap).flat(),
+    ...Object.keys(defaults),
+  ]);
+
+  // Register all options
+  for (const name of allOptions) {
+    if (!options[name]) {
+      const type = getType(name);
+      options[name] = {
+        type,
+        default: defaults[name],
+      };
+    }
+  }
+
+  // Add short aliases (single char)
+  for (const [alias, main] of aliasToMain.entries()) {
+    if (alias.length === 1 && options[main] && !options[main].short) {
+      options[main].short = alias;
+    }
+  }
+
+  // Handle --no- prefixed arguments by preprocessing
+  const processedArgs: string[] = [];
+  const negatedFlags: Record<string, boolean> = {};
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i]!;
 
     if (arg === "--") {
-      out._ = out._.concat(args.slice(++i));
+      // Pass through -- and everything after
+      processedArgs.push(...args.slice(i));
       break;
     }
 
-    for (j = 0; j < arg.length; j++) {
-      if (arg.charCodeAt(j) !== 45) {
-        break;
-      } // "-"
+    // Handle --no-flag syntax
+    if (arg.startsWith("--no-")) {
+      const flagName = arg.slice(5);
+      negatedFlags[flagName] = true;
+      continue;
     }
 
-    if (j === 0) {
-      out._.push(arg);
-    } else if (arg.substring(j, j + 3) === "no-") {
-      name = arg.slice(Math.max(0, j + 3));
-      if (strict && !~keys.indexOf(name)) {
-        return opts.unknown(arg);
-      }
-      out[name] = false;
-    } else {
-      for (idx = j + 1; idx < arg.length; idx++) {
-        if (arg.charCodeAt(idx) === 61) {
-          break;
-        } // "="
-      }
-
-      name = arg.substring(j, idx);
-      val =
-        arg.slice(Math.max(0, ++idx)) ||
-        i + 1 === len ||
-        ("" + args[i + 1]).charCodeAt(0) === 45 ||
-        args[++i];
-      arr = j === 2 ? [name] : name;
-
-      for (idx = 0; idx < arr.length; idx++) {
-        name = arr[idx];
-        if (strict && !~keys.indexOf(name)) {
-          return opts.unknown("-".repeat(j) + name);
-        }
-        toVal(out, name, idx + 1 < arr.length || val, opts);
-      }
-    }
+    processedArgs.push(arg);
   }
 
-  if (defaults) {
-    for (k in opts.default) {
-      if (out[k] === void 0) {
-        out[k] = opts.default[k];
-      }
-    }
+  let parsed: { values: Record<string, any>; positionals: string[] };
+
+  try {
+    parsed = parseArgs({
+      args: processedArgs,
+      options: Object.keys(options).length > 0 ? options : undefined,
+      allowPositionals: true,
+      strict: false,
+    });
+  } catch {
+    // Fallback for parsing errors
+    parsed = { values: {}, positionals: processedArgs };
   }
 
-  if (alibi) {
-    for (k in out) {
-      arr = opts.alias[k] || [];
-      while (arr.length > 0) {
-        out[arr.shift()] = out[k];
-      }
+  // Build result
+  const out: Argv<T> = { _: [] as string[] } as Argv<T>;
+
+  // Add positionals
+  out._ = parsed.positionals;
+
+  // Add parsed values
+  for (const [key, value] of Object.entries(parsed.values)) {
+    (out as any)[key] = value;
+  }
+
+  // Apply negated flags
+  for (const [name] of Object.entries(negatedFlags)) {
+    (out as any)[name] = false;
+  }
+
+  // Propagate values between aliases
+  for (const [alias, main] of aliasToMain.entries()) {
+    if ((out as any)[alias] !== undefined && (out as any)[main] === undefined) {
+      (out as any)[main] = (out as any)[alias];
+    }
+    if ((out as any)[main] !== undefined && (out as any)[alias] === undefined) {
+      (out as any)[alias] = (out as any)[main];
     }
   }
 

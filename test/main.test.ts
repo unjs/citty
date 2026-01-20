@@ -6,8 +6,8 @@ import {
   renderUsage,
   runMain,
   showUsage,
-} from "../src";
-import * as commandModule from "../src/command";
+} from "../src/index.ts";
+import * as commandModule from "../src/command.ts";
 
 describe("runMain", () => {
   vi.spyOn(process, "exit").mockImplementation(() => 0 as never);
