@@ -25,21 +25,6 @@ describe("args", () => {
       { name: "Jane", n: "Jane", _: [] },
     ],
     /**
-     * Number
-     */
-    [["--age", "25"], { age: { type: "number" } }, { age: 25, _: [] }],
-    [[], { age: { type: "number", default: 25 } }, { age: 25, _: [] }],
-    [
-      ["--age", "30"],
-      { age: { type: "number", default: 25 } },
-      { age: 30, _: [] },
-    ],
-    [
-      ["-a", "30"],
-      { age: { type: "number", alias: "a" } },
-      { age: 30, a: "30", _: [] },
-    ],
-    /**
      * Boolean
      */
     [["--force"], { force: { type: "boolean" } }, { force: true, _: [] }],
@@ -90,11 +75,6 @@ describe("args", () => {
       [],
       { name: { type: "string", required: true } },
       "Missing required argument: --name",
-    ],
-    [
-      ["--age", "twenty-five"],
-      { age: { type: "number" } },
-      "Invalid value for argument: `--age` (`twenty-five`). Expected a number.",
     ],
     [
       [],

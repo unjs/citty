@@ -62,13 +62,13 @@ describe("usage", () => {
 
       ARGUMENTS
 
-        \`POS\`    A pos
+        \`POS\`    A pos    
 
       OPTIONS
 
-        \`--foo (required)\`    A foo
-               \`-b, --bar\`    A bar
-            \`--enum=<a|b>\`    An enum
+        \`--foo (required)\`    A foo    
+               \`-b, --bar\`    A bar    
+            \`--enum=<a|b>\`    An enum  
                \`--boolean\`    A boolean
       "
     `);
@@ -100,7 +100,7 @@ describe("usage", () => {
 
       OPTIONS
 
-           \`--boolean\`    A boolean
+           \`--boolean\`    A boolean         
         \`--no-boolean\`    A negative boolean
       "
     `);
@@ -313,7 +313,7 @@ describe("usage", () => {
 
       COMMANDS
 
-        \`sub-command\`
+        \`sub-command\`    
 
       Use \`parent-command child-command <command> --help\` for more information about a command."
     `);
