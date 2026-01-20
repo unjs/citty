@@ -2,6 +2,7 @@ import { kebabCase, camelCase } from "scule";
 import { parseRawArgs, type ParseOptions } from "./_parser.ts";
 import type { Arg, ArgsDef, ParsedArgs } from "./types.ts";
 import { CLIError, toArray } from "./_utils.ts";
+import { cyan } from "./_color.ts";
 
 export function parseArgs<T extends ArgsDef = ArgsDef>(
   rawArgs: string[],
@@ -80,7 +81,7 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
         !options.includes(argument)
       ) {
         throw new CLIError(
-          `Invalid value for argument: \`--${arg.name}\` (\`${argument}\`). Expected one of: ${options.map((o) => `\`${o}\``).join(", ")}.`,
+          `Invalid value for argument: ${cyan(`--${arg.name}`)} (${cyan(argument)}). Expected one of: ${options.map((o) => cyan(o)).join(", ")}.`,
           "EARG",
         );
       }

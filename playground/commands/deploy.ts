@@ -1,4 +1,3 @@
-import consola from "consola";
 import { defineCommand } from "../../src/index.ts";
 
 export default defineCommand({
@@ -54,7 +53,7 @@ export default defineCommand({
     },
   },
   run({ args }) {
-    consola.log("Build");
-    consola.log("Parsed args:", args);
+    console.log("Build");
+    console.log("Parsed args:", args);
   },
 });

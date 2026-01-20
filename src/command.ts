@@ -1,6 +1,7 @@
 import type { CommandContext, CommandDef, ArgsDef } from "./types.ts";
 import { CLIError, resolveValue } from "./_utils.ts";
 import { parseArgs } from "./args.ts";
+import { cyan } from "./_color.ts";
 
 export function defineCommand<const T extends ArgsDef = ArgsDef>(
   def: CommandDef<T>,
@@ -45,7 +46,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
       if (subCommandName) {
         if (!subCommands[subCommandName]) {
           throw new CLIError(
-            `Unknown command \`${subCommandName}\``,
+            `Unknown command ${cyan(subCommandName)}`,
             "E_UNKNOWN_COMMAND",
           );
         }

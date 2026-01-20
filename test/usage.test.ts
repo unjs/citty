@@ -1,20 +1,6 @@
-import { expect, it, describe, vi } from "vitest";
+import { expect, it, describe } from "vitest";
 import { renderUsage } from "../src/usage.ts";
 import { defineCommand } from "../src/index.ts";
-
-vi.mock("consola/utils", async () => {
-  const mod = await vi.importActual("consola/utils");
-
-  return {
-    ...mod,
-    colors: {
-      ...(mod.colors as any),
-      underline: (val: string) => val,
-      bold: (val: string) => val,
-      gray: (val: string) => val,
-    },
-  };
-});
 
 describe("usage", () => {
   it("renders arguments", async () => {
@@ -56,15 +42,15 @@ describe("usage", () => {
     const usage = await renderUsage(command);
 
     expect(usage).toMatchInlineSnapshot(`
-      "A command (Commander)
+      "[90mA command (Commander)[39m
 
-      USAGE \`Commander [OPTIONS] --foo <POS>\`
+      [4m[1mUSAGE[22m[24m \`Commander [OPTIONS] --foo <POS>\`
 
-      ARGUMENTS
+      [4m[1mARGUMENTS[22m[24m
 
         \`POS\`    A pos    
 
-      OPTIONS
+      [4m[1mOPTIONS[22m[24m
 
         \`--foo (required)\`    A foo    
                \`-b, --bar\`    A bar    
@@ -94,11 +80,11 @@ describe("usage", () => {
     const usage = await renderUsage(command);
 
     expect(usage).toMatchInlineSnapshot(`
-      "A command (Commander)
+      "[90mA command (Commander)[39m
 
-      USAGE \`Commander [OPTIONS] \`
+      [4m[1mUSAGE[22m[24m \`Commander [OPTIONS] \`
 
-      OPTIONS
+      [4m[1mOPTIONS[22m[24m
 
            \`--boolean\`    A boolean         
         \`--no-boolean\`    A negative boolean
@@ -124,11 +110,11 @@ describe("usage", () => {
     const usage = await renderUsage(command);
 
     expect(usage).toMatchInlineSnapshot(`
-      "A command (Commander)
+      "[90mA command (Commander)[39m
 
-      USAGE \`Commander [OPTIONS] \`
+      [4m[1mUSAGE[22m[24m \`Commander [OPTIONS] \`
 
-      OPTIONS
+      [4m[1mOPTIONS[22m[24m
 
         \`--foo=<FOO>\`    A foo
       "
@@ -153,11 +139,11 @@ describe("usage", () => {
     const usage = await renderUsage(command);
 
     expect(usage).toMatchInlineSnapshot(`
-      "A command (Commander)
+      "[90mA command (Commander)[39m
 
-      USAGE \`Commander [OPTIONS] \`
+      [4m[1mUSAGE[22m[24m \`Commander [OPTIONS] \`
 
-      OPTIONS
+      [4m[1mOPTIONS[22m[24m
 
         \`--foo="bar"\`    A foo
       "
@@ -183,11 +169,11 @@ describe("usage", () => {
     const usage = await renderUsage(command);
 
     expect(usage).toMatchInlineSnapshot(`
-      "A command (Commander)
+      "[90mA command (Commander)[39m
 
-      USAGE \`Commander sub\`
+      [4m[1mUSAGE[22m[24m \`Commander sub\`
 
-      COMMANDS
+      [4m[1mCOMMANDS[22m[24m
 
         \`sub\`    A subcommand
 
@@ -220,15 +206,15 @@ describe("usage", () => {
     const usage = await renderUsage(command);
 
     expect(usage).toMatchInlineSnapshot(`
-      "A command (Commander)
+      "[90mA command (Commander)[39m
 
-      USAGE \`Commander [OPTIONS] --foo sub\`
+      [4m[1mUSAGE[22m[24m \`Commander [OPTIONS] --foo sub\`
 
-      OPTIONS
+      [4m[1mOPTIONS[22m[24m
 
         \`--foo (required)\`    A foo
 
-      COMMANDS
+      [4m[1mCOMMANDS[22m[24m
 
         \`sub\`    A subcommand
 
@@ -262,11 +248,11 @@ describe("usage", () => {
     const usage = await renderUsage(command);
 
     expect(usage).toMatchInlineSnapshot(`
-      "A command (Commander)
+      "[90mA command (Commander)[39m
 
-      USAGE \`Commander start\`
+      [4m[1mUSAGE[22m[24m \`Commander start\`
 
-      COMMANDS
+      [4m[1mCOMMANDS[22m[24m
 
         \`start\`    A start
 
@@ -303,15 +289,15 @@ describe("usage", () => {
     const usage = await renderUsage(childCommand, parentCommand as any);
 
     expect(usage).toMatchInlineSnapshot(`
-      "A child command (parent-command child-command)
+      "[90mA child command (parent-command child-command)[39m
 
-      USAGE \`parent-command child-command [OPTIONS] sub-command\`
+      [4m[1mUSAGE[22m[24m \`parent-command child-command [OPTIONS] sub-command\`
 
-      OPTIONS
+      [4m[1mOPTIONS[22m[24m
 
         \`--foo\`    A foo
 
-      COMMANDS
+      [4m[1mCOMMANDS[22m[24m
 
         \`sub-command\`    
 
