@@ -1,7 +1,7 @@
 import { kebabCase, camelCase } from "scule";
-import { parseRawArgs } from "./_parser";
-import type { Arg, ArgsDef, ParsedArgs } from "./types";
-import { CLIError, toArray } from "./_utils";
+import { parseRawArgs } from "./_parser.ts";
+import type { Arg, ArgsDef, ParsedArgs } from "./types.ts";
+import { CLIError, toArray } from "./_utils.ts";
 
 export function parseArgs<T extends ArgsDef = ArgsDef>(
   rawArgs: string[],

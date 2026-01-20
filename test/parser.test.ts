@@ -1,4 +1,4 @@
-import { parseRawArgs } from "../src/_parser";
+import { parseRawArgs } from "../src/_parser.ts";
 import { describe, it, expect } from "vitest";
 
 describe("parseRawArgs", () => {
@@ -23,7 +23,7 @@ describe("parseRawArgs", () => {
   });
 
   it("handles default values", () => {
-    const args = [];
+    const args: string[] = [];
     const opts = { default: { name: "Default" } };
     const result = parseRawArgs(args, opts);
 
@@ -80,7 +80,7 @@ describe("parseRawArgs", () => {
   });
 
   it("handles empty arguments", () => {
-    const args = [];
+    const args: string[] = [];
     const opts = {};
     const result = parseRawArgs(args, opts);
 

@@ -1,5 +1,5 @@
 import consola from "consola";
-import { defineCommand, createMain } from "../src";
+import { defineCommand, createMain } from "../src/index.ts";
 
 const command = defineCommand({
   meta: {

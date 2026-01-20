@@ -1,8 +1,8 @@
 import consola from "consola";
 import { colors } from "consola/utils";
-import { formatLineColumns, resolveValue } from "./_utils";
-import type { ArgsDef, CommandDef } from "./types";
-import { resolveArgs } from "./args";
+import { formatLineColumns, resolveValue } from "./_utils.ts";
+import type { ArgsDef, CommandDef } from "./types.ts";
+import { resolveArgs } from "./args.ts";
 
 export async function showUsage<T extends ArgsDef = ArgsDef>(
   cmd: CommandDef<T>,

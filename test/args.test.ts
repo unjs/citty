@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { parseArgs } from "../src/args";
-import { ArgsDef, ParsedArgs } from "../src";
+import { parseArgs } from "../src/args.ts";
+import type { ArgsDef } from "../src/types.ts";
 
 describe("args", () => {
-  it.each<[string[], ArgsDef, ParsedArgs]>([
+  it.each([
     [[], {}, { _: [] }],
     /**
      * String
@@ -76,11 +76,14 @@ describe("args", () => {
       { value: { type: "enum", options: ["one", "two"] } },
       { value: "one", _: [] },
     ],
-  ])("should parsed correctly %o (%o)", (rawArgs, definition, result) => {
-    const parsed = parseArgs(rawArgs, definition);
+  ] as [string[], ArgsDef, any][])(
+    "should parsed correctly %o (%o)",
+    (rawArgs, definition, result) => {
+      const parsed = parseArgs(rawArgs, definition);
 
-    expect(parsed).toEqual(result);
-  });
+      expect(parsed).toEqual(result);
+    },
+  );
 
   it.each<[string[], ArgsDef, string]>([
     [

@@ -1,6 +1,6 @@
 import { expect, it, describe, vi } from "vitest";
-import { renderUsage } from "../src/usage";
-import { defineCommand } from "../src";
+import { renderUsage } from "../src/usage.ts";
+import { defineCommand } from "../src/index.ts";
 
 vi.mock("consola/utils", async () => {
   const mod = await vi.importActual("consola/utils");
@@ -8,10 +8,10 @@ vi.mock("consola/utils", async () => {
   return {
     ...mod,
     colors: {
-      ...mod.colors,
-      underline: (val) => val,
-      bold: (val) => val,
-      gray: (val) => val,
+      ...(mod.colors as any),
+      underline: (val: string) => val,
+      bold: (val: string) => val,
+      gray: (val: string) => val,
     },
   };
 });
@@ -62,13 +62,13 @@ describe("usage", () => {
 
       ARGUMENTS
 
-        \`POS\`    A pos    
+        \`POS\`    A pos
 
       OPTIONS
 
-        \`--foo (required)\`    A foo    
-               \`-b, --bar\`    A bar    
-            \`--enum=<a|b>\`    An enum  
+        \`--foo (required)\`    A foo
+               \`-b, --bar\`    A bar
+            \`--enum=<a|b>\`    An enum
                \`--boolean\`    A boolean
       "
     `);
@@ -100,7 +100,7 @@ describe("usage", () => {
 
       OPTIONS
 
-           \`--boolean\`    A boolean         
+           \`--boolean\`    A boolean
         \`--no-boolean\`    A negative boolean
       "
     `);
@@ -300,7 +300,7 @@ describe("usage", () => {
       },
     });
 
-    const usage = await renderUsage(childCommand, parentCommand);
+    const usage = await renderUsage(childCommand, parentCommand as any);
 
     expect(usage).toMatchInlineSnapshot(`
       "A child command (parent-command child-command)
@@ -313,7 +313,7 @@ describe("usage", () => {
 
       COMMANDS
 
-        \`sub-command\`    
+        \`sub-command\`
 
       Use \`parent-command child-command <command> --help\` for more information about a command."
     `);

@@ -1,8 +1,8 @@
 import consola from "consola";
-import type { ArgsDef, CommandDef } from "./types";
-import { resolveSubCommand, runCommand } from "./command";
-import { CLIError } from "./_utils";
-import { showUsage as _showUsage } from "./usage";
+import type { ArgsDef, CommandDef } from "./types.ts";
+import { resolveSubCommand, runCommand } from "./command.ts";
+import { CLIError } from "./_utils.ts";
+import { showUsage as _showUsage } from "./usage.ts";
 
 export interface RunMainOptions {
   rawArgs?: string[];

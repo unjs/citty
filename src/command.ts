@@ -1,6 +1,6 @@
-import type { CommandContext, CommandDef, ArgsDef } from "./types";
-import { CLIError, resolveValue } from "./_utils";
-import { parseArgs } from "./args";
+import type { CommandContext, CommandDef, ArgsDef } from "./types.ts";
+import { CLIError, resolveValue } from "./_utils.ts";
+import { parseArgs } from "./args.ts";
 
 export function defineCommand<const T extends ArgsDef = ArgsDef>(
   def: CommandDef<T>,
@@ -80,7 +80,7 @@ export async function resolveSubCommand<T extends ArgsDef = ArgsDef>(
   const subCommands = await resolveValue(cmd.subCommands);
   if (subCommands && Object.keys(subCommands).length > 0) {
     const subCommandArgIndex = rawArgs.findIndex((arg) => !arg.startsWith("-"));
-    const subCommandName = rawArgs[subCommandArgIndex];
+    const subCommandName = rawArgs[subCommandArgIndex]!;
     const subCommand = await resolveValue(subCommands[subCommandName]);
     if (subCommand) {
       return resolveSubCommand(

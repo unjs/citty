@@ -21,16 +21,16 @@ function toArr(any: any) {
   return any == undefined ? [] : Array.isArray(any) ? any : [any];
 }
 
-function toVal(out, key, val, opts) {
+function toVal(out: any, key: string, val: any, opts: Options) {
   let x;
   const old = out[key];
-  const nxt = ~opts.string.indexOf(key)
+  const nxt = ~opts.string!.indexOf(key)
     ? val == undefined || val === true
       ? ""
       : String(val)
     : typeof val === "boolean"
       ? val
-      : ~opts.boolean.indexOf(key)
+      : ~opts.boolean!.indexOf(key)
         ? val === "false"
           ? false
           : val === "true" ||
@@ -51,7 +51,7 @@ export function parseRawArgs<T = Default>(
   let arg;
   let name;
   let val;
-  const out = { _: [] };
+  const out = { _: [] as string[] } as Argv<T>;
   let i = 0;
   let j = 0;
   let idx = 0;
@@ -75,27 +75,27 @@ export function parseRawArgs<T = Default>(
   }
 
   for (i = opts.boolean.length; i-- > 0; ) {
-    arr = opts.alias[opts.boolean[i]] || [];
+    arr = opts.alias[opts.boolean[i]!] || [];
     for (j = arr.length; j-- > 0; ) {
-      opts.boolean.push(arr[j]);
+      opts.boolean.push(arr[j]!);
     }
   }
 
   for (i = opts.string.length; i-- > 0; ) {
-    arr = opts.alias[opts.string[i]] || [];
+    arr = opts.alias[opts.string[i]!] || [];
     for (j = arr.length; j-- > 0; ) {
-      opts.string.push(arr[j]);
+      opts.string.push(arr[j] as string);
     }
   }
 
   if (defaults) {
     for (k in opts.default) {
-      name = typeof opts.default[k];
+      name = typeof (opts as any).default[k];
       arr = opts.alias[k] = opts.alias[k] || [];
-      if (opts[name] !== void 0) {
-        opts[name].push(k);
+      if ((opts as any)[name] !== void 0) {
+        (opts as any)[name].push(k);
         for (i = 0; i < arr.length; i++) {
-          opts[name].push(arr[i]);
+          (opts as any)[name].push(arr[i]);
         }
       }
     }
@@ -104,7 +104,7 @@ export function parseRawArgs<T = Default>(
   const keys = strict ? Object.keys(opts.alias) : [];
 
   for (i = 0; i < len; i++) {
-    arg = args[i];
+    arg = args[i]!;
 
     if (arg === "--") {
       out._ = out._.concat(args.slice(++i));
@@ -122,9 +122,9 @@ export function parseRawArgs<T = Default>(
     } else if (arg.substring(j, j + 3) === "no-") {
       name = arg.slice(Math.max(0, j + 3));
       if (strict && !~keys.indexOf(name)) {
-        return opts.unknown(arg);
+        return opts.unknown!(arg)!;
       }
-      out[name] = false;
+      (out as any)[name] = false;
     } else {
       for (idx = j + 1; idx < arg.length; idx++) {
         if (arg.charCodeAt(idx) === 61) {
@@ -142,18 +142,18 @@ export function parseRawArgs<T = Default>(
 
       for (idx = 0; idx < arr.length; idx++) {
         name = arr[idx];
-        if (strict && !~keys.indexOf(name)) {
-          return opts.unknown("-".repeat(j) + name);
+        if (strict && !~keys.indexOf(name!)) {
+          return opts.unknown!("-".repeat(j) + name)!;
         }
-        toVal(out, name, idx + 1 < arr.length || val, opts);
+        toVal(out, name!, idx + 1 < arr.length || val, opts);
       }
     }
   }
 
   if (defaults) {
     for (k in opts.default) {
-      if (out[k] === void 0) {
-        out[k] = opts.default[k];
+      if ((out as any)[k] === void 0) {
+        (out as any)[k] = opts.default![k];
       }
     }
   }
@@ -162,7 +162,7 @@ export function parseRawArgs<T = Default>(
     for (k in out) {
       arr = opts.alias[k] || [];
       while (arr.length > 0) {
-        out[arr.shift()] = out[k];
+        (out as any)[(arr as string[]).shift()!] = (out as any)[k];
       }
     }
   }
