@@ -1,9 +1,9 @@
 import consola from "consola";
-import type { ArgsDef, CommandDef } from "./types.ts";
 import { resolveSubCommand, runCommand } from "./command.ts";
 import { CLIError } from "./_utils.ts";
 import { showUsage as _showUsage } from "./usage.ts";
-import { setupCompletions } from "./_completions.ts";
+
+import type { ArgsDef, CommandDef } from "./types.ts";
 
 export interface RunMainOptions {
   rawArgs?: string[];
@@ -16,8 +16,6 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
 ) {
   const rawArgs = opts.rawArgs || process.argv.slice(2);
   const showUsage = opts.showUsage || _showUsage;
-
-  await setupCompletions(cmd);
 
   try {
     if (rawArgs.includes("--help") || rawArgs.includes("-h")) {
