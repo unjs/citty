@@ -96,6 +96,7 @@ export interface CommandMeta {
   version?: string;
   description?: string;
   hidden?: boolean;
+  alias?: string | string[];
 }
 
 // Command: Definition

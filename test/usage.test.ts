@@ -304,4 +304,25 @@ describe("usage", () => {
       Use parent-command child-command <command> --help for more information about a command."
     `);
   });
+  it("renders subcommands with aliases", async () => {
+    const command = defineCommand({
+      meta: {
+        name: "Commander",
+        description: "A command",
+      },
+      subCommands: {
+        sub: defineCommand({
+          meta: {
+            name: "Subcommander",
+            description: "A subcommand",
+            alias: ["s", "alias"],
+          },
+        }),
+      },
+    });
+
+    const usage = await renderUsage(command);
+
+    expect(usage).toContain("sub, s, alias    A subcommand");
+  });
 });
