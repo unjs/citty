@@ -39,16 +39,11 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
   try {
     const subCommands = await resolveValue(cmd.subCommands);
     if (subCommands && Object.keys(subCommands).length > 0) {
-      const subCommandArgIndex = opts.rawArgs.findIndex(
-        (arg) => !arg.startsWith("-"),
-      );
+      const subCommandArgIndex = opts.rawArgs.findIndex((arg) => !arg.startsWith("-"));
       const subCommandName = opts.rawArgs[subCommandArgIndex];
       if (subCommandName) {
         if (!subCommands[subCommandName]) {
-          throw new CLIError(
-            `Unknown command ${cyan(subCommandName)}`,
-            "E_UNKNOWN_COMMAND",
-          );
+          throw new CLIError(`Unknown command ${cyan(subCommandName)}`, "E_UNKNOWN_COMMAND");
         }
         const subCommand = await resolveValue(subCommands[subCommandName]);
         if (subCommand) {
@@ -84,11 +79,7 @@ export async function resolveSubCommand<T extends ArgsDef = ArgsDef>(
     const subCommandName = rawArgs[subCommandArgIndex]!;
     const subCommand = await resolveValue(subCommands[subCommandName]);
     if (subCommand) {
-      return resolveSubCommand(
-        subCommand,
-        rawArgs.slice(subCommandArgIndex + 1),
-        cmd,
-      );
+      return resolveSubCommand(subCommand, rawArgs.slice(subCommandArgIndex + 1), cmd);
     }
   }
   return [cmd, parent];

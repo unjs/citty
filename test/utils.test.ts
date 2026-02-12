@@ -1,10 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  toArray,
-  formatLineColumns,
-  resolveValue,
-  CLIError,
-} from "../src/_utils.ts";
+import { toArray, formatLineColumns, resolveValue, CLIError } from "../src/_utils.ts";
 import type { Resolvable } from "../src/types.ts";
 
 describe("toArray()", () => {
@@ -16,13 +11,10 @@ describe("toArray()", () => {
     expect(toArray([1, 2, 3])).toEqual([1, 2, 3]);
   });
 
-  it.concurrent(
-    "should return an array containing the input if it is not an array",
-    () => {
-      expect(toArray(1)).toEqual([1]);
-      expect(toArray("hello")).toEqual(["hello"]);
-    },
-  );
+  it.concurrent("should return an array containing the input if it is not an array", () => {
+    expect(toArray(1)).toEqual([1]);
+    expect(toArray("hello")).toEqual(["hello"]);
+  });
 });
 describe("formatLineColumns()", () => {
   it.concurrent("should format lines correctly", () => {

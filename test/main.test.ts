@@ -1,23 +1,13 @@
 import { describe, it, expect, vi, afterAll } from "vitest";
-import {
-  createMain,
-  defineCommand,
-  renderUsage,
-  runMain,
-  showUsage,
-} from "../src/index.ts";
+import { createMain, defineCommand, renderUsage, runMain, showUsage } from "../src/index.ts";
 import * as commandModule from "../src/command.ts";
 
 describe("runMain", () => {
   vi.spyOn(process, "exit").mockImplementation(() => 0 as never);
 
-  const consoleMock = vi
-    .spyOn(console, "log")
-    .mockImplementation(() => undefined);
+  const consoleMock = vi.spyOn(console, "log").mockImplementation(() => undefined);
 
-  const consoleErrorMock = vi
-    .spyOn(console, "error")
-    .mockImplementation(() => undefined);
+  const consoleErrorMock = vi.spyOn(console, "error").mockImplementation(() => undefined);
 
   afterAll(() => {
     consoleMock.mockReset();
@@ -75,25 +65,22 @@ describe("runMain", () => {
     expect(consoleMock).toHaveBeenCalledWith(usage + "\n");
   });
 
-  it.each([["--help"], ["-h"]])(
-    "can show custom usage with flag `%s`",
-    async (flag) => {
-      const command = defineCommand({
-        meta: {
-          name: "test",
-          description: "Test command",
-        },
-      });
+  it.each([["--help"], ["-h"]])("can show custom usage with flag `%s`", async (flag) => {
+    const command = defineCommand({
+      meta: {
+        name: "test",
+        description: "Test command",
+      },
+    });
 
-      const customUsage: typeof showUsage = async () => {
-        console.log("Custom usage");
-      };
+    const customUsage: typeof showUsage = async () => {
+      console.log("Custom usage");
+    };
 
-      await runMain(command, { rawArgs: [flag], showUsage: customUsage });
+    await runMain(command, { rawArgs: [flag], showUsage: customUsage });
 
-      expect(consoleMock).toHaveBeenCalledWith("Custom usage");
-    },
-  );
+    expect(consoleMock).toHaveBeenCalledWith("Custom usage");
+  });
 
   it("runs the command", async () => {
     const mockRunCommand = vi.spyOn(commandModule, "runCommand");
@@ -170,10 +157,7 @@ describe("resolveSubCommand", () => {
       },
     });
 
-    const [subCommand] = await commandModule.resolveSubCommand(command, [
-      "foo",
-      "bar",
-    ]);
+    const [subCommand] = await commandModule.resolveSubCommand(command, ["foo", "bar"]);
 
     expect(subCommand).toBeDefined();
     expect(subCommand.args).toEqual({

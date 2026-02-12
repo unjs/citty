@@ -9,30 +9,14 @@ describe("args", () => {
      * String
      */
     [["--name", "John"], { name: { type: "string" } }, { name: "John", _: [] }],
-    [
-      [],
-      { name: { type: "string", default: "John" } },
-      { name: "John", _: [] },
-    ],
-    [
-      ["--name", "Jane"],
-      { name: { type: "string", default: "John" } },
-      { name: "Jane", _: [] },
-    ],
-    [
-      ["-n", "Jane"],
-      { name: { type: "string", alias: "n" } },
-      { name: "Jane", n: "Jane", _: [] },
-    ],
+    [[], { name: { type: "string", default: "John" } }, { name: "John", _: [] }],
+    [["--name", "Jane"], { name: { type: "string", default: "John" } }, { name: "Jane", _: [] }],
+    [["-n", "Jane"], { name: { type: "string", alias: "n" } }, { name: "Jane", n: "Jane", _: [] }],
     /**
      * Boolean
      */
     [["--force"], { force: { type: "boolean" } }, { force: true, _: [] }],
-    [
-      ["-f"],
-      { force: { alias: "f", type: "boolean" } },
-      { force: true, f: true, _: [] },
-    ],
+    [["-f"], { force: { alias: "f", type: "boolean" } }, { force: true, f: true, _: [] }],
     [[], { force: { type: "boolean", default: true } }, { force: true, _: [] }],
     [
       ["--no-force"],
@@ -71,11 +55,7 @@ describe("args", () => {
   );
 
   it.each<[string[], ArgsDef, string]>([
-    [
-      [],
-      { name: { type: "string", required: true } },
-      "Missing required argument: --name",
-    ],
+    [[], { name: { type: "string", required: true } }, "Missing required argument: --name"],
     [
       [],
       {

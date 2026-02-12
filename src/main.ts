@@ -19,8 +19,7 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
       await showUsage(...(await resolveSubCommand(cmd, rawArgs)));
       process.exit(0);
     } else if (rawArgs.length === 1 && rawArgs[0] === "--version") {
-      const meta =
-        typeof cmd.meta === "function" ? await cmd.meta() : await cmd.meta;
+      const meta = typeof cmd.meta === "function" ? await cmd.meta() : await cmd.meta;
       if (!meta?.version) {
         throw new CLIError("No version specified", "E_NO_VERSION");
       }

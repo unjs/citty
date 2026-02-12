@@ -26,8 +26,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
   const parentMeta = await resolveValue(parent?.meta || {});
 
   const commandName =
-    `${parentMeta.name ? `${parentMeta.name} ` : ""}` +
-    (cmdMeta.name || process.argv[1]);
+    `${parentMeta.name ? `${parentMeta.name} ` : ""}` + (cmdMeta.name || process.argv[1]);
 
   const argLines: string[][] = [];
   const posLines: string[][] = [];
@@ -51,13 +50,9 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
       const argStr =
         [...(arg.alias || []).map((a) => `-${a}`), `--${arg.name}`].join(", ") +
         (arg.type === "string" && (arg.valueHint || arg.default)
-          ? `=${
-              arg.valueHint ? `<${arg.valueHint}>` : `"${arg.default || ""}"`
-            }`
+          ? `=${arg.valueHint ? `<${arg.valueHint}>` : `"${arg.default || ""}"`}`
           : "") +
-        (arg.type === "enum" && arg.options
-          ? `=<${arg.options.join("|")}>`
-          : "");
+        (arg.type === "enum" && arg.options ? `=<${arg.options.join("|")}>` : "");
       argLines.push([
         colors.cyan(argStr + (isRequired ? " (required)" : "")),
         arg.description || "",
@@ -109,11 +104,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
   const version = cmdMeta.version || parentMeta.version;
 
   usageLines.push(
-    colors.gray(
-      `${cmdMeta.description} (${
-        commandName + (version ? ` v${version}` : "")
-      })`,
-    ),
+    colors.gray(`${cmdMeta.description} (${commandName + (version ? ` v${version}` : "")})`),
     "",
   );
 

@@ -75,11 +75,7 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
     } else if (arg.type === "enum") {
       const argument = parsedArgsProxy[arg.name];
       const options = arg.options || [];
-      if (
-        argument !== undefined &&
-        options.length > 0 &&
-        !options.includes(argument)
-      ) {
+      if (argument !== undefined && options.length > 0 && !options.includes(argument)) {
         throw new CLIError(
           `Invalid value for argument: ${cyan(`--${arg.name}`)} (${cyan(argument)}). Expected one of: ${options.map((o) => cyan(o)).join(", ")}.`,
           "EARG",
