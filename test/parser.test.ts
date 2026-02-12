@@ -72,4 +72,44 @@ describe("parseRawArgs", () => {
       _: [],
     });
   });
+
+  it("handles --no- negation on main option", () => {
+    const result = parseRawArgs(["--no-verbose"], {
+      boolean: ["verbose"],
+      default: { verbose: true },
+    });
+
+    expect(result).toEqual({
+      _: [],
+      verbose: false,
+    });
+  });
+
+  it("handles --no- negation on alias and propagates to main option", () => {
+    const result = parseRawArgs(["--no-v"], {
+      boolean: ["verbose"],
+      alias: { v: ["verbose"] },
+      default: { verbose: true },
+    });
+
+    expect(result).toEqual({
+      _: [],
+      v: false,
+      verbose: false,
+    });
+  });
+
+  it("handles --no- negation on main option and propagates to aliases", () => {
+    const result = parseRawArgs(["--no-verbose"], {
+      boolean: ["verbose"],
+      alias: { v: ["verbose"] },
+      default: { verbose: true },
+    });
+
+    expect(result).toEqual({
+      _: [],
+      v: false,
+      verbose: false,
+    });
+  });
 });
