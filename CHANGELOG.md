@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.2.1
+
+[compare changes](https://github.com/unjs/citty/compare/v0.2.0...v0.2.1)
+
+### 🩹 Fixes
+
+- Propagate --no- negation to aliases and main option ([#225](https://github.com/unjs/citty/pull/225))
+
+### 🏡 Chore
+
+- Fix readme formatting ([#223](https://github.com/unjs/citty/pull/223))
+- Use oxlint and oxfmt ([f1d05f4](https://github.com/unjs/citty/commit/f1d05f4))
+
+### ❤️ Contributors
+
+- Pooya Parsa ([@pi0](https://github.com/pi0))
+- Kai Gritun <kaigritun@gmail.com>
+- Jimmy Guzman ([@jimmy-guzman](https://github.com/jimmy-guzman))
+
 ## v0.2.0
 
 [compare changes](https://github.com/unjs/citty/compare/v0.1.6...v0.2.0)
