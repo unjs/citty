@@ -142,9 +142,24 @@ export function parseRawArgs<T = Record<string, any>>(
     (out as any)[key] = value;
   }
 
-  // Apply negated flags
+  // Apply negated flags (with alias resolution)
   for (const [name] of Object.entries(negatedFlags)) {
+    // Set the flag itself
     (out as any)[name] = false;
+
+    // Resolve to main option and apply there too (handles --no-alias)
+    const mainName = aliasToMain.get(name);
+    if (mainName) {
+      (out as any)[mainName] = false;
+    }
+
+    // Also apply to all aliases of this name (handles --no-main for aliases)
+    const aliases = mainToAliases.get(name);
+    if (aliases) {
+      for (const alias of aliases) {
+        (out as any)[alias] = false;
+      }
+    }
   }
 
   // Propagate values between aliases
