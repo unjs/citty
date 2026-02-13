@@ -54,6 +54,12 @@ const main = defineCommand({
       description: "Use friendly greeting",
     },
   },
+  setup({ args }){
+    console.log(`now setup ${args.command}`);
+  },
+  cleanup({ args }){
+    console.log(`now cleanup ${args.command}`);
+  },
   run({ args }) {
     console.log(`${args.friendly ? "Hi" : "Greetings"} ${args.name}!`);
   },
