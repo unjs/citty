@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.2.3",
-    "@typescript/native-preview": "7.0.0-dev.20260212.1",
+    "@typescript/native-preview": "7.0.0-dev.20260214.1",
     "@vitest/coverage-v8": "^4.0.18",
     "automd": "^0.4.3",
     "changelogen": "^0.6.2",
