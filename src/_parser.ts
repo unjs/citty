@@ -170,6 +170,9 @@ export function parseRawArgs<T = Record<string, any>>(
     if ((out as any)[main] !== undefined && (out as any)[alias] === undefined) {
       (out as any)[alias] = (out as any)[main];
     }
+    if ((out as any)[alias] !== (out as any)[main] && defaults[main] === (out as any)[main]) {
+      (out as any)[main] = (out as any)[alias];
+    }
   }
 
   return out;

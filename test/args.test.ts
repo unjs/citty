@@ -45,6 +45,11 @@ describe("args", () => {
       { value: { type: "enum", options: ["one", "two"] } },
       { value: "one", _: [] },
     ],
+    [
+      ["--foo-bar", "one"],
+      { fooBar: { type: "enum", options: ["one", "two"], default: "two" } },
+      { fooBar: "one", "foo-bar": "one", _: [] },
+    ],
   ] as [string[], ArgsDef, any][])(
     "should parsed correctly %o (%o)",
     (rawArgs, definition, result) => {
