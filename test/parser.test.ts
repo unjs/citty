@@ -15,6 +15,32 @@ describe("parseRawArgs", () => {
     });
   });
 
+  it('handles --<arg>=<value>', ()=>{
+    const result = parseRawArgs(["--name=John"], {
+      string: ["name"]
+    });
+
+    expect(result).toEqual({
+      _: [],
+      name: "John"
+    })
+  })
+
+  it('handles -<arg>=<value> with alias', ()=>{
+    const result = parseRawArgs(["-n=John"], {
+      string: ["name"],
+      alias: {
+        n: ["name"]
+      }
+    })
+
+    expect(result).toEqual({
+      _: [],
+      n: "John",
+      name: "John",
+    })
+  })
+
   it("handles default values", () => {
     const result = parseRawArgs([], { default: { name: "Default" } });
 
@@ -33,6 +59,8 @@ describe("parseRawArgs", () => {
       name: "John",
     });
   });
+
+
 
   it("handles boolean flags", () => {
     const result = parseRawArgs(["--flag"], { boolean: ["flag"] });
