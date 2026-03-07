@@ -60,8 +60,6 @@ describe("parseRawArgs", () => {
     });
   });
 
-
-
   it("handles boolean flags", () => {
     const result = parseRawArgs(["--flag"], { boolean: ["flag"] });
 
