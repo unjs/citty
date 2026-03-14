@@ -99,16 +99,16 @@ export type CommandDef<T extends ArgsDef = ArgsDef, S = void> = {
   meta?: Resolvable<CommandMeta>;
   args?: Resolvable<T>;
   subCommands?: Resolvable<SubCommandsDef>;
-  setup?: (context: CommandContext<T, S>) => S | Promise<S>;
-  cleanup?: (context: CommandContext<T, S>, setupResult: NoInfer<S>) => any | Promise<any>;
-  run?: (context: CommandContext<T, S>, setupResult: NoInfer<S>) => any | Promise<any>;
+  setup?: (context: CommandContext<T>) => S | Promise<S>;
+  cleanup?: (context: CommandContext<T>, setupResult: NoInfer<S>) => any | Promise<any>;
+  run?: (context: CommandContext<T>, setupResult: NoInfer<S>) => any | Promise<any>;
 };
 
-export type CommandContext<T extends ArgsDef = ArgsDef, S = void> = {
+export type CommandContext<T extends ArgsDef = ArgsDef> = {
   rawArgs: string[];
   args: ParsedArgs<T>;
-  cmd: CommandDef<T, S>;
-  subCommand?: CommandDef<T, S>;
+  cmd: CommandDef<T, any>;
+  subCommand?: CommandDef<T, any>;
   data?: any;
 };
 

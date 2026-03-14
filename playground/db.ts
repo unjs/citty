@@ -18,7 +18,7 @@ const main = defineCommand({
       default: "10",
     },
   },
-  async setup() {
+  async setup(_ctx) {
     const client = new DatabaseClient();
     await client.connect();
     return { client };

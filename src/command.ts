@@ -22,7 +22,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef, S = void>(
   const cmdArgs = await resolveValue(cmd.args || {});
   const parsedArgs = parseArgs<T>(opts.rawArgs, cmdArgs);
 
-  const context: CommandContext<T, S> = {
+  const context: CommandContext<T> = {
     rawArgs: opts.rawArgs,
     args: parsedArgs,
     data: opts.data,
