@@ -3,9 +3,9 @@ import { formatLineColumns, resolveValue } from "./_utils.ts";
 import type { ArgsDef, CommandDef } from "./types.ts";
 import { resolveArgs } from "./args.ts";
 
-export async function showUsage<T extends ArgsDef = ArgsDef>(
-  cmd: CommandDef<T>,
-  parent?: CommandDef<T>,
+export async function showUsage<T extends ArgsDef = ArgsDef, S = void>(
+  cmd: CommandDef<T, S>,
+  parent?: CommandDef<T, S>,
 ) {
   try {
     console.log((await renderUsage(cmd, parent)) + "\n");
@@ -17,9 +17,9 @@ export async function showUsage<T extends ArgsDef = ArgsDef>(
 // `no` prefix matcher (kebab-case or camelCase)
 const negativePrefixRe = /^no[-A-Z]/;
 
-export async function renderUsage<T extends ArgsDef = ArgsDef>(
-  cmd: CommandDef<T>,
-  parent?: CommandDef<T>,
+export async function renderUsage<T extends ArgsDef = ArgsDef, S = void>(
+  cmd: CommandDef<T, S>,
+  parent?: CommandDef<T, S>,
 ) {
   const cmdMeta = await resolveValue(cmd.meta || {});
   const cmdArgs = resolveArgs(await resolveValue(cmd.args || {}));

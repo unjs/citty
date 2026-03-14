@@ -3,9 +3,9 @@ import { CLIError, resolveValue } from "./_utils.ts";
 import { parseArgs } from "./args.ts";
 import { cyan } from "./_color.ts";
 
-export function defineCommand<const T extends ArgsDef = ArgsDef>(
-  def: CommandDef<T>,
-): CommandDef<T> {
+export function defineCommand<const T extends ArgsDef = ArgsDef, S = void>(
+  def: CommandDef<T, S>,
+): CommandDef<T, S> {
   return def;
 }
 
@@ -15,14 +15,14 @@ export interface RunCommandOptions {
   showUsage?: boolean;
 }
 
-export async function runCommand<T extends ArgsDef = ArgsDef>(
-  cmd: CommandDef<T>,
+export async function runCommand<T extends ArgsDef = ArgsDef, S = void>(
+  cmd: CommandDef<T, S>,
   opts: RunCommandOptions,
 ): Promise<{ result: unknown }> {
   const cmdArgs = await resolveValue(cmd.args || {});
   const parsedArgs = parseArgs<T>(opts.rawArgs, cmdArgs);
 
-  const context: CommandContext<T> = {
+  const context: CommandContext<T, S> = {
     rawArgs: opts.rawArgs,
     args: parsedArgs,
     data: opts.data,
@@ -30,8 +30,9 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
   };
 
   // Setup hook
+  let setupResult: S | undefined;
   if (typeof cmd.setup === "function") {
-    await cmd.setup(context);
+    setupResult = await cmd.setup(context);
   }
 
   // Handle sub command
@@ -58,21 +59,21 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
 
     // Handle main command
     if (typeof cmd.run === "function") {
-      result = await cmd.run(context);
+      result = await cmd.run(context, setupResult as S);
     }
   } finally {
     if (typeof cmd.cleanup === "function") {
-      await cmd.cleanup(context);
+      await cmd.cleanup(context, setupResult as S);
     }
   }
   return { result };
 }
 
-export async function resolveSubCommand<T extends ArgsDef = ArgsDef>(
-  cmd: CommandDef<T>,
+export async function resolveSubCommand<T extends ArgsDef = ArgsDef, S = void>(
+  cmd: CommandDef<T, S>,
   rawArgs: string[],
-  parent?: CommandDef<T>,
-): Promise<[CommandDef<T>, CommandDef<T>?]> {
+  parent?: CommandDef<T, S>,
+): Promise<[CommandDef<T, S>, CommandDef<T, S>?]> {
   const subCommands = await resolveValue(cmd.subCommands);
   if (subCommands && Object.keys(subCommands).length > 0) {
     const subCommandArgIndex = rawArgs.findIndex((arg) => !arg.startsWith("-"));
