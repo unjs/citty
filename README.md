@@ -282,9 +282,9 @@ Then, you must create a file named `index.mjs` in a folder named `bin` at the ro
 ```js
 #!/usr/bin/env node
 
-import { runMain } from '../dist/index.mjs'
+import { runMain } from "../dist/index.mjs";
 
-runMain()
+runMain();
 ```
 
 Then, you will need to update your `package.json` file to enable the usage as a CLI:
@@ -298,10 +298,7 @@ Then, you will need to update your `package.json` file to enable the usage as a 
   // "bin": {
   //   "my-cli": "./bin/index.mjs"
   // },
-  "files": [
-    "bin",
-    "dist"
-  ]
+  "files": ["bin", "dist"]
 }
 ```
 
