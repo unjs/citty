@@ -1,19 +1,21 @@
-import consola from "consola";
-import { colors } from "consola/utils";
-import { formatLineColumns, resolveValue } from "./_utils";
-import type { ArgsDef, CommandDef } from "./types";
-import { resolveArgs } from "./args";
+import * as colors from "./_color.ts";
+import { formatLineColumns, resolveValue, toArray } from "./_utils.ts";
+import type { ArgsDef, CommandDef } from "./types.ts";
+import { resolveArgs } from "./args.ts";
 
 export async function showUsage<T extends ArgsDef = ArgsDef>(
   cmd: CommandDef<T>,
   parent?: CommandDef<T>,
 ) {
   try {
-    consola.log((await renderUsage(cmd, parent)) + "\n");
+    console.log((await renderUsage(cmd, parent)) + "\n");
   } catch (error) {
-    consola.error(error);
+    console.error(error);
   }
 }
+
+// `no` prefix matcher (kebab-case or camelCase)
+const negativePrefixRe = /^no[-A-Z]/;
 
 export async function renderUsage<T extends ArgsDef = ArgsDef>(
   cmd: CommandDef<T>,
@@ -24,8 +26,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
   const parentMeta = await resolveValue(parent?.meta || {});
 
   const commandName =
-    `${parentMeta.name ? `${parentMeta.name} ` : ""}` +
-    (cmdMeta.name || process.argv[1]);
+    `${parentMeta.name ? `${parentMeta.name} ` : ""}` + (cmdMeta.name || process.argv[1]);
 
   const argLines: string[][] = [];
   const posLines: string[][] = [];
@@ -37,29 +38,46 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
       const name = arg.name.toUpperCase();
       const isRequired = arg.required !== false && arg.default === undefined;
       // (isRequired ? " (required)" : " (optional)"
-      const usageHint = arg.default ? `="${arg.default}"` : "";
-      posLines.push(["`" + name + usageHint + "`", arg.description || ""]);
+      const defaultHint = arg.default ? `="${arg.default}"` : "";
+      posLines.push([
+        colors.cyan(name + defaultHint),
+        arg.description || "",
+        arg.valueHint ? `<${arg.valueHint}>` : "",
+      ]);
       usageLine.push(isRequired ? `<${name}>` : `[${name}]`);
     } else {
       const isRequired = arg.required === true && arg.default === undefined;
       const argStr =
-        (arg.type === "boolean" && arg.default === true
-          ? [
-              ...(arg.alias || []).map((a) => `--no-${a}`),
-              `--no-${arg.name}`,
-            ].join(", ")
-          : [...(arg.alias || []).map((a) => `-${a}`), `--${arg.name}`].join(
-              ", ",
-            )) +
+        [...(arg.alias || []).map((a) => `-${a}`), `--${arg.name}`].join(", ") +
         (arg.type === "string" && (arg.valueHint || arg.default)
-          ? `=${
-              arg.valueHint ? `<${arg.valueHint}>` : `"${arg.default || ""}"`
-            }`
-          : "");
+          ? `=${arg.valueHint ? `<${arg.valueHint}>` : `"${arg.default || ""}"`}`
+          : "") +
+        (arg.type === "enum" && arg.options ? `=<${arg.options.join("|")}>` : "");
       argLines.push([
-        "`" + argStr + (isRequired ? " (required)" : "") + "`",
+        colors.cyan(argStr + (isRequired ? " (required)" : "")),
         arg.description || "",
       ]);
+
+      /**
+       * print negative boolean arg variant usage when
+       * - enabled by default or has `negativeDescription`
+       * - not prefixed with `no-` or `no[A-Z]`
+       */
+      if (
+        arg.type === "boolean" &&
+        (arg.default === true || arg.negativeDescription) &&
+        !negativePrefixRe.test(arg.name)
+      ) {
+        const negativeArgStr = [
+          ...(arg.alias || []).map((a) => `--no-${a}`),
+          `--no-${arg.name}`,
+        ].join(", ");
+        argLines.push([
+          colors.cyan(negativeArgStr + (isRequired ? " (required)" : "")),
+          arg.negativeDescription || "",
+        ]);
+      }
+
       if (isRequired) {
         usageLine.push(argStr);
       }
@@ -72,8 +90,13 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
     for (const [name, sub] of Object.entries(subCommands)) {
       const subCmd = await resolveValue(sub);
       const meta = await resolveValue(subCmd?.meta);
-      commandsLines.push([`\`${name}\``, meta?.description || ""]);
-      commandNames.push(name);
+      if (meta?.hidden) {
+        continue;
+      }
+      const aliases = toArray(meta?.alias);
+      const label = [name, ...aliases].join(", ");
+      commandsLines.push([colors.cyan(label), meta?.description || ""]);
+      commandNames.push(name, ...aliases);
     }
     usageLine.push(commandNames.join("|"));
   }
@@ -83,19 +106,15 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
   const version = cmdMeta.version || parentMeta.version;
 
   usageLines.push(
-    colors.gray(
-      `${cmdMeta.description} (${
-        commandName + (version ? ` v${version}` : "")
-      })`,
-    ),
+    colors.gray(`${cmdMeta.description} (${commandName + (version ? ` v${version}` : "")})`),
     "",
   );
 
   const hasOptions = argLines.length > 0 || posLines.length > 0;
   usageLines.push(
-    `${colors.underline(colors.bold("USAGE"))} \`${commandName}${
-      hasOptions ? " [OPTIONS]" : ""
-    } ${usageLine.join(" ")}\``,
+    `${colors.underline(colors.bold("USAGE"))} ${colors.cyan(
+      `${commandName}${hasOptions ? " [OPTIONS]" : ""} ${usageLine.join(" ")}`,
+    )}`,
     "",
   );
 
@@ -116,7 +135,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
     usageLines.push(formatLineColumns(commandsLines, "  "));
     usageLines.push(
       "",
-      `Use \`${commandName} <command> --help\` for more information about a command.`,
+      `Use ${colors.cyan(`${commandName} <command> --help`)} for more information about a command.`,
     );
   }
 

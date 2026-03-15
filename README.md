@@ -1,50 +1,35 @@
 # 🌆 citty
 
-[![npm version][npm-version-src]][npm-version-href]
-[![npm downloads][npm-downloads-src]][npm-downloads-href]
-[![bundle][bundle-src]][bundle-href]
-[![Codecov][codecov-src]][codecov-href]
-[![License][license-src]][license-href]
+<!-- automd:badges color=yellow bundlephobia -->
 
-> Elegant CLI Builder
+[![npm version](https://img.shields.io/npm/v/citty?color=yellow)](https://npmjs.com/package/citty)
+[![npm downloads](https://img.shields.io/npm/dm/citty?color=yellow)](https://npmjs.com/package/citty)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/citty?color=yellow)](https://bundlephobia.com/package/citty)
 
-- Fast and lightweight argument parser based on [mri](https://github.com/lukeed/mri)
-- Smart value parsing with typecast, boolean shortcuts and unknown flag handling
+<!-- /automd -->
+
+Elegant CLI Builder
+
+- Zero dependency
+- Fast and lightweight argument parser (based on native [Node.js `util.parseArgs`](https://nodejs.org/api/util.html#utilparseargsconfig))
+- Smart value parsing with typecast and boolean shortcuts
 - Nested sub-commands
 - Lazy and Async commands
-- Plugable and composable API
+- Pluggable and composable API
 - Auto generated usage and help
 
-🚧 This project is under heavy development. More features are coming soon!
-
-## Install
+## Usage
 
 Install package:
 
 ```sh
-npm install citty
+npx nypm add -D citty
 ```
-
-```sh
-yarn add citty
-```
-
-```sh
-pnpm install citty
-```
-
-## Usage
 
 ### Import Package
 
 ```js
-// ESM
 import { defineCommand, runMain } from "citty";
-```
-
-```js
-// CommonJS
-const { defineCommand, runMain } = require("citty");
 ```
 
 ### Main Command
@@ -71,7 +56,7 @@ const main = defineCommand({
       description: "Use friendly greeting",
     },
   },
-  run({ args }) { // Command can be async
+  run({ args }) {
     console.log(`${args.friendly ? "Hi" : "Greetings"} ${args.name}!`);
   },
 });
@@ -99,14 +84,14 @@ const sub = defineCommand({
     name: "sub",
     description: "Sub command",
   },
-  args: { // Sub commands can have their own arguments like any other command
+  args: {
     name: {
       type: "positional",
       description: "Your name",
       required: true,
     },
   },
-  run({ args }) { // Command can be async
+  run({ args }) {
     console.log(`Hello ${args.name}!`);
   },
 });
@@ -118,7 +103,7 @@ const main = defineCommand({
     version: "1.0.0",
     description: "My Awesome CLI App",
   },
-  commands: {
+  subCommands: {
     sub, // Attach sub command to main command
   },
 });
@@ -133,9 +118,43 @@ node index.mjs sub john
 # output: Hello john!
 ```
 
+#### Subcommand Aliases
+
+Subcommands can have aliases, allowing them to be invoked with alternative names:
+
+```js
+const install = defineCommand({
+  meta: {
+    name: "install",
+    description: "Install dependencies",
+    alias: ["i", "add"], // Can be invoked as `cli install`, `cli i`, or `cli add`
+  },
+  run() {
+    console.log("Installing...");
+  },
+});
+```
+
+#### Hidden Commands
+
+You can hide a command from the help output by setting `meta.hidden` to `true`. The command still works normally but won't be listed in usage:
+
+```js
+const debug = defineCommand({
+  meta: {
+    name: "debug",
+    description: "Debug command",
+    hidden: true, // Won't appear in help output
+  },
+  run() {
+    console.log("Debugging...");
+  },
+});
+```
+
 ### Hooks
 
-`citty` supports a `setup` and `cleanup`  functions that are called before and after command execution. This is useful for setting up and cleaning up resources.
+`citty` supports `setup` and `cleanup` functions that are called before and after command execution. This is useful for setting up and cleaning up resources.
 
 Only the `setup` and `cleanup` functions from the command called are executed. For example, if you run `hello sub`, only the `setup` and `cleanup` functions from `sub` command are executed and not the ones from `hello` command.
 
@@ -148,10 +167,11 @@ const main = defineCommand({
     version: "1.0.0",
     description: "My Awesome CLI App",
   },
-  setup() { // Setup function is called before command execution or before any sub command execution
+  setup() {
     console.log("Setting up...");
   },
-  cleanup() { // Cleanup function is called after command execution or after any sub command execution
+  cleanup() {
+    // cleanup is always called, even if run() throws
     console.log("Cleaning up...");
   },
   run() {
@@ -175,6 +195,39 @@ Setting up...
 Hello World!
 Cleaning up...
 ```
+
+### Plugins
+
+Plugins allow you to extend commands with reusable `setup` and `cleanup` hooks:
+
+```js
+import { defineCommand, defineCittyPlugin, runMain } from "citty";
+
+const logger = defineCittyPlugin({
+  name: "logger",
+  setup({ args }) {
+    console.log("Logger plugin setup, args:", args);
+  },
+  cleanup() {
+    console.log("Logger plugin cleanup");
+  },
+});
+
+const main = defineCommand({
+  meta: {
+    name: "hello",
+    description: "My CLI App",
+  },
+  plugins: [logger],
+  run() {
+    console.log("Hello!");
+  },
+});
+
+runMain(main);
+```
+
+Plugin `setup` hooks run before the command's `setup` (in declaration order), and `cleanup` hooks run after the command's `cleanup` (in reverse order). `cleanup` always runs, even if `run` throws. Plugins can also be async or factory functions.
 
 ### Lazy Load Commands
 
@@ -212,7 +265,7 @@ const main = defineCommand({
     version: "1.0.0",
     description: "My Awesome CLI App",
   },
-  commands: {
+  subCommands: {
     sub: () => import("./sub.mjs").then((m) => m.default), // Lazy Import Sub Command
   },
 });
@@ -254,13 +307,33 @@ Then, you will need to update your `package.json` file to enable the usage as a 
 
 You're ready to publish your CLI app to npm!
 
-## Args Commands
+## Arguments
 
-When you create a command with `defineCommand`, you can provide a `args` object to define the arguments of the command. For example:
+When you create a command with `defineCommand`, you can provide an `args` object to define the arguments of the command.
+
+### Argument Types
+
+There are 4 types of arguments:
+
+- **`positional`**: Unnamed positional arguments (e.g., `cli <name>`). Positional args don't support `alias`.
+- **`string`**: Named string options (e.g., `--name value` or `--name=value`).
+- **`boolean`**: Boolean flags (e.g., `--verbose`). Supports negation with `--no-verbose` when the default is `true` or `negativeDescription` is set.
+- **`enum`**: Constrained to a fixed set of values defined by `options` (e.g., `--level=info|warn|error`).
+
+### Common Options
+
+All argument types support these options:
+
+- `description` — Help text shown in usage output.
+- `required` — Whether the argument is required.
+- `default` — Default value when not provided.
+- `alias` — Short aliases (e.g., `["f", "F"]`). Not available for `positional` args.
+- `valueHint` — Display hint in help output (e.g., `"host"` renders as `--name=<host>`).
+
+### Example
 
 ```js
 const main = defineCommand({
-  // ...
   args: {
     name: {
       type: "positional",
@@ -270,87 +343,71 @@ const main = defineCommand({
     friendly: {
       type: "boolean",
       description: "Use friendly greeting",
+      alias: ["f"],
     },
-  },
-  // ...
-});
-```
-
-There is 3 types of arguments:
-
-- `boolean`: A boolean flag. Can be set to `true` or `false`. Can be set using a shortcut like `--flag` (if `false` is the default or `--no-flag` if `true` is the default).
-- `string`: A string flag. Can be set using a value like `--flag value`.
-- `positional`: A positional argument. Can be set using a value like `value`.
-
-Then, you can add a description to each argument. This description will be used to generate the usage of the command. You can also use `required` to make an argument required or not.
-
-You can also set a default value for each argument. For example:
-
-```js
-const main = defineCommand({
-  // ...
-  args: {
-    name: {
-      type: "positional",
-      description: "Your name",
-      default: "Foo",
+    greeting: {
+      type: "string",
+      description: "Custom greeting",
+      default: "Hello",
     },
-    friendly: {
-      type: "boolean",
-      description: "Use friendly greeting",
-      default: true,
-    },
-  },
-  // ...
-});
-```
-
-Finally, you can set aliases for each argument. For example:
-
-```js
-const main = defineCommand({
-  // ...
-  args: {
-    name: {
-      type: "positional",
-      description: "Your name",
-      required: true,
-      alias: ["n", "N"],
-    },
-    friendly: {
-      type: "boolean",
-      description: "Use friendly greeting",
-      alias: ["f", "F"],
-    },
-  },
-  // ...
-});
-```
-
-Then, use can use these arguments in the `run` function of the command because they are passed as parameters:
-
-```js
-const main = defineCommand({
-  meta: {
-    name: "sub",
-    description: "Sub command",
-  },
-  args: {
-    name: {
-      type: "positional",
-      description: "Your name",
-      required: true,
+    level: {
+      type: "enum",
+      description: "Log level",
+      options: ["debug", "info", "warn", "error"],
+      default: "info",
     },
   },
   run({ args }) {
-    console.log(`Hello ${args.name}!`);
+    // args is fully typed based on the definitions above
+    console.log(`${args.greeting} ${args.name}! (level: ${args.level})`);
   },
 });
 ```
 
-`args` is an object fully typed with the type of each argument. For example, if you have a `string` argument, the type of the argument will be `string`. If you have a `boolean` argument, the type of the argument will be `boolean`.
+### Boolean Negation
 
-## Build-in Commands
+Boolean arguments support `--no-` prefix for negation. The negative variant appears in help output when the argument has `default: true` or a `negativeDescription`:
+
+```js
+const main = defineCommand({
+  args: {
+    color: {
+      type: "boolean",
+      description: "Enable colorized output",
+      negativeDescription: "Disable colorized output",
+      default: true,
+    },
+  },
+  run({ args }) {
+    // Use --color or --no-color
+    console.log(args.color ? "colorful!" : "plain");
+  },
+});
+```
+
+### Case-Agnostic Access
+
+Arguments defined with kebab-case names can be accessed using either kebab-case or camelCase:
+
+```js
+const main = defineCommand({
+  args: {
+    "output-dir": {
+      type: "string",
+      description: "Output directory",
+    },
+  },
+  run({ args }) {
+    // Both work:
+    console.log(args["output-dir"]);
+    console.log(args.outputDir);
+  },
+});
+```
+
+## Built-in Commands
+
+citty automatically handles `--help` / `-h` and `--version` / `-v` flags. If your command defines `meta.version`, users can run `--version` to display it. These built-in flags are automatically disabled if your command defines args with the same names or aliases.
 
 ## API
 
@@ -368,7 +425,7 @@ Create a wrapper around command that calls `runMain` when called.
 
 ### `runCommand`
 
-Parses input args and runs command and sub-commands (unsupervised).
+Parses input args and runs command and sub-commands (unsupervised). You can access `result` key from returned/awaited value to access command's result.
 
 ### `parseArgs`
 
@@ -380,7 +437,11 @@ Renders command usage to a string value.
 
 ### `showUsage`
 
-Renders usage and prints to the console
+Renders usage and prints to the console.
+
+### `defineCittyPlugin`
+
+A type helper for defining plugins.
 
 ## Development
 
@@ -393,22 +454,3 @@ Renders usage and prints to the console
 ## License
 
 Made with 💛 Published under [MIT License](./LICENSE).
-
-Argument parser is based on [lukeed/mri](https://github.com/lukeed/mri) by Luke Edwards ([@lukeed](https://github.com/lukeed)).
-
-<!-- Badges -->
-
-<!-- Badges -->
-
-[npm-version-src]: https://img.shields.io/npm/v/citty?style=flat&colorA=18181B&colorB=F0DB4F
-[npm-version-href]: https://npmjs.com/package/citty
-[npm-downloads-src]: https://img.shields.io/npm/dm/citty?style=flat&colorA=18181B&colorB=F0DB4F
-[npm-downloads-href]: https://npmjs.com/package/citty
-[codecov-src]: https://img.shields.io/codecov/c/gh/unjs/citty/main?style=flat&colorA=18181B&colorB=F0DB4F
-[codecov-href]: https://codecov.io/gh/unjs/citty
-[bundle-src]: https://img.shields.io/bundlephobia/minzip/citty?style=flat&colorA=18181B&colorB=F0DB4F
-[bundle-href]: https://bundlephobia.com/result?p=citty
-[license-src]: https://img.shields.io/github/license/unjs/citty.svg?style=flat&colorA=18181B&colorB=F0DB4F
-[license-href]: https://github.com/unjs/citty/blob/main/LICENSE
-[jsdocs-src]: https://img.shields.io/badge/jsDocs.io-reference-18181B?style=flat&colorA=18181B&colorB=F0DB4F
-[jsdocs-href]: https://www.jsdocs.io/package/citty

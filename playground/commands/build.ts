@@ -1,5 +1,4 @@
-import consola from 'consola'
-import { defineCommand } from "../../src";
+import { defineCommand } from "../../src/index.ts";
 
 export default defineCommand({
   meta: {
@@ -35,10 +34,11 @@ export default defineCommand({
       type: "positional",
       required: false,
       description: "path to output directory",
+      default: ".output",
     },
   },
   run({ args }) {
-    consola.log("Build");
-    consola.log("Parsed args:", args);
+    console.log("Build");
+    console.log("Parsed args:", args);
   },
 });
