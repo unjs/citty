@@ -487,9 +487,9 @@ describe("default sub command", () => {
       run: async () => {},
     });
 
-    await expect(
-      commandModule.runCommand(command, { rawArgs: [] }),
-    ).rejects.toThrow(/handler specified and a default sub command/);
+    await expect(commandModule.runCommand(command, { rawArgs: [] })).rejects.toThrow(
+      /handler specified and a default sub command/,
+    );
   });
 });
 
