@@ -15,31 +15,31 @@ describe("parseRawArgs", () => {
     });
   });
 
-  it('handles --<arg>=<value>', ()=>{
+  it("handles --<arg>=<value>", () => {
     const result = parseRawArgs(["--name=John"], {
-      string: ["name"]
+      string: ["name"],
     });
 
     expect(result).toEqual({
       _: [],
-      name: "John"
-    })
-  })
+      name: "John",
+    });
+  });
 
-  it('handles -<arg>=<value> with alias', ()=>{
+  it("handles -<arg>=<value> with alias", () => {
     const result = parseRawArgs(["-n=John"], {
       string: ["name"],
       alias: {
-        n: ["name"]
-      }
-    })
+        n: ["name"],
+      },
+    });
 
     expect(result).toEqual({
       _: [],
       n: "John",
       name: "John",
-    })
-  })
+    });
+  });
 
   it("handles default values", () => {
     const result = parseRawArgs([], { default: { name: "Default" } });
