@@ -35,6 +35,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
   const plugins = await resolvePlugins(cmd.plugins ?? []);
 
   let result: unknown;
+  let runError: unknown;
   try {
     // Plugin setup hooks
     for (const plugin of plugins) {
@@ -68,30 +69,39 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
     if (typeof cmd.run === "function") {
       result = await cmd.run(context);
     }
-  } finally {
-    const errors: unknown[] = [];
-    if (typeof cmd.cleanup === "function") {
-      try {
-        await cmd.cleanup(context);
-      } catch (error) {
-        errors.push(error);
-      }
-    }
-    // Plugin cleanup hooks (reverse order)
-    for (const plugin of [...plugins].reverse()) {
-      try {
-        await plugin.cleanup?.(context);
-      } catch (error) {
-        errors.push(error);
-      }
-    }
-    if (errors.length === 1) {
-      throw errors[0];
-    }
-    if (errors.length > 1) {
-      throw new Error("Multiple cleanup errors", { cause: errors });
+  } catch (error) {
+    runError = error;
+  }
+
+  // Cleanup (always runs)
+  const cleanupErrors: unknown[] = [];
+  if (typeof cmd.cleanup === "function") {
+    try {
+      await cmd.cleanup(context);
+    } catch (error) {
+      cleanupErrors.push(error);
     }
   }
+  // Plugin cleanup hooks (reverse order)
+  for (const plugin of [...plugins].reverse()) {
+    try {
+      await plugin.cleanup?.(context);
+    } catch (error) {
+      cleanupErrors.push(error);
+    }
+  }
+
+  // Rethrow errors
+  if (runError) {
+    throw runError;
+  }
+  if (cleanupErrors.length === 1) {
+    throw cleanupErrors[0];
+  }
+  if (cleanupErrors.length > 1) {
+    throw new Error("Multiple cleanup errors", { cause: cleanupErrors });
+  }
+
   return { result };
 }
 
