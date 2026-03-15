@@ -66,15 +66,15 @@ Custom `CLIError` class with error codes: `EARG`, `E_UNKNOWN_COMMAND`, `E_NO_COM
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Vitest watch mode |
-| `pnpm test` | Lint + typecheck + vitest with coverage |
-| `pnpm test:types` | Type checking via `tsgo --noEmit` |
-| `pnpm lint` | `oxlint . && oxfmt --check` |
-| `pnpm lint:fix` | `oxlint . --fix && oxfmt` |
-| `pnpm build` | Build with obuild → `dist/` |
-| `pnpm play` | Run playground CLI |
+| Command           | Description                             |
+| ----------------- | --------------------------------------- |
+| `pnpm dev`        | Vitest watch mode                       |
+| `pnpm test`       | Lint + typecheck + vitest with coverage |
+| `pnpm test:types` | Type checking via `tsgo --noEmit`       |
+| `pnpm lint`       | `oxlint . && oxfmt --check`             |
+| `pnpm lint:fix`   | `oxlint . --fix && oxfmt`               |
+| `pnpm build`      | Build with obuild → `dist/`             |
+| `pnpm play`       | Run playground CLI                      |
 
 ## Tooling
 
