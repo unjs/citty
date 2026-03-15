@@ -93,22 +93,22 @@ export interface CommandMeta {
 
 // Command: Definition
 
-export type SubCommandsDef = Record<string, Resolvable<CommandDef<any>>>;
+export type SubCommandsDef = Record<string, Resolvable<CommandDef<any, any>>>;
 
-export type CommandDef<T extends ArgsDef = ArgsDef> = {
+export type CommandDef<T extends ArgsDef = ArgsDef, S = void> = {
   meta?: Resolvable<CommandMeta>;
   args?: Resolvable<T>;
   subCommands?: Resolvable<SubCommandsDef>;
-  setup?: (context: CommandContext<T>) => any | Promise<any>;
-  cleanup?: (context: CommandContext<T>) => any | Promise<any>;
-  run?: (context: CommandContext<T>) => any | Promise<any>;
+  setup?: (context: CommandContext<T>) => S | Promise<S>;
+  cleanup?: (context: CommandContext<T>, setupResult: NoInfer<S>) => any | Promise<any>;
+  run?: (context: CommandContext<T>, setupResult: NoInfer<S>) => any | Promise<any>;
 };
 
 export type CommandContext<T extends ArgsDef = ArgsDef> = {
   rawArgs: string[];
   args: ParsedArgs<T>;
-  cmd: CommandDef<T>;
-  subCommand?: CommandDef<T>;
+  cmd: CommandDef<T, any>;
+  subCommand?: CommandDef<T, any>;
   data?: any;
 };
 

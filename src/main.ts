@@ -8,8 +8,8 @@ export interface RunMainOptions {
   showUsage?: typeof _showUsage;
 }
 
-export async function runMain<T extends ArgsDef = ArgsDef>(
-  cmd: CommandDef<T>,
+export async function runMain<T extends ArgsDef = ArgsDef, S = void>(
+  cmd: CommandDef<T, S>,
   opts: RunMainOptions = {},
 ) {
   const rawArgs = opts.rawArgs || process.argv.slice(2);
@@ -39,8 +39,8 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
   }
 }
 
-export function createMain<T extends ArgsDef = ArgsDef>(
-  cmd: CommandDef<T>,
+export function createMain<T extends ArgsDef = ArgsDef, S = void>(
+  cmd: CommandDef<T, S>,
 ): (opts?: RunMainOptions) => Promise<void> {
   return (opts: RunMainOptions = {}) => runMain(cmd, opts);
 }
