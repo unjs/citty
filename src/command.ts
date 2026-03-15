@@ -34,19 +34,19 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
   // Resolve plugins
   const plugins = await resolvePlugins(cmd.plugins ?? []);
 
-  // Plugin setup hooks
-  for (const plugin of plugins) {
-    await plugin.setup?.(context);
-  }
-
-  // Setup hook
-  if (typeof cmd.setup === "function") {
-    await cmd.setup(context);
-  }
-
-  // Handle sub command
   let result: unknown;
   try {
+    // Plugin setup hooks
+    for (const plugin of plugins) {
+      await plugin.setup?.(context);
+    }
+
+    // Setup hook
+    if (typeof cmd.setup === "function") {
+      await cmd.setup(context);
+    }
+
+    // Handle sub command
     const subCommands = await resolveValue(cmd.subCommands);
     if (subCommands && Object.keys(subCommands).length > 0) {
       const subCommandArgIndex = findSubCommandIndex(opts.rawArgs, cmdArgs);
@@ -69,12 +69,24 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
       result = await cmd.run(context);
     }
   } finally {
+    let firstError: unknown;
     if (typeof cmd.cleanup === "function") {
-      await cmd.cleanup(context);
+      try {
+        await cmd.cleanup(context);
+      } catch (error) {
+        firstError ??= error;
+      }
     }
     // Plugin cleanup hooks (reverse order)
     for (const plugin of [...plugins].reverse()) {
-      await plugin.cleanup?.(context);
+      try {
+        await plugin.cleanup?.(context);
+      } catch (error) {
+        firstError ??= error;
+      }
+    }
+    if (firstError) {
+      throw firstError;
     }
   }
   return { result };

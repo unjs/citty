@@ -158,6 +158,74 @@ describe("plugin hooks in commands", () => {
     expect(cleanupFn).toHaveBeenCalledOnce();
   });
 
+  it("calls cleanup even when plugin setup throws", async () => {
+    const order: string[] = [];
+
+    const plugin1 = defineCittyPlugin({
+      name: "first",
+      setup() {
+        order.push("first:setup");
+      },
+      cleanup() {
+        order.push("first:cleanup");
+      },
+    });
+
+    const plugin2 = defineCittyPlugin({
+      name: "second",
+      setup() {
+        throw new Error("setup-boom");
+      },
+      cleanup() {
+        order.push("second:cleanup");
+      },
+    });
+
+    const cmd = defineCommand({
+      plugins: [plugin1, plugin2],
+      cleanup() {
+        order.push("cmd:cleanup");
+      },
+      run() {
+        order.push("cmd:run");
+      },
+    });
+
+    await expect(runCommand(cmd, { rawArgs: [] })).rejects.toThrow("setup-boom");
+    expect(order).toEqual(["first:setup", "cmd:cleanup", "second:cleanup", "first:cleanup"]);
+    expect(order).not.toContain("cmd:run");
+  });
+
+  it("runs all plugin cleanups even when one throws", async () => {
+    const order: string[] = [];
+
+    const plugin1 = defineCittyPlugin({
+      name: "first",
+      cleanup() {
+        order.push("first:cleanup");
+      },
+    });
+
+    const plugin2 = defineCittyPlugin({
+      name: "second",
+      cleanup() {
+        order.push("second:cleanup");
+        throw new Error("cleanup-boom");
+      },
+    });
+
+    const cmd = defineCommand({
+      plugins: [plugin1, plugin2],
+      run() {
+        order.push("cmd:run");
+      },
+    });
+
+    await expect(runCommand(cmd, { rawArgs: [] })).rejects.toThrow("cleanup-boom");
+    // second runs first (reverse order), throws, but first still runs
+    expect(order).toEqual(["cmd:run", "second:cleanup", "first:cleanup"]);
+  });
+
   it("runs multiple plugins in order, cleanup in reverse", async () => {
     const order: string[] = [];
 
