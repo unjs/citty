@@ -91,6 +91,28 @@ describe("parseRawArgs", () => {
     });
   });
 
+  it("handles string values starting with a hyphen (#171)", () => {
+    const result = parseRawArgs(["--params", "-a 192.168.1.1 -b -c"], {
+      string: ["params"],
+    });
+
+    expect(result).toEqual({
+      _: [],
+      params: "-a 192.168.1.1 -b -c",
+    });
+  });
+
+  it("handles string value that is a single hyphen-prefixed token (#171)", () => {
+    const result = parseRawArgs(["--name", "-test"], {
+      string: ["name"],
+    });
+
+    expect(result).toEqual({
+      _: [],
+      name: "-test",
+    });
+  });
+
   it("handles empty arguments", () => {
     const result = parseRawArgs([], {});
 
