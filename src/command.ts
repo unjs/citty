@@ -1,4 +1,4 @@
-import { kebabCase, camelCase } from "scule";
+import { camelCase } from "scule";
 import type { CommandContext, CommandDef, ArgsDef } from "./types.ts";
 import { CLIError, resolveValue } from "./_utils.ts";
 import { parseArgs } from "./args.ts";
@@ -90,24 +90,11 @@ export async function resolveSubCommand<T extends ArgsDef = ArgsDef>(
 // --- internal ---
 
 function findSubCommandIndex(rawArgs: string[], argsDef: ArgsDef): number {
-  const valuedFlags = new Set<string>();
-  for (const [name, def] of Object.entries(argsDef)) {
-    if (def.type === "string" || def.type === "enum") {
-      valuedFlags.add(`--${name}`);
-      valuedFlags.add(`--${kebabCase(name)}`);
-      valuedFlags.add(`--${camelCase(name)}`);
-      const aliases = Array.isArray(def.alias) ? def.alias : def.alias ? [def.alias] : [];
-      for (const a of aliases) {
-        valuedFlags.add(a.length === 1 ? `-${a}` : `--${a}`);
-      }
-    }
-  }
-
   for (let i = 0; i < rawArgs.length; i++) {
     const arg = rawArgs[i]!;
     if (arg === "--") return -1;
     if (arg.startsWith("-")) {
-      if (!arg.includes("=") && valuedFlags.has(arg)) {
+      if (!arg.includes("=") && _isValueFlag(arg, argsDef)) {
         i++; // skip the flag's value
       }
       continue;
@@ -115,4 +102,16 @@ function findSubCommandIndex(rawArgs: string[], argsDef: ArgsDef): number {
     return i;
   }
   return -1;
+}
+
+function _isValueFlag(flag: string, argsDef: ArgsDef): boolean {
+  const name = flag.replace(/^-{1,2}/, "");
+  const normalized = camelCase(name);
+  for (const [key, def] of Object.entries(argsDef)) {
+    if (def.type !== "string" && def.type !== "enum") continue;
+    if (normalized === camelCase(key)) return true;
+    const aliases = Array.isArray(def.alias) ? def.alias : def.alias ? [def.alias] : [];
+    if (aliases.includes(name)) return true;
+  }
+  return false;
 }
