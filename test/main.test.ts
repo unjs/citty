@@ -166,6 +166,131 @@ describe("resolveSubCommand", () => {
   });
 });
 
+describe("builtin flag conflicts", () => {
+  vi.spyOn(process, "exit").mockImplementation(() => 0 as never);
+
+  const runMock = vi.fn();
+
+  // -- help --
+
+  it("allows -h alias to be used by user args (e.g. --host)", async () => {
+    const command = defineCommand({
+      args: {
+        host: {
+          type: "string",
+          alias: "h",
+          description: "Host to bind",
+        },
+      },
+      run: ({ args }) => {
+        runMock(args.host);
+      },
+    });
+
+    await runMain(command, { rawArgs: ["-h", "localhost"] });
+
+    expect(runMock).toHaveBeenCalledWith("localhost");
+  });
+
+  it("still supports --help when -h is taken by user args", async () => {
+    const consoleMock = vi.spyOn(console, "log").mockImplementation(() => undefined);
+
+    const command = defineCommand({
+      meta: { name: "test", description: "Test" },
+      args: {
+        host: {
+          type: "string",
+          alias: "h",
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["--help"] });
+
+    const usage = await renderUsage(command);
+    expect(consoleMock).toHaveBeenCalledWith(usage + "\n");
+    consoleMock.mockRestore();
+  });
+
+  it("disables builtin help when user defines --help arg", async () => {
+    const command = defineCommand({
+      args: {
+        help: {
+          type: "boolean",
+          description: "Custom help",
+        },
+      },
+      run: ({ args }) => {
+        runMock(args.help);
+      },
+    });
+
+    await runMain(command, { rawArgs: ["--help"] });
+
+    expect(runMock).toHaveBeenCalledWith(true);
+  });
+
+  // -- version --
+
+  it("allows -v alias to be used by user args (e.g. --verbose)", async () => {
+    const command = defineCommand({
+      meta: { version: "1.0.0" },
+      args: {
+        verbose: {
+          type: "boolean",
+          alias: "v",
+          description: "Verbose output",
+        },
+      },
+      run: ({ args }) => {
+        runMock(args.verbose);
+      },
+    });
+
+    await runMain(command, { rawArgs: ["-v"] });
+
+    expect(runMock).toHaveBeenCalledWith(true);
+  });
+
+  it("still supports --version when -v is taken by user args", async () => {
+    const consoleMock = vi.spyOn(console, "log").mockImplementation(() => undefined);
+
+    const command = defineCommand({
+      meta: { version: "1.0.0" },
+      args: {
+        verbose: {
+          type: "boolean",
+          alias: "v",
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["--version"] });
+
+    expect(consoleMock).toHaveBeenCalledWith("1.0.0");
+    consoleMock.mockRestore();
+  });
+
+  it("disables builtin version when user defines --version arg", async () => {
+    const command = defineCommand({
+      meta: { version: "1.0.0" },
+      args: {
+        version: {
+          type: "boolean",
+          description: "Custom version",
+        },
+      },
+      run: ({ args }) => {
+        runMock(args.version);
+      },
+    });
+
+    await runMain(command, { rawArgs: ["--version"] });
+
+    expect(runMock).toHaveBeenCalledWith(true);
+  });
+});
+
 describe("createMain", () => {
   it("creates and returns a function", () => {
     const main = createMain(defineCommand({}));
