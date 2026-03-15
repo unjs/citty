@@ -56,10 +56,10 @@ const main = defineCommand({
       description: "Use friendly greeting",
     },
   },
-  setup({ args }){
+  setup({ args }) {
     console.log(`now setup ${args.command}`);
   },
-  cleanup({ args }){
+  cleanup({ args }) {
     console.log(`now cleanup ${args.command}`);
   },
   run({ args }) {
