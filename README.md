@@ -26,15 +26,17 @@ Install package:
 npx nypm add -D citty
 ```
 
-Import:
+### Import Package
 
 ```js
 import { defineCommand, runMain } from "citty";
 ```
 
-Define main command to run:
+### Main Command
 
-```ts
+Create a main command is the first step to create a CLI app. You can do it in a `index.mjs` file.
+
+```js
 import { defineCommand, runMain } from "citty";
 
 const main = defineCommand({
@@ -62,11 +64,322 @@ const main = defineCommand({
 runMain(main);
 ```
 
-## Utils
+Then, you can execute your CLI app:
+
+```sh
+node index.mjs john
+# output: Greetings john!
+```
+
+### Sub Commands
+
+You can define sub commands and attach them to main command to create a nested command structure. This is recursive so you can attach sub commands to sub commands, etc.
+
+```js
+import { defineCommand, runMain } from "citty";
+
+// First, you define a new command
+const sub = defineCommand({
+  meta: {
+    name: "sub",
+    description: "Sub command",
+  },
+  args: {
+    name: {
+      type: "positional",
+      description: "Your name",
+      required: true,
+    },
+  },
+  run({ args }) {
+    console.log(`Hello ${args.name}!`);
+  },
+});
+
+// Then, you define a main command and attach sub command to it
+const main = defineCommand({
+  meta: {
+    name: "hello",
+    version: "1.0.0",
+    description: "My Awesome CLI App",
+  },
+  subCommands: {
+    sub, // Attach sub command to main command
+  },
+});
+
+runMain(main);
+```
+
+Then, you can execute your CLI app:
+
+```sh
+node index.mjs sub john
+# output: Hello john!
+```
+
+#### Subcommand Aliases
+
+Subcommands can have aliases, allowing them to be invoked with alternative names:
+
+```js
+const install = defineCommand({
+  meta: {
+    name: "install",
+    description: "Install dependencies",
+    alias: ["i", "add"], // Can be invoked as `cli install`, `cli i`, or `cli add`
+  },
+  run() {
+    console.log("Installing...");
+  },
+});
+```
+
+#### Hidden Commands
+
+You can hide a command from the help output by setting `meta.hidden` to `true`. The command still works normally but won't be listed in usage:
+
+```js
+const debug = defineCommand({
+  meta: {
+    name: "debug",
+    description: "Debug command",
+    hidden: true, // Won't appear in help output
+  },
+  run() {
+    console.log("Debugging...");
+  },
+});
+```
+
+### Hooks
+
+`citty` supports `setup` and `cleanup` functions that are called before and after command execution. This is useful for setting up and cleaning up resources.
+
+Only the `setup` and `cleanup` functions from the command called are executed. For example, if you run `hello sub`, only the `setup` and `cleanup` functions from `sub` command are executed and not the ones from `hello` command.
+
+```js
+import { defineCommand, runMain } from "citty";
+
+const main = defineCommand({
+  meta: {
+    name: "hello",
+    version: "1.0.0",
+    description: "My Awesome CLI App",
+  },
+  setup() {
+    console.log("Setting up...");
+  },
+  cleanup() {
+    // cleanup is always called, even if run() throws
+    console.log("Cleaning up...");
+  },
+  run() {
+    console.log("Hello World!");
+  },
+});
+
+runMain(main);
+```
+
+Now, you can run your CLI app:
+
+```sh
+node index.mjs
+```
+
+And you will see:
+
+```sh
+Setting up...
+Hello World!
+Cleaning up...
+```
+
+### Plugins
+
+Plugins allow you to extend commands with reusable `setup` and `cleanup` hooks:
+
+```js
+import { defineCommand, defineCittyPlugin, runMain } from "citty";
+
+const logger = defineCittyPlugin({
+  name: "logger",
+  setup({ args }) {
+    console.log("Logger plugin setup, args:", args);
+  },
+  cleanup() {
+    console.log("Logger plugin cleanup");
+  },
+});
+
+const main = defineCommand({
+  meta: {
+    name: "hello",
+    description: "My CLI App",
+  },
+  plugins: [logger],
+  run() {
+    console.log("Hello!");
+  },
+});
+
+runMain(main);
+```
+
+Plugin `setup` hooks run before the command's `setup` (in declaration order), and `cleanup` hooks run after the command's `cleanup` (in reverse order). `cleanup` always runs, even if `run` throws. Plugins can also be async or factory functions.
+
+### Lazy Load Commands
+
+For large CLI apps, you may want to only load the command that is being executed.
+
+First, create a command in a file named `sub.mjs` and export it.
+
+```js
+import { defineCommand } from "citty";
+
+export default defineCommand({
+  meta: {
+    name: "sub",
+    description: "Sub command",
+  },
+  args: {
+    name: {
+      type: "positional",
+      description: "Your name",
+      required: true,
+    },
+  },
+  run({ args }) {
+    console.log(`Hello ${args.name}!`);
+  },
+});
+```
+
+Then, create the main command and import the sub command.
+
+```js
+const main = defineCommand({
+  meta: {
+    name: "hello",
+    version: "1.0.0",
+    description: "My Awesome CLI App",
+  },
+  subCommands: {
+    sub: () => import("./sub.mjs").then((m) => m.default), // Lazy Import Sub Command
+  },
+});
+```
+
+Now, when you run `node index.mjs sub`, the sub command will be loaded and executed. This avoid to load all commands at once when you start your app.
+
+## Arguments
+
+When you create a command with `defineCommand`, you can provide an `args` object to define the arguments of the command.
+
+### Argument Types
+
+There are 4 types of arguments:
+
+- **`positional`**: Unnamed positional arguments (e.g., `cli <name>`). Positional args don't support `alias`.
+- **`string`**: Named string options (e.g., `--name value` or `--name=value`).
+- **`boolean`**: Boolean flags (e.g., `--verbose`). Supports negation with `--no-verbose` when the default is `true` or `negativeDescription` is set.
+- **`enum`**: Constrained to a fixed set of values defined by `options` (e.g., `--level=info|warn|error`).
+
+### Common Options
+
+All argument types support these options:
+
+- `description` — Help text shown in usage output.
+- `required` — Whether the argument is required.
+- `default` — Default value when not provided.
+- `alias` — Short aliases (e.g., `["f", "F"]`). Not available for `positional` args.
+- `valueHint` — Display hint in help output (e.g., `"host"` renders as `--name=<host>`).
+
+### Example
+
+```js
+const main = defineCommand({
+  args: {
+    name: {
+      type: "positional",
+      description: "Your name",
+      required: true,
+    },
+    friendly: {
+      type: "boolean",
+      description: "Use friendly greeting",
+      alias: ["f"],
+    },
+    greeting: {
+      type: "string",
+      description: "Custom greeting",
+      default: "Hello",
+    },
+    level: {
+      type: "enum",
+      description: "Log level",
+      options: ["debug", "info", "warn", "error"],
+      default: "info",
+    },
+  },
+  run({ args }) {
+    // args is fully typed based on the definitions above
+    console.log(`${args.greeting} ${args.name}! (level: ${args.level})`);
+  },
+});
+```
+
+### Boolean Negation
+
+Boolean arguments support `--no-` prefix for negation. The negative variant appears in help output when the argument has `default: true` or a `negativeDescription`:
+
+```js
+const main = defineCommand({
+  args: {
+    color: {
+      type: "boolean",
+      description: "Enable colorized output",
+      negativeDescription: "Disable colorized output",
+      default: true,
+    },
+  },
+  run({ args }) {
+    // Use --color or --no-color
+    console.log(args.color ? "colorful!" : "plain");
+  },
+});
+```
+
+### Case-Agnostic Access
+
+Arguments defined with kebab-case names can be accessed using either kebab-case or camelCase:
+
+```js
+const main = defineCommand({
+  args: {
+    "output-dir": {
+      type: "string",
+      description: "Output directory",
+    },
+  },
+  run({ args }) {
+    // Both work:
+    console.log(args["output-dir"]);
+    console.log(args.outputDir);
+  },
+});
+```
+
+## Built-in Commands
+
+citty automatically handles `--help` / `-h` and `--version` / `-v` flags. If your command defines `meta.version`, users can run `--version` to display it. These built-in flags are automatically disabled if your command defines args with the same names or aliases.
+
+## API
 
 ### `defineCommand`
 
-`defineCommand` is a type helper for defining commands.
+A type helper for defining commands.
 
 ### `runMain`
 
@@ -78,7 +391,7 @@ Create a wrapper around command that calls `runMain` when called.
 
 ### `runCommand`
 
-Parses input args and runs command and sub-commands (unsupervised). You can access `result` key from returnd/awaited value to access command's result.
+Parses input args and runs command and sub-commands (unsupervised). You can access `result` key from returned/awaited value to access command's result.
 
 ### `parseArgs`
 
@@ -90,7 +403,11 @@ Renders command usage to a string value.
 
 ### `showUsage`
 
-Renders usage and prints to the console
+Renders usage and prints to the console.
+
+### `defineCittyPlugin`
+
+A type helper for defining plugins.
 
 ## Development
 
