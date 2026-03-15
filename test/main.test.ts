@@ -143,6 +143,129 @@ describe("sub command", () => {
   });
 });
 
+describe("sub command aliases", () => {
+  it("resolves subcommand by single alias", async () => {
+    const runMock = vi.fn();
+
+    const command = defineCommand({
+      subCommands: {
+        install: {
+          meta: { alias: "i" },
+          run: async () => {
+            runMock();
+          },
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["i"] });
+
+    expect(runMock).toHaveBeenCalledOnce();
+  });
+
+  it("resolves subcommand by array of aliases", async () => {
+    const runMock = vi.fn();
+
+    const command = defineCommand({
+      subCommands: {
+        install: {
+          meta: { alias: ["i", "add"] },
+          run: async () => {
+            runMock();
+          },
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["add"] });
+
+    expect(runMock).toHaveBeenCalledOnce();
+  });
+
+  it("resolves nested subcommand aliases", async () => {
+    const runMock = vi.fn();
+
+    const command = defineCommand({
+      subCommands: {
+        workspace: {
+          meta: { alias: "ws" },
+          subCommands: {
+            list: {
+              meta: { alias: "ls" },
+              run: async () => {
+                runMock();
+              },
+            },
+          },
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["ws", "ls"] });
+
+    expect(runMock).toHaveBeenCalledOnce();
+  });
+
+  it("prefers direct key match over alias", async () => {
+    const directMock = vi.fn();
+    const aliasMock = vi.fn();
+
+    const command = defineCommand({
+      subCommands: {
+        i: {
+          run: async () => {
+            directMock();
+          },
+        },
+        install: {
+          meta: { alias: "i" },
+          run: async () => {
+            aliasMock();
+          },
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["i"] });
+
+    expect(directMock).toHaveBeenCalledOnce();
+    expect(aliasMock).not.toHaveBeenCalled();
+  });
+
+  it("throws for unknown command even with aliases defined", async () => {
+    const command = defineCommand({
+      subCommands: {
+        install: {
+          meta: { alias: "i" },
+          run: async () => {},
+        },
+      },
+    });
+
+    await expect(commandModule.runCommand(command, { rawArgs: ["unknown"] })).rejects.toThrow(
+      "Unknown command",
+    );
+  });
+
+  it("shows aliases in usage output", async () => {
+    const command = defineCommand({
+      meta: { name: "cli", description: "Test CLI" },
+      subCommands: {
+        install: {
+          meta: { name: "install", alias: ["i", "add"], description: "Install packages" },
+        },
+        build: {
+          meta: { name: "build", alias: "b", description: "Build project" },
+        },
+      },
+    });
+
+    const usage = await renderUsage(command);
+    expect(usage).toContain("install, i, add");
+    expect(usage).toContain("build, b");
+  });
+});
+
 describe("sub command with parent args", () => {
   it("resolves subcommand when parent has string arg", async () => {
     const runMock = vi.fn();

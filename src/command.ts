@@ -1,6 +1,6 @@
 import { camelCase } from "scule";
-import type { CommandContext, CommandDef, ArgsDef } from "./types.ts";
-import { CLIError, resolveValue } from "./_utils.ts";
+import type { CommandContext, CommandDef, ArgsDef, SubCommandsDef } from "./types.ts";
+import { CLIError, resolveValue, toArray } from "./_utils.ts";
 import { parseArgs } from "./args.ts";
 import { cyan } from "./_color.ts";
 
@@ -43,15 +43,13 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
       const subCommandArgIndex = findSubCommandIndex(opts.rawArgs, cmdArgs);
       const subCommandName = opts.rawArgs[subCommandArgIndex];
       if (subCommandName) {
-        if (!subCommands[subCommandName]) {
+        const subCommand = await _findSubCommand(subCommands, subCommandName);
+        if (!subCommand) {
           throw new CLIError(`Unknown command ${cyan(subCommandName)}`, "E_UNKNOWN_COMMAND");
         }
-        const subCommand = await resolveValue(subCommands[subCommandName]);
-        if (subCommand) {
-          await runCommand(subCommand, {
-            rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
-          });
-        }
+        await runCommand(subCommand, {
+          rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
+        });
       } else if (!cmd.run) {
         throw new CLIError(`No command specified.`, "E_NO_COMMAND");
       }
@@ -79,7 +77,7 @@ export async function resolveSubCommand<T extends ArgsDef = ArgsDef>(
     const cmdArgs = await resolveValue(cmd.args || {});
     const subCommandArgIndex = findSubCommandIndex(rawArgs, cmdArgs);
     const subCommandName = rawArgs[subCommandArgIndex]!;
-    const subCommand = await resolveValue(subCommands[subCommandName]);
+    const subCommand = await _findSubCommand(subCommands, subCommandName);
     if (subCommand) {
       return resolveSubCommand(subCommand, rawArgs.slice(subCommandArgIndex + 1), cmd);
     }
@@ -88,6 +86,27 @@ export async function resolveSubCommand<T extends ArgsDef = ArgsDef>(
 }
 
 // --- internal ---
+
+async function _findSubCommand(
+  subCommands: SubCommandsDef,
+  name: string,
+): Promise<CommandDef<any> | undefined> {
+  // Direct key match (fast path — no resolution needed)
+  if (name in subCommands) {
+    return resolveValue(subCommands[name]);
+  }
+  // Alias lookup (resolves subcommands to check meta.alias)
+  for (const sub of Object.values(subCommands)) {
+    const resolved = await resolveValue(sub);
+    const meta = await resolveValue(resolved?.meta);
+    if (meta?.alias) {
+      const aliases = toArray(meta.alias);
+      if (aliases.includes(name)) {
+        return resolved;
+      }
+    }
+  }
+}
 
 function findSubCommandIndex(rawArgs: string[], argsDef: ArgsDef): number {
   for (let i = 0; i < rawArgs.length; i++) {
