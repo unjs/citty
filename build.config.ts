@@ -1,7 +1,5 @@
-import { defineBuildConfig } from "unbuild";
+import { defineBuildConfig } from "obuild/config";
 
 export default defineBuildConfig({
-  rollup: {
-    inlineDependencies: true,
-  },
+  entries: ["src/index.ts"],
 });

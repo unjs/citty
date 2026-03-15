@@ -12,15 +12,15 @@ jobs:
   autofix:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - run: corepack enable
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - run: npm i -fg corepack && corepack enable
+      - uses: actions/setup-node@v6
         with:
-          node-version: 18
+          node-version: 22
           cache: "pnpm"
       - run: pnpm install
       - name: Fix lint issues
-        run: pnpm run lint:fix
-      - uses: autofix-ci/action@ea32e3a12414e6d3183163c3424a7d7a8631ad84
+        run: pnpm run fmt
+      - uses: autofix-ci/action@7a166d7532b277f34e16238930461bf77f9d7ed8
         with:
-          commit-message: "chore: apply automated lint fixes"
+          commit-message: "chore: apply automated updates"

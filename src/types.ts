@@ -1,12 +1,8 @@
 // ----- Args -----
 
-export type ArgType =
-  | "boolean"
-  | "string"
-  | "number"
-  | "enum"
-  | "positional"
-  | undefined;
+export type ArgType = "boolean" | "string" | "enum" | "positional" | undefined;
+
+// Args: Definition
 
 export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
   type?: T;
@@ -15,61 +11,73 @@ export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
   alias?: string | string[];
   default?: VT;
   required?: boolean;
-  options?: (string | number)[];
+  options?: string[];
 };
 
 export type BooleanArgDef = Omit<_ArgDef<"boolean", boolean>, "options"> & {
   negativeDescription?: string;
 };
 export type StringArgDef = Omit<_ArgDef<"string", string>, "options">;
-export type NumberArgDef = Omit<_ArgDef<"number", boolean>, "options">;
 export type EnumArgDef = _ArgDef<"enum", string>;
-export type PositionalArgDef = Omit<
-  _ArgDef<"positional", string>,
-  "alias" | "options"
->;
+export type PositionalArgDef = Omit<_ArgDef<"positional", string>, "alias" | "options">;
 
-export type ArgDef =
-  | BooleanArgDef
-  | StringArgDef
-  | NumberArgDef
-  | PositionalArgDef
-  | EnumArgDef;
+export type ArgDef = BooleanArgDef | StringArgDef | PositionalArgDef | EnumArgDef;
 
 export type ArgsDef = Record<string, ArgDef>;
 
 export type Arg = ArgDef & { name: string; alias: string[] };
 
-export type ParsedArgs<T extends ArgsDef = ArgsDef> = { _: string[] } & Record<
-  { [K in keyof T]: T[K] extends { type: "positional" } ? K : never }[keyof T],
-  string
-> &
-  Record<
-    {
-      [K in keyof T]: T[K] extends { type: "string" } ? K : never;
-    }[keyof T],
-    string
-  > &
-  Record<
-    {
-      [K in keyof T]: T[K] extends { type: "number" } ? K : never;
-    }[keyof T],
-    number
-  > &
-  Record<
-    {
-      [K in keyof T]: T[K] extends { type: "boolean" } ? K : never;
-    }[keyof T],
-    boolean
-  > &
-  Record<
-    {
-      [K in keyof T]: T[K] extends { type: "enum" } ? K : never;
-    }[keyof T],
-    {
-      [K in keyof T]: T[K] extends { options: infer U } ? U : never;
-    }[keyof T]
-  > &
+// Args: Parsed
+
+type ResolveParsedArgType<T extends ArgDef, VT> = T extends {
+  default?: any;
+  required?: boolean;
+}
+  ? T["default"] extends NonNullable<VT>
+    ? VT
+    : T["required"] extends true
+      ? VT
+      : VT | undefined
+  : VT | undefined;
+
+type ParsedPositionalArg<T extends ArgDef> = T extends { type: "positional" }
+  ? ResolveParsedArgType<T, string>
+  : never;
+
+type ParsedStringArg<T extends ArgDef> = T extends { type: "string" }
+  ? ResolveParsedArgType<T, string>
+  : never;
+
+type ParsedBooleanArg<T extends ArgDef> = T extends { type: "boolean" }
+  ? ResolveParsedArgType<T, boolean>
+  : never;
+
+type ParsedEnumArg<T extends ArgDef> = T extends {
+  type: "enum";
+  options: infer U;
+}
+  ? U extends Array<any>
+    ? ResolveParsedArgType<T, U[number]>
+    : never
+  : never;
+
+type RawArgs = {
+  _: string[];
+};
+
+// prettier-ignore
+type ParsedArg<T extends ArgDef> =
+  T["type"] extends "positional" ? ParsedPositionalArg<T> :
+  T["type"] extends "boolean" ? ParsedBooleanArg<T> :
+  T["type"] extends "string" ? ParsedStringArg<T> :
+  T["type"] extends "enum" ? ParsedEnumArg<T> :
+  never;
+
+// prettier-ignore
+export type ParsedArgs<T extends ArgsDef = ArgsDef> = RawArgs &
+  { [K in keyof T]: ParsedArg<T[K]>; } &
+  { [K in keyof T as T[K] extends { alias: string } ? T[K]["alias"] : never]: ParsedArg<T[K]> } &
+  { [K in keyof T as T[K] extends { alias: string[] } ? T[K]["alias"][number] : never]: ParsedArg<T[K]> } &
   Record<string, string | number | boolean | string[]>;
 
 // ----- Command -----
@@ -81,6 +89,7 @@ export interface CommandMeta {
   version?: string;
   description?: string;
   hidden?: boolean;
+  alias?: string | string[];
 }
 
 // Command: Definition
@@ -92,6 +101,7 @@ export type CommandDef<T extends ArgsDef = ArgsDef> = {
   args?: Resolvable<T>;
   default?: Resolvable<keyof ArgsDef | string>;
   subCommands?: Resolvable<SubCommandsDef>;
+  plugins?: Resolvable<CittyPlugin>[];
   setup?: (context: CommandContext<T>) => any | Promise<any>;
   cleanup?: (context: CommandContext<T>) => any | Promise<any>;
   run?: (context: CommandContext<T>) => any | Promise<any>;
@@ -103,6 +113,14 @@ export type CommandContext<T extends ArgsDef = ArgsDef> = {
   cmd: CommandDef<T>;
   subCommand?: CommandDef<T>;
   data?: any;
+};
+
+// ----- Plugin -----
+
+export type CittyPlugin = {
+  name: string;
+  setup?(context: CommandContext<any>): void | Promise<void>;
+  cleanup?(context: CommandContext<any>): void | Promise<void>;
 };
 
 // ----- Utils -----
