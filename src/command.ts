@@ -34,15 +34,6 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
   // Resolve plugins
   const plugins = await resolvePlugins(cmd.plugins ?? []);
 
-  // Resolve default sub command
-  const defaultSubCommand = await resolveValue(cmd.default);
-  if (defaultSubCommand && cmd.run) {
-    throw new CLIError(
-      `Command has a handler specified and a default sub command.`,
-      "E_DUPLICATE_COMMAND",
-    );
-  }
-
   let result: unknown;
   let runError: unknown;
   try {
@@ -60,8 +51,17 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
     const subCommands = await resolveValue(cmd.subCommands);
     if (subCommands && Object.keys(subCommands).length > 0) {
       const subCommandArgIndex = findSubCommandIndex(opts.rawArgs, cmdArgs);
-      const subCommandName =
-        opts.rawArgs[subCommandArgIndex] || defaultSubCommand;
+      let subCommandName: string | undefined = opts.rawArgs[subCommandArgIndex];
+      if (!subCommandName) {
+        const defaultSubCommand = await resolveValue(cmd.default);
+        if (defaultSubCommand && cmd.run) {
+          throw new CLIError(
+            `Command has a handler specified and a default sub command.`,
+            "E_DUPLICATE_COMMAND",
+          );
+        }
+        subCommandName = defaultSubCommand;
+      }
       if (subCommandName) {
         const subCommand = await _findSubCommand(subCommands, subCommandName);
         if (!subCommand) {
