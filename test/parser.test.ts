@@ -36,8 +36,8 @@ describe("parseRawArgs", () => {
 
     expect(result).toEqual({
       _: [],
-      n: "John",
-      name: "John",
+      n: "=John",
+      name: "=John",
     });
   });
 
