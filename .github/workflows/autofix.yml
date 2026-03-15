@@ -20,7 +20,7 @@ jobs:
           cache: "pnpm"
       - run: pnpm install
       - name: Fix lint issues
-        run: pnpm run lint:fix
+        run: pnpm run fmt
       - uses: autofix-ci/action@7a166d7532b277f34e16238930461bf77f9d7ed8
         with:
           commit-message: "chore: apply automated updates"

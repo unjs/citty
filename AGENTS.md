@@ -72,7 +72,7 @@ Custom `CLIError` class with error codes: `EARG`, `E_UNKNOWN_COMMAND`, `E_NO_COM
 | `pnpm test`       | Lint + typecheck + vitest with coverage |
 | `pnpm test:types` | Type checking via `tsgo --noEmit`       |
 | `pnpm lint`       | `oxlint . && oxfmt --check`             |
-| `pnpm lint:fix`   | `oxlint . --fix && oxfmt`               |
+| `pnpm fmt`   | `oxlint . --fix && oxfmt`               |
 | `pnpm build`      | Build with obuild → `dist/`             |
 | `pnpm play`       | Run playground CLI                      |
 

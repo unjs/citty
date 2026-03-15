@@ -17,7 +17,7 @@
     "build": "obuild",
     "dev": "vitest dev",
     "lint": "oxlint . && oxfmt --check",
-    "lint:fix": "oxlint . --fix && oxfmt",
+    "fmt": "oxlint . --fix && oxfmt",
     "prepack": "pnpm run build",
     "play": "node ./playground/cli.ts",
     "release": "pnpm test && pnpm build && changelogen --release --push && npm publish",
