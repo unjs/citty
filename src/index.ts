@@ -6,3 +6,4 @@ export { defineCommand, runCommand } from "./command.ts";
 export { parseArgs } from "./args.ts";
 export { renderUsage, showUsage } from "./usage.ts";
 export { runMain, createMain } from "./main.ts";
+export { defineCittyPlugin } from "./plugin.ts";

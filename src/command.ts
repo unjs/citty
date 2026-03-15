@@ -3,6 +3,7 @@ import type { CommandContext, CommandDef, ArgsDef, SubCommandsDef } from "./type
 import { CLIError, resolveValue, toArray } from "./_utils.ts";
 import { parseArgs } from "./args.ts";
 import { cyan } from "./_color.ts";
+import { resolvePlugins } from "./plugin.ts";
 
 export function defineCommand<const T extends ArgsDef = ArgsDef>(
   def: CommandDef<T>,
@@ -29,6 +30,14 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
     data: opts.data,
     cmd,
   };
+
+  // Resolve plugins
+  const plugins = await resolvePlugins(cmd.plugins ?? []);
+
+  // Plugin setup hooks
+  for (const plugin of plugins) {
+    await plugin.setup?.(context);
+  }
 
   // Setup hook
   if (typeof cmd.setup === "function") {
@@ -62,6 +71,10 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
   } finally {
     if (typeof cmd.cleanup === "function") {
       await cmd.cleanup(context);
+    }
+    // Plugin cleanup hooks (reverse order)
+    for (const plugin of [...plugins].reverse()) {
+      await plugin.cleanup?.(context);
     }
   }
   return { result };

@@ -100,6 +100,7 @@ export type CommandDef<T extends ArgsDef = ArgsDef> = {
   meta?: Resolvable<CommandMeta>;
   args?: Resolvable<T>;
   subCommands?: Resolvable<SubCommandsDef>;
+  plugins?: Resolvable<CittyPlugin>[];
   setup?: (context: CommandContext<T>) => any | Promise<any>;
   cleanup?: (context: CommandContext<T>) => any | Promise<any>;
   run?: (context: CommandContext<T>) => any | Promise<any>;
@@ -111,6 +112,14 @@ export type CommandContext<T extends ArgsDef = ArgsDef> = {
   cmd: CommandDef<T>;
   subCommand?: CommandDef<T>;
   data?: any;
+};
+
+// ----- Plugin -----
+
+export type CittyPlugin = {
+  name: string;
+  setup?(context: CommandContext<any>): void | Promise<void>;
+  cleanup?(context: CommandContext<any>): void | Promise<void>;
 };
 
 // ----- Utils -----
