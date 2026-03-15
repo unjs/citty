@@ -273,37 +273,6 @@ const main = defineCommand({
 
 Now, when you run `node index.mjs sub`, the sub command will be loaded and executed. This avoid to load all commands at once when you start your app.
 
-### Publish CLI App as an Executable
-
-You must first bundle your CLI app. To do so, you can use [`unjs/unbuild`](https://github.com/unjs/unbuild).
-
-Then, you must create a file named `index.mjs` in a folder named `bin` at the root of your package. This file must export the main command from the `dist` build.
-
-```js
-#!/usr/bin/env node
-
-import { runMain } from "../dist/index.mjs";
-
-runMain();
-```
-
-Then, you will need to update your `package.json` file to enable the usage as a CLI:
-
-```json
-{
-  "type": "module",
-  "bin": "./bin/index.mjs",
-  // Name of the CLI will be the name of the package. You can provide an object to change the name.
-  // @see https://docs.npmjs.com/cli/v10/configuring-npm/package-json#bin
-  // "bin": {
-  //   "my-cli": "./bin/index.mjs"
-  // },
-  "files": ["bin", "dist"]
-}
-```
-
-You're ready to publish your CLI app to npm!
-
 ## Arguments
 
 When you create a command with `defineCommand`, you can provide an `args` object to define the arguments of the command.
