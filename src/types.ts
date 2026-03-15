@@ -4,10 +4,7 @@ export type ArgType = "boolean" | "string" | "enum" | "positional" | "multiPosit
 
 // Args: Definition
 
-export type _ArgDef<
-  T extends ArgType,
-  VT extends boolean | number | string | string[],
-> = {
+export type _ArgDef<T extends ArgType, VT extends boolean | number | string | string[]> = {
   type?: T;
   description?: string;
   valueHint?: string;
@@ -25,7 +22,12 @@ export type EnumArgDef = _ArgDef<"enum", string>;
 export type PositionalArgDef = Omit<_ArgDef<"positional", string>, "alias" | "options">;
 export type MultiPositionalArgDef = Omit<_ArgDef<"multiPositional", string[]>, "alias" | "options">;
 
-export type ArgDef = BooleanArgDef | StringArgDef | PositionalArgDef | MultiPositionalArgDef | EnumArgDef;
+export type ArgDef =
+  | BooleanArgDef
+  | StringArgDef
+  | PositionalArgDef
+  | MultiPositionalArgDef
+  | EnumArgDef;
 
 export type ArgsDef = Record<string, ArgDef>;
 

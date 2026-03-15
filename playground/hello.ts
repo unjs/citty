@@ -32,7 +32,7 @@ const command = defineCommand({
       type: "multiPositional",
       description: "Most liked things",
       default: ["orange", "strawberry"],
-    }
+    },
   },
   run({ args }) {
     console.log(args);
