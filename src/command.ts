@@ -69,12 +69,12 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
       result = await cmd.run(context);
     }
   } finally {
-    let firstError: unknown;
+    const errors: unknown[] = [];
     if (typeof cmd.cleanup === "function") {
       try {
         await cmd.cleanup(context);
       } catch (error) {
-        firstError ??= error;
+        errors.push(error);
       }
     }
     // Plugin cleanup hooks (reverse order)
@@ -82,11 +82,14 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
       try {
         await plugin.cleanup?.(context);
       } catch (error) {
-        firstError ??= error;
+        errors.push(error);
       }
     }
-    if (firstError) {
-      throw firstError;
+    if (errors.length === 1) {
+      throw errors[0];
+    }
+    if (errors.length > 1) {
+      throw new Error("Multiple cleanup errors", { cause: errors });
     }
   }
   return { result };

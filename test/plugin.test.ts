@@ -226,6 +226,34 @@ describe("plugin hooks in commands", () => {
     expect(order).toEqual(["cmd:run", "second:cleanup", "first:cleanup"]);
   });
 
+  it("aggregates multiple cleanup errors", async () => {
+    const plugin1 = defineCittyPlugin({
+      name: "first",
+      cleanup() {
+        throw new Error("error-1");
+      },
+    });
+
+    const plugin2 = defineCittyPlugin({
+      name: "second",
+      cleanup() {
+        throw new Error("error-2");
+      },
+    });
+
+    const cmd = defineCommand({
+      plugins: [plugin1, plugin2],
+      run() {},
+    });
+
+    const err: Error = await runCommand(cmd, { rawArgs: [] }).catch((e) => e);
+    expect(err).toBeInstanceOf(Error);
+    expect(err.message).toBe("Multiple cleanup errors");
+    expect(err.cause).toEqual([expect.any(Error), expect.any(Error)]);
+    expect((err.cause as Error[])[0]!.message).toBe("error-2");
+    expect((err.cause as Error[])[1]!.message).toBe("error-1");
+  });
+
   it("runs multiple plugins in order, cleanup in reverse", async () => {
     const order: string[] = [];
 
