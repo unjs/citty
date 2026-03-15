@@ -1,5 +1,5 @@
 import * as colors from "./_color.ts";
-import { formatLineColumns, resolveValue } from "./_utils.ts";
+import { formatLineColumns, resolveValue, toArray } from "./_utils.ts";
 import type { ArgsDef, CommandDef } from "./types.ts";
 import { resolveArgs } from "./args.ts";
 
@@ -93,8 +93,10 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
       if (meta?.hidden) {
         continue;
       }
-      commandsLines.push([colors.cyan(name), meta?.description || ""]);
-      commandNames.push(name);
+      const aliases = toArray(meta?.alias);
+      const label = [name, ...aliases].join(", ");
+      commandsLines.push([colors.cyan(label), meta?.description || ""]);
+      commandNames.push(name, ...aliases);
     }
     usageLine.push(commandNames.join("|"));
   }
