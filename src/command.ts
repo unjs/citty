@@ -1,3 +1,4 @@
+import { camelCase } from "scule";
 import type { CommandContext, CommandDef, ArgsDef } from "./types.ts";
 import { CLIError, resolveValue } from "./_utils.ts";
 import { parseArgs } from "./args.ts";
@@ -39,7 +40,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
   try {
     const subCommands = await resolveValue(cmd.subCommands);
     if (subCommands && Object.keys(subCommands).length > 0) {
-      const subCommandArgIndex = opts.rawArgs.findIndex((arg) => !arg.startsWith("-"));
+      const subCommandArgIndex = findSubCommandIndex(opts.rawArgs, cmdArgs);
       const subCommandName = opts.rawArgs[subCommandArgIndex];
       if (subCommandName) {
         if (!subCommands[subCommandName]) {
@@ -75,7 +76,8 @@ export async function resolveSubCommand<T extends ArgsDef = ArgsDef>(
 ): Promise<[CommandDef<T>, CommandDef<T>?]> {
   const subCommands = await resolveValue(cmd.subCommands);
   if (subCommands && Object.keys(subCommands).length > 0) {
-    const subCommandArgIndex = rawArgs.findIndex((arg) => !arg.startsWith("-"));
+    const cmdArgs = await resolveValue(cmd.args || {});
+    const subCommandArgIndex = findSubCommandIndex(rawArgs, cmdArgs);
     const subCommandName = rawArgs[subCommandArgIndex]!;
     const subCommand = await resolveValue(subCommands[subCommandName]);
     if (subCommand) {
@@ -83,4 +85,33 @@ export async function resolveSubCommand<T extends ArgsDef = ArgsDef>(
     }
   }
   return [cmd, parent];
+}
+
+// --- internal ---
+
+function findSubCommandIndex(rawArgs: string[], argsDef: ArgsDef): number {
+  for (let i = 0; i < rawArgs.length; i++) {
+    const arg = rawArgs[i]!;
+    if (arg === "--") return -1;
+    if (arg.startsWith("-")) {
+      if (!arg.includes("=") && _isValueFlag(arg, argsDef)) {
+        i++; // skip the flag's value
+      }
+      continue;
+    }
+    return i;
+  }
+  return -1;
+}
+
+function _isValueFlag(flag: string, argsDef: ArgsDef): boolean {
+  const name = flag.replace(/^-{1,2}/, "");
+  const normalized = camelCase(name);
+  for (const [key, def] of Object.entries(argsDef)) {
+    if (def.type !== "string" && def.type !== "enum") continue;
+    if (normalized === camelCase(key)) return true;
+    const aliases = Array.isArray(def.alias) ? def.alias : def.alias ? [def.alias] : [];
+    if (aliases.includes(name)) return true;
+  }
+  return false;
 }

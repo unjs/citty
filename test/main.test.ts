@@ -143,7 +143,141 @@ describe("sub command", () => {
   });
 });
 
+describe("sub command with parent args", () => {
+  it("resolves subcommand when parent has string arg", async () => {
+    const runMock = vi.fn();
+
+    const command = defineCommand({
+      args: {
+        name: { type: "string" },
+      },
+      subCommands: {
+        build: {
+          run: async () => {
+            runMock();
+          },
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["--name", "Citty", "build"] });
+
+    expect(runMock).toHaveBeenCalledOnce();
+  });
+
+  it("resolves subcommand when parent has string arg with = syntax", async () => {
+    const runMock = vi.fn();
+
+    const command = defineCommand({
+      args: {
+        name: { type: "string" },
+      },
+      subCommands: {
+        build: {
+          run: async () => {
+            runMock();
+          },
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["--name=Citty", "build"] });
+
+    expect(runMock).toHaveBeenCalledOnce();
+  });
+
+  it("resolves subcommand when parent has string arg with alias", async () => {
+    const runMock = vi.fn();
+
+    const command = defineCommand({
+      args: {
+        name: { type: "string", alias: "n" },
+      },
+      subCommands: {
+        build: {
+          run: async () => {
+            runMock();
+          },
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["-n", "Citty", "build"] });
+
+    expect(runMock).toHaveBeenCalledOnce();
+  });
+
+  it("resolves subcommand when parent has enum arg", async () => {
+    const runMock = vi.fn();
+
+    const command = defineCommand({
+      args: {
+        env: { type: "enum", options: ["dev", "prod"] },
+      },
+      subCommands: {
+        build: {
+          run: async () => {
+            runMock();
+          },
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["--env", "prod", "build"] });
+
+    expect(runMock).toHaveBeenCalledOnce();
+  });
+
+  it("boolean arg does not consume next token as value", async () => {
+    const runMock = vi.fn();
+
+    const command = defineCommand({
+      args: {
+        verbose: { type: "boolean" },
+      },
+      subCommands: {
+        build: {
+          run: async () => {
+            runMock();
+          },
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["--verbose", "build"] });
+
+    expect(runMock).toHaveBeenCalledOnce();
+  });
+});
+
 describe("resolveSubCommand", () => {
+  it("resolves subcommand with parent string args", async () => {
+    const command = defineCommand({
+      args: {
+        name: { type: "string" },
+      },
+      subCommands: {
+        build: {
+          args: {
+            target: { type: "positional" },
+          },
+        },
+      },
+    });
+
+    const [subCommand] = await commandModule.resolveSubCommand(command, [
+      "--name",
+      "Citty",
+      "build",
+      "prod",
+    ]);
+
+    expect(subCommand).toBeDefined();
+    expect(subCommand.args).toEqual({
+      target: { type: "positional" },
+    });
+  });
+
   it("resolves the sub command", async () => {
     const command = defineCommand({
       subCommands: {
