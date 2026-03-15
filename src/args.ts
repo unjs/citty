@@ -1,7 +1,8 @@
 import { kebabCase, camelCase } from "scule";
-import { parseRawArgs } from "./_parser";
-import type { Arg, ArgsDef, ParsedArgs } from "./types";
-import { CLIError, toArray } from "./_utils";
+import { parseRawArgs, type ParseOptions } from "./_parser.ts";
+import type { Arg, ArgsDef, ParsedArgs } from "./types.ts";
+import { CLIError, toArray } from "./_utils.ts";
+import { cyan } from "./_color.ts";
 
 export function parseArgs<T extends ArgsDef = ArgsDef>(
   rawArgs: string[],
@@ -10,12 +11,9 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
   const parseOptions = {
     boolean: [] as string[],
     string: [] as string[],
-    number: [] as string[],
-    enum: [] as (number | string)[],
-    mixed: [] as string[],
-    alias: {} as Record<string, string | string[]>,
-    default: {} as Record<string, boolean | number | string | string[]>,
-  };
+    alias: {} as Record<string, string[]>,
+    default: {} as Record<string, boolean | string | string[]>,
+  } satisfies ParseOptions;
 
   const args = resolveArgs(argsDef);
 
@@ -23,20 +21,32 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
     if (arg.type === "positional") {
       continue;
     }
-    // eslint-disable-next-line unicorn/prefer-switch
-    if (arg.type === "string" || arg.type === "number") {
+    if (arg.type === "string" || arg.type === "enum") {
       parseOptions.string.push(arg.name);
     } else if (arg.type === "boolean") {
       parseOptions.boolean.push(arg.name);
-    } else if (arg.type === "enum") {
-      parseOptions.enum.push(...(arg.options || []));
     }
-
     if (arg.default !== undefined) {
       parseOptions.default[arg.name] = arg.default;
     }
     if (arg.alias) {
       parseOptions.alias[arg.name] = arg.alias;
+    }
+
+    // Add camelCase/kebab-case variants as aliases for case-insensitive matching
+    const camelName = camelCase(arg.name);
+    const kebabName = kebabCase(arg.name);
+    if (camelName !== arg.name || kebabName !== arg.name) {
+      const existingAliases = toArray(parseOptions.alias[arg.name] || []);
+      if (camelName !== arg.name && !existingAliases.includes(camelName)) {
+        existingAliases.push(camelName);
+      }
+      if (kebabName !== arg.name && !existingAliases.includes(kebabName)) {
+        existingAliases.push(kebabName);
+      }
+      if (existingAliases.length > 0) {
+        parseOptions.alias[arg.name] = existingAliases;
+      }
     }
   }
 
@@ -50,7 +60,6 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
   });
 
   for (const [, arg] of args.entries()) {
-    // eslint-disable-next-line unicorn/prefer-switch
     if (arg.type === "multiPositional") {
       if (positionalArguments.length > 0) {
         parsedArgsProxy[arg.name] = [...positionalArguments];
@@ -78,34 +87,9 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
     } else if (arg.type === "enum") {
       const argument = parsedArgsProxy[arg.name];
       const options = arg.options || [];
-      if (
-        argument !== undefined &&
-        options.length > 0 &&
-        !options.includes(argument)
-      ) {
+      if (argument !== undefined && options.length > 0 && !options.includes(argument)) {
         throw new CLIError(
-          `Invalid value for argument: \`--${arg.name}\` (\`${argument}\`). Expected one of: ${options.map((o) => `\`${o}\``).join(", ")}.`,
-          "EARG",
-        );
-      }
-    } else if (arg.type === "number") {
-      if (parsedArgsProxy[arg.name] === undefined) {
-        if (arg.required) {
-          throw new CLIError(
-            `Missing required argument: --${arg.name}`,
-            "EARG",
-          );
-        }
-        continue;
-      }
-
-      const _originalValue = parsedArgsProxy[arg.name];
-      parsedArgsProxy[arg.name] = Number.parseFloat(
-        parsedArgsProxy[arg.name] as string,
-      );
-      if (Number.isNaN(parsedArgsProxy[arg.name])) {
-        throw new CLIError(
-          `Invalid value for argument: \`--${arg.name}\` (\`${_originalValue}\`). Expected a number.`,
+          `Invalid value for argument: ${cyan(`--${arg.name}`)} (${cyan(argument)}). Expected one of: ${options.map((o) => cyan(o)).join(", ")}.`,
           "EARG",
         );
       }

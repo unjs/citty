@@ -1,5 +1,4 @@
-import consola from "consola";
-import { defineCommand } from "../../src";
+import { defineCommand } from "../../src/index.ts";
 
 export default defineCommand({
   meta: {
@@ -29,8 +28,7 @@ export default defineCommand({
     },
     prod: {
       type: "boolean",
-      description:
-        "Create a production deployment (default is preview deployment)",
+      description: "Create a production deployment (default is preview deployment)",
     },
     project: {
       type: "string",
@@ -54,7 +52,7 @@ export default defineCommand({
     },
   },
   run({ args }) {
-    consola.log("Build");
-    consola.log("Parsed args:", args);
+    console.log("Build");
+    console.log("Parsed args:", args);
   },
 });
