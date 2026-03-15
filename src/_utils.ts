@@ -1,4 +1,4 @@
-import type { Resolvable } from "./types";
+import type { Resolvable } from "./types.ts";
 
 export function toArray(val: any) {
   if (Array.isArray(val)) {
@@ -16,12 +16,7 @@ export function formatLineColumns(lines: string[][], linePrefix = "") {
   }
   return lines
     .map((l) =>
-      l
-        .map(
-          (c, i) =>
-            linePrefix + c[i === 0 ? "padStart" : "padEnd"](maxLength[i]),
-        )
-        .join("  "),
+      l.map((c, i) => linePrefix + c[i === 0 ? "padStart" : "padEnd"](maxLength[i]!)).join("  "),
     )
     .join("\n");
 }
@@ -31,11 +26,10 @@ export function resolveValue<T>(input: Resolvable<T>): T | Promise<T> {
 }
 
 export class CLIError extends Error {
-  constructor(
-    message: string,
-    public code?: string,
-  ) {
+  code: string | undefined;
+  constructor(message: string, code?: string) {
     super(message);
     this.name = "CLIError";
+    this.code = code;
   }
 }

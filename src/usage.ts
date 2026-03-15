@@ -1,18 +1,17 @@
-import consola from "consola";
-import { colors } from "consola/utils";
+import * as colors from "./_color.ts";
 import { snakeCase } from "scule";
-import { formatLineColumns, resolveValue } from "./_utils";
-import type { Arg, ArgsDef, CommandDef } from "./types";
-import { resolveArgs } from "./args";
+import { formatLineColumns, resolveValue, toArray } from "./_utils.ts";
+import type { Arg, ArgsDef, CommandDef } from "./types.ts";
+import { resolveArgs } from "./args.ts";
 
 export async function showUsage<T extends ArgsDef = ArgsDef>(
   cmd: CommandDef<T>,
   parent?: CommandDef<T>,
 ) {
   try {
-    consola.log((await renderUsage(cmd, parent)) + "\n");
+    console.log((await renderUsage(cmd, parent)) + "\n");
   } catch (error) {
-    consola.error(error);
+    console.error(error);
   }
 }
 
@@ -28,8 +27,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
   const parentMeta = await resolveValue(parent?.meta || {});
 
   const commandName =
-    `${parentMeta.name ? `${parentMeta.name} ` : ""}` +
-    (cmdMeta.name || process.argv[1]);
+    `${parentMeta.name ? `${parentMeta.name} ` : ""}` + (cmdMeta.name || process.argv[1]);
 
   const argLines: string[][] = [];
   const posLines: string[][] = [];
@@ -41,7 +39,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
       const name = arg.name.toUpperCase();
       const isRequired = arg.required !== false && arg.default === undefined;
       posLines.push([
-        "`" + name + renderValueHint(arg) + "`",
+        colors.cyan(name + renderValueHint(arg)),
         renderDescription(arg, isRequired),
       ]);
       usageLine.push(isRequired ? `<${name}>` : `[${name}]`);
@@ -50,7 +48,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
       const argStr =
         [...(arg.alias || []).map((a) => `-${a}`), `--${arg.name}`].join(", ") +
         renderValueHint(arg);
-      argLines.push(["`" + argStr + "`", renderDescription(arg, isRequired)]);
+      argLines.push([colors.cyan(argStr), renderDescription(arg, isRequired)]);
 
       /**
        * print negative boolean arg variant usage when
@@ -67,7 +65,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
           `--no-${arg.name}`,
         ].join(", ");
         argLines.push([
-          "`" + negativeArgStr + "`",
+          colors.cyan(negativeArgStr),
           [arg.negativeDescription, isRequired ? colors.gray("(Required)") : ""]
             .filter(Boolean)
             .join(" "),
@@ -89,8 +87,10 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
       if (meta?.hidden) {
         continue;
       }
-      commandsLines.push([`\`${name}\``, meta?.description || ""]);
-      commandNames.push(name);
+      const aliases = toArray(meta?.alias);
+      const label = [name, ...aliases].join(", ");
+      commandsLines.push([colors.cyan(label), meta?.description || ""]);
+      commandNames.push(name, ...aliases);
     }
     usageLine.push(commandNames.join("|"));
   }
@@ -100,19 +100,15 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
   const version = cmdMeta.version || parentMeta.version;
 
   usageLines.push(
-    colors.gray(
-      `${cmdMeta.description} (${
-        commandName + (version ? ` v${version}` : "")
-      })`,
-    ),
+    colors.gray(`${cmdMeta.description} (${commandName + (version ? ` v${version}` : "")})`),
     "",
   );
 
   const hasOptions = argLines.length > 0 || posLines.length > 0;
   usageLines.push(
-    `${colors.underline(colors.bold("USAGE"))} \`${commandName}${
-      hasOptions ? " [OPTIONS]" : ""
-    } ${usageLine.join(" ")}\``,
+    `${colors.underline(colors.bold("USAGE"))} ${colors.cyan(
+      `${commandName}${hasOptions ? " [OPTIONS]" : ""} ${usageLine.join(" ")}`,
+    )}`,
     "",
   );
 
@@ -133,7 +129,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
     usageLines.push(formatLineColumns(commandsLines, "  "));
     usageLines.push(
       "",
-      `Use \`${commandName} <command> --help\` for more information about a command.`,
+      `Use ${colors.cyan(`${commandName} <command> --help`)} for more information about a command.`,
     );
   }
 

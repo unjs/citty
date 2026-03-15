@@ -1,4 +1,4 @@
-import { defineCommand, runMain } from "../src";
+import { defineCommand, runMain } from "../src/index.ts";
 
 const main = defineCommand({
   meta: {
@@ -13,9 +13,9 @@ const main = defineCommand({
     console.log("Cleanup");
   },
   subCommands: {
-    build: () => import("./commands/build").then((r) => r.default),
-    deploy: () => import("./commands/deploy").then((r) => r.default),
-    debug: () => import("./commands/debug").then((r) => r.default),
+    build: () => import("./commands/build.ts").then((r) => r.default),
+    deploy: () => import("./commands/deploy.ts").then((r) => r.default),
+    debug: () => import("./commands/debug.ts").then((r) => r.default),
   },
 });
 

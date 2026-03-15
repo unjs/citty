@@ -1,20 +1,6 @@
-import { expect, it, describe, vi } from "vitest";
-import { renderUsage } from "../src/usage";
-import { defineCommand } from "../src";
-
-vi.mock("consola/utils", async () => {
-  const mod = await vi.importActual("consola/utils");
-
-  return {
-    ...mod,
-    colors: {
-      ...mod.colors,
-      underline: (val) => val,
-      bold: (val) => val,
-      gray: (val) => val,
-    },
-  };
-});
+import { expect, it, describe } from "vitest";
+import { renderUsage } from "../src/usage.ts";
+import { defineCommand } from "../src/index.ts";
 
 describe("usage", () => {
   it("renders arguments", async () => {
@@ -58,18 +44,18 @@ describe("usage", () => {
     expect(usage).toMatchInlineSnapshot(`
       "A command (Commander)
 
-      USAGE \`Commander [OPTIONS] --foo=<foo> <POS>\`
+      USAGE Commander [OPTIONS] --foo=<foo> <POS>
 
       ARGUMENTS
 
-        \`POS\`    A pos (Required)
+        POS    A pos (Required)
 
       OPTIONS
 
-            \`--foo=<foo>\`    A foo (Required)
-        \`-b, --bar=<bar>\`    A bar           
-           \`--enum=<a|b>\`    An enum         
-              \`--boolean\`    A boolean       
+            --foo=<foo>    A foo (Required)
+        -b, --bar=<bar>    A bar           
+           --enum=<a|b>    An enum         
+              --boolean    A boolean       
       "
     `);
   });
@@ -96,12 +82,12 @@ describe("usage", () => {
     expect(usage).toMatchInlineSnapshot(`
       "A command (Commander)
 
-      USAGE \`Commander [OPTIONS] \`
+      USAGE Commander [OPTIONS] 
 
       OPTIONS
 
-           \`--boolean\`    A boolean (Default: true)
-        \`--no-boolean\`    A negative boolean       
+           --boolean    A boolean (Default: true)
+        --no-boolean    A negative boolean       
       "
     `);
   });
@@ -126,11 +112,11 @@ describe("usage", () => {
     expect(usage).toMatchInlineSnapshot(`
       "A command (Commander)
 
-      USAGE \`Commander [OPTIONS] \`
+      USAGE Commander [OPTIONS] 
 
       OPTIONS
 
-        \`--foo=<FOO>\`    A foo
+        --foo=<FOO>    A foo
       "
     `);
   });
@@ -155,11 +141,11 @@ describe("usage", () => {
     expect(usage).toMatchInlineSnapshot(`
       "A command (Commander)
 
-      USAGE \`Commander [OPTIONS] \`
+      USAGE Commander [OPTIONS] 
 
       OPTIONS
 
-        \`--foo=<foo>\`    A foo (Default: bar)
+        --foo=<foo>    A foo (Default: bar)
       "
     `);
   });
@@ -185,13 +171,13 @@ describe("usage", () => {
     expect(usage).toMatchInlineSnapshot(`
       "A command (Commander)
 
-      USAGE \`Commander sub\`
+      USAGE Commander sub
 
       COMMANDS
 
-        \`sub\`    A subcommand
+        sub    A subcommand
 
-      Use \`Commander <command> --help\` for more information about a command."
+      Use Commander <command> --help for more information about a command."
     `);
   });
 
@@ -222,17 +208,17 @@ describe("usage", () => {
     expect(usage).toMatchInlineSnapshot(`
       "A command (Commander)
 
-      USAGE \`Commander [OPTIONS] --foo sub\`
+      USAGE Commander [OPTIONS] --foo sub
 
       OPTIONS
 
-        \`--foo\`    A foo (Required)
+        --foo    A foo (Required)
 
       COMMANDS
 
-        \`sub\`    A subcommand
+        sub    A subcommand
 
-      Use \`Commander <command> --help\` for more information about a command."
+      Use Commander <command> --help for more information about a command."
     `);
   });
 
@@ -264,13 +250,13 @@ describe("usage", () => {
     expect(usage).toMatchInlineSnapshot(`
       "A command (Commander)
 
-      USAGE \`Commander start\`
+      USAGE Commander start
 
       COMMANDS
 
-        \`start\`    A start
+        start    A start
 
-      Use \`Commander <command> --help\` for more information about a command."
+      Use Commander <command> --help for more information about a command."
     `);
   });
 
@@ -300,22 +286,22 @@ describe("usage", () => {
       },
     });
 
-    const usage = await renderUsage(childCommand, parentCommand);
+    const usage = await renderUsage(childCommand, parentCommand as any);
 
     expect(usage).toMatchInlineSnapshot(`
       "A child command (parent-command child-command)
 
-      USAGE \`parent-command child-command [OPTIONS] sub-command\`
+      USAGE parent-command child-command [OPTIONS] sub-command
 
       OPTIONS
 
-        \`--foo=<foo>\`    A foo
+        --foo=<foo>    A foo
 
       COMMANDS
 
-        \`sub-command\`    
+        sub-command    
 
-      Use \`parent-command child-command <command> --help\` for more information about a command."
+      Use parent-command child-command <command> --help for more information about a command."
     `);
   });
 });

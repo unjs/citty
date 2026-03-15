@@ -1,31 +1,48 @@
-import { parseRawArgs } from "../src/_parser";
+import { parseRawArgs } from "../src/_parser.ts";
 import { describe, it, expect } from "vitest";
 
 describe("parseRawArgs", () => {
   it("parses arguments correctly", () => {
-    const args = ["--name", "John", "--age", "30"];
-    const opts = { boolean: ["age"] };
-    const result = parseRawArgs(args, opts);
+    const result = parseRawArgs(["--name", "John", "--admin"], {
+      string: ["name"],
+      boolean: ["admin"],
+    });
 
     expect(result).toEqual({
-      _: [30],
+      _: [],
       name: "John",
-      age: true,
+      admin: true,
     });
   });
 
-  it("handles unknown options", () => {
-    const args = ["--unknown", "value"];
-    const opts = { unknown: () => false };
-    const result = parseRawArgs(args, opts);
+  it("handles --<arg>=<value>", () => {
+    const result = parseRawArgs(["--name=John"], {
+      string: ["name"],
+    });
 
-    expect(result).toEqual(false);
+    expect(result).toEqual({
+      _: [],
+      name: "John",
+    });
+  });
+
+  it.fails("handles -<arg>=<value> with alias (#237)", () => {
+    const result = parseRawArgs(["-n=John"], {
+      string: ["name"],
+      alias: {
+        n: ["name"],
+      },
+    });
+
+    expect(result).toEqual({
+      _: [],
+      n: "John",
+      name: "John",
+    });
   });
 
   it("handles default values", () => {
-    const args = [];
-    const opts = { default: { name: "Default" } };
-    const result = parseRawArgs(args, opts);
+    const result = parseRawArgs([], { default: { name: "Default" } });
 
     expect(result).toEqual({
       _: [],
@@ -34,9 +51,7 @@ describe("parseRawArgs", () => {
   });
 
   it("handles aliases", () => {
-    const args = ["-n", "John"];
-    const opts = { alias: { n: "name" } };
-    const result = parseRawArgs(args, opts);
+    const result = parseRawArgs(["-n", "John"], { alias: { n: ["name"] } });
 
     expect(result).toEqual({
       _: [],
@@ -46,9 +61,7 @@ describe("parseRawArgs", () => {
   });
 
   it("handles boolean flags", () => {
-    const args = ["--flag"];
-    const opts = { boolean: ["flag"] };
-    const result = parseRawArgs(args, opts);
+    const result = parseRawArgs(["--flag"], { boolean: ["flag"] });
 
     expect(result).toEqual({
       _: [],
@@ -57,9 +70,7 @@ describe("parseRawArgs", () => {
   });
 
   it("handles string flags", () => {
-    const args = ["--name", "John"];
-    const opts = { string: ["name"] };
-    const result = parseRawArgs(args, opts);
+    const result = parseRawArgs(["--name", "John"], { string: ["name"] });
 
     expect(result).toEqual({
       _: [],
@@ -68,24 +79,85 @@ describe("parseRawArgs", () => {
   });
 
   it("handles mixed flags", () => {
-    const args = ["--name", "John", "--age", "30"];
-    const opts = { string: ["name"], boolean: ["age"] };
-    const result = parseRawArgs(args, opts);
+    const result = parseRawArgs(["--name", "John", "--age", "positional"], {
+      string: ["name"],
+      boolean: ["age"],
+    });
 
     expect(result).toEqual({
-      _: [30],
+      _: ["positional"],
       name: "John",
       age: true,
     });
   });
 
-  it("handles empty arguments", () => {
-    const args = [];
-    const opts = {};
-    const result = parseRawArgs(args, opts);
+  it("handles string values starting with a hyphen (#171)", () => {
+    const result = parseRawArgs(["--params", "-a 192.168.1.1 -b -c"], {
+      string: ["params"],
+    });
 
     expect(result).toEqual({
       _: [],
+      params: "-a 192.168.1.1 -b -c",
+    });
+  });
+
+  it("handles string value that is a single hyphen-prefixed token (#171)", () => {
+    const result = parseRawArgs(["--name", "-test"], {
+      string: ["name"],
+    });
+
+    expect(result).toEqual({
+      _: [],
+      name: "-test",
+    });
+  });
+
+  it("handles empty arguments", () => {
+    const result = parseRawArgs([], {});
+
+    expect(result).toEqual({
+      _: [],
+    });
+  });
+
+  it("handles --no- negation on main option", () => {
+    const result = parseRawArgs(["--no-verbose"], {
+      boolean: ["verbose"],
+      default: { verbose: true },
+    });
+
+    expect(result).toEqual({
+      _: [],
+      verbose: false,
+    });
+  });
+
+  it("handles --no- negation on alias and propagates to main option", () => {
+    const result = parseRawArgs(["--no-v"], {
+      boolean: ["verbose"],
+      alias: { v: ["verbose"] },
+      default: { verbose: true },
+    });
+
+    expect(result).toEqual({
+      _: [],
+      v: false,
+      verbose: false,
+    });
+  });
+
+  it("handles --no- negation on main option and propagates to aliases", () => {
+    const result = parseRawArgs(["--no-verbose"], {
+      boolean: ["verbose"],
+      alias: { v: ["verbose"] },
+      default: { verbose: true },
+    });
+
+    expect(result).toEqual({
+      _: [],
+      v: false,
+      verbose: false,
     });
   });
 });
