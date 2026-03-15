@@ -4,34 +4,6 @@ import { CLIError, resolveValue } from "./_utils.ts";
 import { parseArgs } from "./args.ts";
 import { cyan } from "./_color.ts";
 
-function findSubCommandIndex(rawArgs: string[], argsDef: ArgsDef): number {
-  const valuedFlags = new Set<string>();
-  for (const [name, def] of Object.entries(argsDef)) {
-    if (def.type === "string" || def.type === "enum") {
-      valuedFlags.add(`--${name}`);
-      valuedFlags.add(`--${kebabCase(name)}`);
-      valuedFlags.add(`--${camelCase(name)}`);
-      const aliases = Array.isArray(def.alias) ? def.alias : def.alias ? [def.alias] : [];
-      for (const a of aliases) {
-        valuedFlags.add(a.length === 1 ? `-${a}` : `--${a}`);
-      }
-    }
-  }
-
-  for (let i = 0; i < rawArgs.length; i++) {
-    const arg = rawArgs[i]!;
-    if (arg === "--") return -1;
-    if (arg.startsWith("-")) {
-      if (!arg.includes("=") && valuedFlags.has(arg)) {
-        i++; // skip the flag's value
-      }
-      continue;
-    }
-    return i;
-  }
-  return -1;
-}
-
 export function defineCommand<const T extends ArgsDef = ArgsDef>(
   def: CommandDef<T>,
 ): CommandDef<T> {
@@ -113,4 +85,34 @@ export async function resolveSubCommand<T extends ArgsDef = ArgsDef>(
     }
   }
   return [cmd, parent];
+}
+
+// --- internal ---
+
+function findSubCommandIndex(rawArgs: string[], argsDef: ArgsDef): number {
+  const valuedFlags = new Set<string>();
+  for (const [name, def] of Object.entries(argsDef)) {
+    if (def.type === "string" || def.type === "enum") {
+      valuedFlags.add(`--${name}`);
+      valuedFlags.add(`--${kebabCase(name)}`);
+      valuedFlags.add(`--${camelCase(name)}`);
+      const aliases = Array.isArray(def.alias) ? def.alias : def.alias ? [def.alias] : [];
+      for (const a of aliases) {
+        valuedFlags.add(a.length === 1 ? `-${a}` : `--${a}`);
+      }
+    }
+  }
+
+  for (let i = 0; i < rawArgs.length; i++) {
+    const arg = rawArgs[i]!;
+    if (arg === "--") return -1;
+    if (arg.startsWith("-")) {
+      if (!arg.includes("=") && valuedFlags.has(arg)) {
+        i++; // skip the flag's value
+      }
+      continue;
+    }
+    return i;
+  }
+  return -1;
 }
