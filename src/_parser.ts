@@ -82,7 +82,7 @@ export function parseRawArgs<T = Record<string, any>>(
       const type = getType(name);
       options[name] = {
         type,
-        default: defaults[name],
+        // default: defaults[name],
       };
     }
   }
@@ -169,6 +169,18 @@ export function parseRawArgs<T = Record<string, any>>(
     }
     if ((out as any)[main] !== undefined && (out as any)[alias] === undefined) {
       (out as any)[alias] = (out as any)[main];
+    }
+  }
+
+  for (const [name, defaultValue] of Object.entries(defaults)) {
+    if ((out as any)[name] === undefined) {
+      (out as any)[name] = defaultValue;
+    }
+    const aliases = mainToAliases.get(name) || [];
+    for (const alias of aliases) {
+      if ((out as any)[alias] === undefined) {
+        (out as any)[alias] = defaultValue;
+      }
     }
   }
 

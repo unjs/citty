@@ -99,4 +99,15 @@ describe("args", () => {
     expect(parsed.userName).toBe("Jane");
     expect(parsed._).toEqual([]);
   });
+
+  it("should override camelCase default when using kebab-case cli arg", () => {
+    const definition: ArgsDef = {
+      userName: { type: "string", default: "defaultUser" },
+    };
+    const rawArgs = ["--user-name", "Jane"];
+
+    const parsed = parseArgs(rawArgs, definition);
+
+    expect(parsed.userName).toBe("Jane");
+  });
 });
