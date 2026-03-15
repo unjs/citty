@@ -26,7 +26,7 @@ describe("parseRawArgs", () => {
     });
   });
 
-  it.fails("handles -<arg>=<value> with alias", () => {
+  it.fails("handles -<arg>=<value> with alias (#237)", () => {
     const result = parseRawArgs(["-n=John"], {
       string: ["name"],
       alias: {
