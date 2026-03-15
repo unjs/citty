@@ -38,10 +38,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
     if (arg.type === "positional") {
       const name = arg.name.toUpperCase();
       const isRequired = arg.required !== false && arg.default === undefined;
-      posLines.push([
-        colors.cyan(name + renderValueHint(arg)),
-        renderDescription(arg, isRequired),
-      ]);
+      posLines.push([colors.cyan(name + renderValueHint(arg)), renderDescription(arg, isRequired)]);
       usageLine.push(isRequired ? `<${name}>` : `[${name}]`);
     } else {
       const isRequired = arg.required === true && arg.default === undefined;
@@ -153,11 +150,8 @@ function renderValueHint(arg: Arg) {
 
 function renderDescription(arg: Arg, required: boolean) {
   const requiredHint = required ? colors.gray("(Required)") : "";
-  const defaultHint =
-    arg.default === undefined ? "" : colors.gray(`(Default: ${arg.default})`);
-  const description = [arg.description, requiredHint, defaultHint]
-    .filter(Boolean)
-    .join(" ");
+  const defaultHint = arg.default === undefined ? "" : colors.gray(`(Default: ${arg.default})`);
+  const description = [arg.description, requiredHint, defaultHint].filter(Boolean).join(" ");
 
   return description;
 }
