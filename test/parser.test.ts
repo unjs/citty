@@ -26,7 +26,7 @@ describe("parseRawArgs", () => {
     });
   });
 
-  it("handles -<arg>=<value> with alias", () => {
+  it.fails("handles -<arg>=<value> with alias", () => {
     const result = parseRawArgs(["-n=John"], {
       string: ["name"],
       alias: {
@@ -36,8 +36,8 @@ describe("parseRawArgs", () => {
 
     expect(result).toEqual({
       _: [],
-      n: "=John",
-      name: "=John",
+      n: "John",
+      name: "John",
     });
   });
 
