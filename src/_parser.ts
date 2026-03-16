@@ -67,6 +67,16 @@ export function parseRawArgs<T = Record<string, any>>(
     return "string";
   }
 
+  // Check if a name is a known string option (directly or via alias)
+  function isStringType(name: string): boolean {
+    if (strings.has(name)) return true;
+    const aliases = mainToAliases.get(name) || [];
+    for (const alias of aliases) {
+      if (strings.has(alias)) return true;
+    }
+    return false;
+  }
+
   // Collect all option names
   const allOptions = new Set<string>([
     ...booleans,
@@ -139,7 +149,14 @@ export function parseRawArgs<T = Record<string, any>>(
 
   // Add parsed values
   for (const [key, value] of Object.entries(parsed.values)) {
-    (out as any)[key] = value;
+    let coerced = value;
+    const type = getType(key);
+    if (type === "boolean" && typeof value === "string") {
+      coerced = value !== "false";
+    } else if (isStringType(key) && typeof value === "boolean") {
+      coerced = "";
+    }
+    (out as any)[key] = coerced;
   }
 
   // Apply negated flags (with alias resolution)

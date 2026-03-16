@@ -104,4 +104,30 @@ describe("args", () => {
     expect(parsed.userName).toBe("Jane");
     expect(parsed._).toEqual([]);
   });
+
+  it("should coerce --flag=true to boolean true for boolean args", () => {
+    const parsed = parseArgs(["--force=true"], { force: { type: "boolean" } });
+    expect(parsed.force).toBe(true);
+    expect(typeof parsed.force).toBe("boolean");
+  });
+
+  it("should coerce --flag=false to boolean false for boolean args", () => {
+    const parsed = parseArgs(["--force=false"], { force: { type: "boolean" } });
+    expect(parsed.force).toBe(false);
+    expect(typeof parsed.force).toBe("boolean");
+  });
+
+  it("should coerce --flag=false to false even with default true", () => {
+    const parsed = parseArgs(["--install=false"], {
+      install: { type: "boolean", default: true },
+    });
+    expect(parsed.install).toBe(false);
+    expect(typeof parsed.install).toBe("boolean");
+  });
+
+  it("should return empty string for string arg without value", () => {
+    const parsed = parseArgs(["--nightly"], { nightly: { type: "string" } });
+    expect(parsed.nightly).toBe("");
+    expect(typeof parsed.nightly).toBe("string");
+  });
 });
