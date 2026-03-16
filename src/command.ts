@@ -51,7 +51,17 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
     const subCommands = await resolveValue(cmd.subCommands);
     if (subCommands && Object.keys(subCommands).length > 0) {
       const subCommandArgIndex = findSubCommandIndex(opts.rawArgs, cmdArgs);
-      const subCommandName = opts.rawArgs[subCommandArgIndex];
+      let subCommandName: string | undefined = opts.rawArgs[subCommandArgIndex];
+      if (!subCommandName) {
+        const defaultSubCommand = await resolveValue(cmd.default);
+        if (defaultSubCommand && cmd.run) {
+          throw new CLIError(
+            `Command has a handler specified and a default sub command.`,
+            "E_DUPLICATE_COMMAND",
+          );
+        }
+        subCommandName = defaultSubCommand;
+      }
       if (subCommandName) {
         const subCommand = await _findSubCommand(subCommands, subCommandName);
         if (!subCommand) {
