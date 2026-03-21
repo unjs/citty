@@ -78,11 +78,12 @@ export function parseRawArgs<T = Record<string, any>>(
   }
 
   // Collect all option names
+  // Filter single-char aliases from allOptions — they are registered via `short` instead
   const allOptions = new Set<string>([
     ...booleans,
     ...strings,
-    ...Object.keys(aliasMap),
-    ...Object.values(aliasMap).flat(),
+    ...Object.keys(aliasMap).filter((k) => k.length > 1),
+    ...Object.values(aliasMap).flat().filter((v) => v.length > 1),
     ...Object.keys(defaults),
   ]);
 
@@ -115,6 +116,19 @@ export function parseRawArgs<T = Record<string, any>>(
       // Pass through -- and everything after
       processedArgs.push(...args.slice(i));
       break;
+    }
+
+    // Handle -<char>=<value> syntax (#237) — expand to --<name>=<value>
+    if (arg.startsWith("-") && !arg.startsWith("--") && arg.includes("=")) {
+      const eqIdx = arg.indexOf("=");
+      const shortChar = arg.slice(1, eqIdx);
+      const value = arg.slice(eqIdx + 1);
+      // Only expand single-char aliases that map to a full option
+      if (shortChar.length === 1 && aliasToMain.has(shortChar)) {
+        const mainName = aliasToMain.get(shortChar)!;
+        processedArgs.push(`--${mainName}=${value}`);
+        continue;
+      }
     }
 
     // Handle --no-flag syntax
