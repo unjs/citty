@@ -160,4 +160,22 @@ describe("parseRawArgs", () => {
       verbose: false,
     });
   });
+
+  it("coerces --flag=true to boolean true for boolean args", () => {
+    const result = parseRawArgs(["--flag=true"], { boolean: ["flag"] });
+    expect(result.flag).toBe(true);
+    expect(typeof result.flag).toBe("boolean");
+  });
+
+  it("coerces --flag=false to boolean false for boolean args", () => {
+    const result = parseRawArgs(["--flag=false"], { boolean: ["flag"] });
+    expect(result.flag).toBe(false);
+    expect(typeof result.flag).toBe("boolean");
+  });
+
+  it("coerces string arg without value to empty string (not boolean true)", () => {
+    const result = parseRawArgs(["--nightly"], { string: ["nightly"] });
+    expect(result.nightly).toBe("");
+    expect(typeof result.nightly).toBe("string");
+  });
 });
