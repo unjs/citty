@@ -1,5 +1,57 @@
 # Changelog
 
+## v0.2.2
+
+[compare changes](https://github.com/unjs/citty/compare/v0.2.1...v0.2.2)
+
+### 🚀 Enhancements
+
+- Support subcommand aliases ([#236](https://github.com/unjs/citty/pull/236))
+- Add plugin system ([#238](https://github.com/unjs/citty/pull/238))
+- **default:** Support default sub command ([#156](https://github.com/unjs/citty/pull/156))
+
+### 🩹 Fixes
+
+- **main:** Allow user-defined `-h`, `--help`, `-v`, `--version` args ([#234](https://github.com/unjs/citty/pull/234))
+- Resolve alias value over default ([#228](https://github.com/unjs/citty/pull/228))
+- Subcommand resolution incorrectly consumes flag values ([#231](https://github.com/unjs/citty/pull/231))
+- Coerce parsed arg values to match declared types ([#239](https://github.com/unjs/citty/pull/239))
+
+### 💅 Refactors
+
+- Improve usage tips ([#198](https://github.com/unjs/citty/pull/198))
+
+### 📖 Documentation
+
+- Add usage section ([#70](https://github.com/unjs/citty/pull/70))
+- Add example setup and cleanup option ([#188](https://github.com/unjs/citty/pull/188))
+
+### 🏡 Chore
+
+- Update deps ([49b416e](https://github.com/unjs/citty/commit/49b416e))
+- Init agents.md ([3bee5c3](https://github.com/unjs/citty/commit/3bee5c3))
+- Apply automated updates ([142bdc9](https://github.com/unjs/citty/commit/142bdc9))
+- Rename fmt script ([64e8f54](https://github.com/unjs/citty/commit/64e8f54))
+- Apply automated updates ([0228318](https://github.com/unjs/citty/commit/0228318))
+- Apply automated updates ([f509073](https://github.com/unjs/citty/commit/f509073))
+- Update deps ([033daea](https://github.com/unjs/citty/commit/033daea))
+
+### ✅ Tests
+
+- Reproduce issue with short option (alias) and `=` ([#230](https://github.com/unjs/citty/pull/230))
+- **parser:** Add regression tests for hyphen-prefixed string values ([#171](https://github.com/unjs/citty/pull/171))
+
+### ❤️ Contributors
+
+- 苏向夜 ([@fu050409](https://github.com/fu050409))
+- Pooya Parsa ([@pi0](https://github.com/pi0))
+- Daniel Roe ([@danielroe](https://github.com/danielroe))
+- Kricsleo ([@kricsleo](https://github.com/kricsleo))
+- Kanon ([@ysknsid25](https://github.com/ysknsid25))
+- Estéban ([@Barbapapazes](https://github.com/Barbapapazes))
+- Robin <robin.kehl@singular-it.de>
+- Wyatt Johnson <accounts+github@wyattjoh.ca>
+
 ## v0.2.1
 
 [compare changes](https://github.com/unjs/citty/compare/v0.2.0...v0.2.1)
