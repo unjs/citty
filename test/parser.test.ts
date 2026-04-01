@@ -26,7 +26,7 @@ describe("parseRawArgs", () => {
     });
   });
 
-  it.fails("handles -<arg>=<value> with alias (#237)", () => {
+  it("handles -<arg>=<value> with alias (#237)", () => {
     const result = parseRawArgs(["-n=John"], {
       string: ["name"],
       alias: {
@@ -39,6 +39,35 @@ describe("parseRawArgs", () => {
       n: "John",
       name: "John",
     });
+  });
+
+  it("handles multiple short aliases with = syntax", () => {
+    const result = parseRawArgs(["-n=John", "-a=admin"], {
+      string: ["name", "admin"],
+      alias: {
+        n: ["name"],
+        a: ["admin"],
+      },
+    });
+
+    expect(result).toEqual({
+      _: [],
+      n: "John",
+      name: "John",
+      a: "admin",
+      admin: "admin",
+    });
+  });
+
+  it("passes through unknown short flag with = syntax", () => {
+    const result = parseRawArgs(["-x=val"], {
+      string: ["name"],
+      alias: { n: ["name"] },
+    });
+
+    // Unknown short flags pass through to parseArgs which handles them with strict:false
+    // The behavior depends on parseArgs — just ensure no crash
+    expect(result._).toEqual([]);
   });
 
   it("handles default values", () => {
