@@ -120,6 +120,27 @@ describe("runMain", () => {
     expect(consolaErrorMock).toHaveBeenCalledWith("Unknown option `--foo`");
   });
 
+  it("should not warn for subcommand options", async () => {
+    const consolaErrorMockLocal = vi
+      .spyOn(consola, "error")
+      .mockImplementation(() => undefined);
+
+    const command = defineCommand({
+      subCommands: {
+        foo: {
+          args: {
+            bar: { type: "string" },
+          },
+          run: () => {},
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["foo", "--bar", "baz"] });
+
+    expect(consolaErrorMockLocal).not.toHaveBeenCalled();
+  });
+
   it("should allow unknown options with `allowUnknownOptions` enabled", async () => {
     const mockRunCommand = vi.spyOn(commandModule, "runCommand");
 

@@ -23,10 +23,6 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
   const cmdArgs = await resolveValue(cmd.args || {});
   const parsedArgs = parseArgs<T>(opts.rawArgs, cmdArgs);
 
-  if (!cmdMeta || !cmdMeta.allowUnknownOptions) {
-    validateUnknownOptions(cmdArgs, parsedArgs);
-  }
-
   const context: CommandContext<T> = {
     rawArgs: opts.rawArgs,
     args: parsedArgs,
@@ -41,6 +37,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
 
   // Handle sub command
   let result: unknown;
+  let handledBySubCommand = false;
   try {
     const subCommands = await resolveValue(cmd.subCommands);
     if (subCommands && Object.keys(subCommands).length > 0) {
@@ -57,6 +54,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
         }
         const subCommand = await resolveValue(subCommands[subCommandName]);
         if (subCommand) {
+          handledBySubCommand = true;
           await runCommand(subCommand, {
             rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
           });
@@ -64,6 +62,11 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
       } else if (!cmd.run) {
         throw new CLIError(`No command specified.`, "E_NO_COMMAND");
       }
+    }
+
+    // Validate unknown options (skip if handled by sub command)
+    if (!handledBySubCommand && !cmdMeta?.allowUnknownOptions) {
+      validateUnknownOptions(cmdArgs, parsedArgs);
     }
 
     // Handle main command
