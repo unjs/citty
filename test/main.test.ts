@@ -488,7 +488,47 @@ describe("default sub command", () => {
     });
 
     await expect(commandModule.runCommand(command, { rawArgs: [] })).rejects.toThrow(
-      /handler specified and a default sub command/,
+      /Cannot specify both 'run' and 'default'/,
+    );
+  });
+
+  it("throws when default references a non-existent sub command", async () => {
+    const command = defineCommand({
+      default: "missing",
+      subCommands: {
+        dev: {
+          run: async () => {},
+        },
+      },
+    });
+
+    await expect(commandModule.runCommand(command, { rawArgs: [] })).rejects.toThrow(
+      /Default sub command .* not found in subCommands/,
+    );
+  });
+
+  it("passes remaining args to default sub command", async () => {
+    const runMock = vi.fn();
+
+    const command = defineCommand({
+      default: "dev",
+      subCommands: {
+        dev: {
+          args: {
+            verbose: { type: "boolean" },
+          },
+          run: async ({ args }) => {
+            runMock(args);
+          },
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["--verbose"] });
+
+    expect(runMock).toHaveBeenCalledOnce();
+    expect(runMock).toHaveBeenCalledWith(
+      expect.objectContaining({ verbose: true }),
     );
   });
 });

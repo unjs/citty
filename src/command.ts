@@ -50,25 +50,33 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
     // Handle sub command
     const subCommands = await resolveValue(cmd.subCommands);
     if (subCommands && Object.keys(subCommands).length > 0) {
-      const subCommandArgIndex = findSubCommandIndex(opts.rawArgs, cmdArgs);
-      let subCommandName: string | undefined = opts.rawArgs[subCommandArgIndex];
-      if (!subCommandName) {
-        const defaultSubCommand = await resolveValue(cmd.default);
-        if (defaultSubCommand && cmd.run) {
-          throw new CLIError(
-            `Command has a handler specified and a default sub command.`,
-            "E_DUPLICATE_COMMAND",
-          );
-        }
-        subCommandName = defaultSubCommand;
+      // Validate default + run conflict eagerly
+      const defaultSubCommand = await resolveValue(cmd.default);
+      if (defaultSubCommand && cmd.run) {
+        throw new CLIError(
+          `Cannot specify both 'run' and 'default' on the same command.`,
+          "E_DEFAULT_CONFLICT",
+        );
       }
+      if (defaultSubCommand && !(await _findSubCommand(subCommands, defaultSubCommand))) {
+        throw new CLIError(
+          `Default sub command ${cyan(defaultSubCommand)} not found in subCommands.`,
+          "E_UNKNOWN_COMMAND",
+        );
+      }
+
+      const subCommandArgIndex = findSubCommandIndex(opts.rawArgs, cmdArgs);
+      const subCommandName: string | undefined =
+        opts.rawArgs[subCommandArgIndex] || defaultSubCommand;
+      const isDefault = !opts.rawArgs[subCommandArgIndex] && !!defaultSubCommand;
+
       if (subCommandName) {
         const subCommand = await _findSubCommand(subCommands, subCommandName);
         if (!subCommand) {
           throw new CLIError(`Unknown command ${cyan(subCommandName)}`, "E_UNKNOWN_COMMAND");
         }
         await runCommand(subCommand, {
-          rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
+          rawArgs: isDefault ? opts.rawArgs : opts.rawArgs.slice(subCommandArgIndex + 1),
         });
       } else if (!cmd.run) {
         throw new CLIError(`No command specified.`, "E_NO_COMMAND");
