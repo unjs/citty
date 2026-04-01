@@ -423,6 +423,114 @@ describe("resolveSubCommand", () => {
   });
 });
 
+describe("default sub command", () => {
+  vi.spyOn(process, "exit").mockImplementation(() => 0 as never);
+
+  it("runs default sub command when no args provided", async () => {
+    const runMock = vi.fn();
+
+    const command = defineCommand({
+      default: "dev",
+      subCommands: {
+        dev: {
+          run: async () => {
+            runMock("dev");
+          },
+        },
+        build: {
+          run: async () => {
+            runMock("build");
+          },
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: [] });
+
+    expect(runMock).toHaveBeenCalledOnce();
+    expect(runMock).toHaveBeenCalledWith("dev");
+  });
+
+  it("runs explicit sub command even when default is set", async () => {
+    const runMock = vi.fn();
+
+    const command = defineCommand({
+      default: "dev",
+      subCommands: {
+        dev: {
+          run: async () => {
+            runMock("dev");
+          },
+        },
+        build: {
+          run: async () => {
+            runMock("build");
+          },
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["build"] });
+
+    expect(runMock).toHaveBeenCalledOnce();
+    expect(runMock).toHaveBeenCalledWith("build");
+  });
+
+  it("throws when both default and run are specified", async () => {
+    const command = defineCommand({
+      default: "dev",
+      subCommands: {
+        dev: {
+          run: async () => {},
+        },
+      },
+      run: async () => {},
+    });
+
+    await expect(commandModule.runCommand(command, { rawArgs: [] })).rejects.toThrow(
+      /Cannot specify both 'run' and 'default'/,
+    );
+  });
+
+  it("throws when default references a non-existent sub command", async () => {
+    const command = defineCommand({
+      default: "missing",
+      subCommands: {
+        dev: {
+          run: async () => {},
+        },
+      },
+    });
+
+    await expect(commandModule.runCommand(command, { rawArgs: [] })).rejects.toThrow(
+      /Default sub command .* not found in subCommands/,
+    );
+  });
+
+  it("passes remaining args to default sub command", async () => {
+    const runMock = vi.fn();
+
+    const command = defineCommand({
+      default: "dev",
+      subCommands: {
+        dev: {
+          args: {
+            verbose: { type: "boolean" },
+          },
+          run: async ({ args }) => {
+            runMock(args);
+          },
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["--verbose"] });
+
+    expect(runMock).toHaveBeenCalledOnce();
+    expect(runMock).toHaveBeenCalledWith(expect.objectContaining({ verbose: true }));
+  });
+});
+
 describe("builtin flag conflicts", () => {
   vi.spyOn(process, "exit").mockImplementation(() => 0 as never);
 

@@ -51,17 +51,39 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
     const subCommands = await resolveValue(cmd.subCommands);
     if (subCommands && Object.keys(subCommands).length > 0) {
       const subCommandArgIndex = findSubCommandIndex(opts.rawArgs, cmdArgs);
-      const subCommandName = opts.rawArgs[subCommandArgIndex];
-      if (subCommandName) {
-        const subCommand = await _findSubCommand(subCommands, subCommandName);
+      const explicitName = opts.rawArgs[subCommandArgIndex];
+
+      if (explicitName) {
+        const subCommand = await _findSubCommand(subCommands, explicitName);
         if (!subCommand) {
-          throw new CLIError(`Unknown command ${cyan(subCommandName)}`, "E_UNKNOWN_COMMAND");
+          throw new CLIError(`Unknown command ${cyan(explicitName)}`, "E_UNKNOWN_COMMAND");
         }
         await runCommand(subCommand, {
           rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
         });
-      } else if (!cmd.run) {
-        throw new CLIError(`No command specified.`, "E_NO_COMMAND");
+      } else {
+        // No explicit sub command — check for default
+        const defaultSubCommand = await resolveValue(cmd.default);
+        if (defaultSubCommand) {
+          if (cmd.run) {
+            throw new CLIError(
+              `Cannot specify both 'run' and 'default' on the same command.`,
+              "E_DEFAULT_CONFLICT",
+            );
+          }
+          const subCommand = await _findSubCommand(subCommands, defaultSubCommand);
+          if (!subCommand) {
+            throw new CLIError(
+              `Default sub command ${cyan(defaultSubCommand)} not found in subCommands.`,
+              "E_UNKNOWN_COMMAND",
+            );
+          }
+          await runCommand(subCommand, {
+            rawArgs: opts.rawArgs,
+          });
+        } else if (!cmd.run) {
+          throw new CLIError(`No command specified.`, "E_NO_COMMAND");
+        }
       }
     }
 
