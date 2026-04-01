@@ -527,9 +527,7 @@ describe("default sub command", () => {
     await runMain(command, { rawArgs: ["--verbose"] });
 
     expect(runMock).toHaveBeenCalledOnce();
-    expect(runMock).toHaveBeenCalledWith(
-      expect.objectContaining({ verbose: true }),
-    );
+    expect(runMock).toHaveBeenCalledWith(expect.objectContaining({ verbose: true }));
   });
 });
 
