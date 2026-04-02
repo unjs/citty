@@ -4,6 +4,7 @@ import { CLIError, resolveValue, toArray } from "./_utils.ts";
 import { parseArgs } from "./args.ts";
 import { cyan } from "./_color.ts";
 import { resolvePlugins } from "./plugin.ts";
+import { validateUnknownOptions } from "./validate.ts";
 
 export function defineCommand<const T extends ArgsDef = ArgsDef>(
   def: CommandDef<T>,
@@ -21,6 +22,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
   cmd: CommandDef<T>,
   opts: RunCommandOptions,
 ): Promise<{ result: unknown }> {
+  const cmdMeta = await resolveValue(cmd.meta);
   const cmdArgs = await resolveValue(cmd.args || {});
   const parsedArgs = parseArgs<T>(opts.rawArgs, cmdArgs);
 
@@ -35,6 +37,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
   const plugins = await resolvePlugins(cmd.plugins ?? []);
 
   let result: unknown;
+  let handledBySubCommand = false;
   let runError: unknown;
   try {
     // Plugin setup hooks
@@ -58,6 +61,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
         if (!subCommand) {
           throw new CLIError(`Unknown command ${cyan(explicitName)}`, "E_UNKNOWN_COMMAND");
         }
+        handledBySubCommand = true;
         await runCommand(subCommand, {
           rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
         });
@@ -78,6 +82,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
               "E_UNKNOWN_COMMAND",
             );
           }
+          handledBySubCommand = true;
           await runCommand(subCommand, {
             rawArgs: opts.rawArgs,
           });
@@ -85,6 +90,11 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
           throw new CLIError(`No command specified.`, "E_NO_COMMAND");
         }
       }
+    }
+
+    // Validate unknown options (skip if handled by sub command)
+    if (!handledBySubCommand && !cmdMeta?.allowUnknownOptions) {
+      validateUnknownOptions(cmdArgs, parsedArgs);
     }
 
     // Handle main command
