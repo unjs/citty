@@ -1,53 +1,22 @@
 import { describe, it, expect } from "vitest";
-import { parseArgs } from "../src/args";
-import { ArgsDef, ParsedArgs } from "../src";
+import { parseArgs } from "../src/args.ts";
+import type { ArgsDef } from "../src/types.ts";
 
 describe("args", () => {
-  it.each<[string[], ArgsDef, ParsedArgs]>([
+  it.each([
     [[], {}, { _: [] }],
     /**
      * String
      */
     [["--name", "John"], { name: { type: "string" } }, { name: "John", _: [] }],
-    [
-      [],
-      { name: { type: "string", default: "John" } },
-      { name: "John", _: [] },
-    ],
-    [
-      ["--name", "Jane"],
-      { name: { type: "string", default: "John" } },
-      { name: "Jane", _: [] },
-    ],
-    [
-      ["-n", "Jane"],
-      { name: { type: "string", alias: "n" } },
-      { name: "Jane", n: "Jane", _: [] },
-    ],
-    /**
-     * Number
-     */
-    [["--age", "25"], { age: { type: "number" } }, { age: 25, _: [] }],
-    [[], { age: { type: "number", default: 25 } }, { age: 25, _: [] }],
-    [
-      ["--age", "30"],
-      { age: { type: "number", default: 25 } },
-      { age: 30, _: [] },
-    ],
-    [
-      ["-a", "30"],
-      { age: { type: "number", alias: "a" } },
-      { age: 30, a: "30", _: [] },
-    ],
+    [[], { name: { type: "string", default: "John" } }, { name: "John", _: [] }],
+    [["--name", "Jane"], { name: { type: "string", default: "John" } }, { name: "Jane", _: [] }],
+    [["-n", "Jane"], { name: { type: "string", alias: "n" } }, { name: "Jane", n: "Jane", _: [] }],
     /**
      * Boolean
      */
     [["--force"], { force: { type: "boolean" } }, { force: true, _: [] }],
-    [
-      ["-f"],
-      { force: { alias: "f", type: "boolean" } },
-      { force: true, f: true, _: [] },
-    ],
+    [["-f"], { force: { alias: "f", type: "boolean" } }, { force: true, f: true, _: [] }],
     [[], { force: { type: "boolean", default: true } }, { force: true, _: [] }],
     [
       ["--no-force"],
@@ -76,23 +45,22 @@ describe("args", () => {
       { value: { type: "enum", options: ["one", "two"] } },
       { value: "one", _: [] },
     ],
-  ])("should parsed correctly %o (%o)", (rawArgs, definition, result) => {
-    const parsed = parseArgs(rawArgs, definition);
+    [
+      ["--foo-bar", "one"],
+      { fooBar: { type: "enum", options: ["one", "two"], default: "two" } },
+      { fooBar: "one", "foo-bar": "one", _: [] },
+    ],
+  ] as [string[], ArgsDef, any][])(
+    "should parsed correctly %o (%o)",
+    (rawArgs, definition, result) => {
+      const parsed = parseArgs(rawArgs, definition);
 
-    expect(parsed).toEqual(result);
-  });
+      expect(parsed).toEqual(result);
+    },
+  );
 
   it.each<[string[], ArgsDef, string]>([
-    [
-      [],
-      { name: { type: "string", required: true } },
-      "Missing required argument: --name",
-    ],
-    [
-      ["--age", "twenty-five"],
-      { age: { type: "number" } },
-      "Invalid value for argument: `--age` (`twenty-five`). Expected a number.",
-    ],
+    [[], { name: { type: "string", required: true } }, "Missing required argument: --name"],
     [
       [],
       {
@@ -103,7 +71,7 @@ describe("args", () => {
     [
       ["--value", "three"],
       { value: { type: "enum", options: ["one", "two"] } },
-      "Invalid value for argument: `--value` (`three`). Expected one of: `one`, `two`.",
+      "Invalid value for argument: --value (three). Expected one of: one, two.",
     ],
   ])("should throw error with %o (%o)", (rawArgs, definition, result) => {
     // TODO: should check for exact match
@@ -135,5 +103,31 @@ describe("args", () => {
 
     expect(parsed.userName).toBe("Jane");
     expect(parsed._).toEqual([]);
+  });
+
+  it("should coerce --flag=true to boolean true for boolean args", () => {
+    const parsed = parseArgs(["--force=true"], { force: { type: "boolean" } });
+    expect(parsed.force).toBe(true);
+    expect(typeof parsed.force).toBe("boolean");
+  });
+
+  it("should coerce --flag=false to boolean false for boolean args", () => {
+    const parsed = parseArgs(["--force=false"], { force: { type: "boolean" } });
+    expect(parsed.force).toBe(false);
+    expect(typeof parsed.force).toBe("boolean");
+  });
+
+  it("should coerce --flag=false to false even with default true", () => {
+    const parsed = parseArgs(["--install=false"], {
+      install: { type: "boolean", default: true },
+    });
+    expect(parsed.install).toBe(false);
+    expect(typeof parsed.install).toBe("boolean");
+  });
+
+  it("should return empty string for string arg without value", () => {
+    const parsed = parseArgs(["--nightly"], { nightly: { type: "string" } });
+    expect(parsed.nightly).toBe("");
+    expect(typeof parsed.nightly).toBe("string");
   });
 });

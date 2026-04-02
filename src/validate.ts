@@ -1,5 +1,5 @@
-import { CLIError, toArray } from "./_utils";
-import type { ArgsDef, ParsedArgs } from "./types";
+import { CLIError, toArray } from "./_utils.ts";
+import type { ArgsDef, ParsedArgs } from "./types.ts";
 
 export function validateUnknownOptions<T extends ArgsDef = ArgsDef>(
   argsDef: T,

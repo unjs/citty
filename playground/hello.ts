@@ -1,5 +1,4 @@
-import consola from "consola";
-import { defineCommand, createMain } from "../src";
+import { defineCommand, createMain } from "../src/index.ts";
 
 const command = defineCommand({
   meta: {
@@ -18,7 +17,7 @@ const command = defineCommand({
       description: "Use friendly greeting",
     },
     age: {
-      type: "number",
+      type: "string",
       description: "Your age",
       required: false,
     },
@@ -31,7 +30,7 @@ const command = defineCommand({
     },
   },
   run({ args }) {
-    consola.log(args);
+    console.log(args);
     const msg = [
       args.friendly ? "Hi" : "Greetings",
       args.adj || "",
@@ -41,7 +40,7 @@ const command = defineCommand({
       .filter(Boolean)
       .join(" ");
 
-    consola.log(msg);
+    console.log(msg);
   },
 });
 

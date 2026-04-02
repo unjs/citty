@@ -1,5 +1,147 @@
 # Changelog
 
+## v0.2.2
+
+[compare changes](https://github.com/unjs/citty/compare/v0.2.1...v0.2.2)
+
+### 🚀 Enhancements
+
+- Support subcommand aliases ([#236](https://github.com/unjs/citty/pull/236))
+- Add plugin system ([#238](https://github.com/unjs/citty/pull/238))
+- **default:** Support default sub command ([#156](https://github.com/unjs/citty/pull/156))
+
+### 🩹 Fixes
+
+- **main:** Allow user-defined `-h`, `--help`, `-v`, `--version` args ([#234](https://github.com/unjs/citty/pull/234))
+- Resolve alias value over default ([#228](https://github.com/unjs/citty/pull/228))
+- Subcommand resolution incorrectly consumes flag values ([#231](https://github.com/unjs/citty/pull/231))
+- Coerce parsed arg values to match declared types ([#239](https://github.com/unjs/citty/pull/239))
+
+### 💅 Refactors
+
+- Improve usage tips ([#198](https://github.com/unjs/citty/pull/198))
+
+### 📖 Documentation
+
+- Add usage section ([#70](https://github.com/unjs/citty/pull/70))
+- Add example setup and cleanup option ([#188](https://github.com/unjs/citty/pull/188))
+
+### 🏡 Chore
+
+- Update deps ([49b416e](https://github.com/unjs/citty/commit/49b416e))
+- Init agents.md ([3bee5c3](https://github.com/unjs/citty/commit/3bee5c3))
+- Apply automated updates ([142bdc9](https://github.com/unjs/citty/commit/142bdc9))
+- Rename fmt script ([64e8f54](https://github.com/unjs/citty/commit/64e8f54))
+- Apply automated updates ([0228318](https://github.com/unjs/citty/commit/0228318))
+- Apply automated updates ([f509073](https://github.com/unjs/citty/commit/f509073))
+- Update deps ([033daea](https://github.com/unjs/citty/commit/033daea))
+
+### ✅ Tests
+
+- Reproduce issue with short option (alias) and `=` ([#230](https://github.com/unjs/citty/pull/230))
+- **parser:** Add regression tests for hyphen-prefixed string values ([#171](https://github.com/unjs/citty/pull/171))
+
+### ❤️ Contributors
+
+- 苏向夜 ([@fu050409](https://github.com/fu050409))
+- Pooya Parsa ([@pi0](https://github.com/pi0))
+- Daniel Roe ([@danielroe](https://github.com/danielroe))
+- Kricsleo ([@kricsleo](https://github.com/kricsleo))
+- Kanon ([@ysknsid25](https://github.com/ysknsid25))
+- Estéban ([@Barbapapazes](https://github.com/Barbapapazes))
+- Robin <robin.kehl@singular-it.de>
+- Wyatt Johnson <accounts+github@wyattjoh.ca>
+
+## v0.2.1
+
+[compare changes](https://github.com/unjs/citty/compare/v0.2.0...v0.2.1)
+
+### 🩹 Fixes
+
+- Propagate --no- negation to aliases and main option ([#225](https://github.com/unjs/citty/pull/225))
+
+### 🏡 Chore
+
+- Fix readme formatting ([#223](https://github.com/unjs/citty/pull/223))
+- Use oxlint and oxfmt ([f1d05f4](https://github.com/unjs/citty/commit/f1d05f4))
+
+### ❤️ Contributors
+
+- Pooya Parsa ([@pi0](https://github.com/pi0))
+- Kai Gritun <kaigritun@gmail.com>
+- Jimmy Guzman ([@jimmy-guzman](https://github.com/jimmy-guzman))
+
+## v0.2.0
+
+[compare changes](https://github.com/unjs/citty/compare/v0.1.6...v0.2.0)
+
+### 🚀 Enhancements
+
+- Support `hidden` meta to hide command ([#111](https://github.com/unjs/citty/pull/111))
+- Support `enum` arg type ([#83](https://github.com/unjs/citty/pull/83))
+- Support `number` arg type ([#73](https://github.com/unjs/citty/pull/73))
+- Support `negativeDescription` for args ([#40](https://github.com/unjs/citty/pull/40))
+- ⚠️ Parsed optionals and enum type safety ([#174](https://github.com/unjs/citty/pull/174))
+
+### 🩹 Fixes
+
+- ⚠️ Conditionally print negative boolean argument usage ([#177](https://github.com/unjs/citty/pull/177))
+- **types:** Value type of NumberArgDef should be number ([#183](https://github.com/unjs/citty/pull/183))
+- Show cli error message ([#186](https://github.com/unjs/citty/pull/186))
+- Allow `number` arg to be optional ([#194](https://github.com/unjs/citty/pull/194))
+
+### 💅 Refactors
+
+- Show error once ([#167](https://github.com/unjs/citty/pull/167))
+- More strict types ([f597897](https://github.com/unjs/citty/commit/f597897))
+- ⚠️ Use `node:util.parseArgs` for arg parsing ([#218](https://github.com/unjs/citty/pull/218))
+- Use simple console formatting ([#219](https://github.com/unjs/citty/pull/219))
+
+### 📦 Build
+
+- ⚠️ Esm-only dist ([42b57b0](https://github.com/unjs/citty/commit/42b57b0))
+
+### 🏡 Chore
+
+- Use automd for badges ([b8371c4](https://github.com/unjs/citty/commit/b8371c4))
+- Apply automated lint fixes ([34c52a2](https://github.com/unjs/citty/commit/34c52a2))
+- Fix typos ([#143](https://github.com/unjs/citty/pull/143))
+- Update repo ([d1ed3b4](https://github.com/unjs/citty/commit/d1ed3b4))
+- Fix ci script ([e13cb1e](https://github.com/unjs/citty/commit/e13cb1e))
+- Apply automated updates ([3838771](https://github.com/unjs/citty/commit/3838771))
+- Add vitest.config ([eb5c799](https://github.com/unjs/citty/commit/eb5c799))
+- Update dependencies ([5d0a84e](https://github.com/unjs/citty/commit/5d0a84e))
+- Remove extra file ([b90a84a](https://github.com/unjs/citty/commit/b90a84a))
+
+### ✅ Tests
+
+- Add unit tests for internal utils ([#77](https://github.com/unjs/citty/pull/77))
+- Add test for args ([#160](https://github.com/unjs/citty/pull/160))
+- Add test for runMain ([#162](https://github.com/unjs/citty/pull/162))
+- Add test for usage ([#161](https://github.com/unjs/citty/pull/161))
+- Add test for parser ([#192](https://github.com/unjs/citty/pull/192))
+- Add test for subcommand ([#191](https://github.com/unjs/citty/pull/191))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️ Parsed optionals and enum type safety ([#174](https://github.com/unjs/citty/pull/174))
+- ⚠️ Conditionally print negative boolean argument usage ([#177](https://github.com/unjs/citty/pull/177))
+- ⚠️ Use `node:util.parseArgs` for arg parsing ([#218](https://github.com/unjs/citty/pull/218))
+- ⚠️ Esm-only dist ([42b57b0](https://github.com/unjs/citty/commit/42b57b0))
+
+### ❤️ Contributors
+
+- Pooya Parsa ([@pi0](https://github.com/pi0))
+- Kricsleo ([@kricsleo](https://github.com/kricsleo))
+- Kanon ([@ysknsid25](https://github.com/ysknsid25))
+- Bobbie Goede <bobbiegoede@gmail.com>
+- Estéban ([@Barbapapazes](https://github.com/Barbapapazes))
+- IWANABETHATGUY <974153916@qq.com>
+- Kentaro Suzuki <mail@sushichan.live>
+- Xjccc ([@xjccc](https://github.com/xjccc))
+- Zuixinwang ([@zuixinwang](https://github.com/zuixinwang))
+- K-Sato <satokatsuki0130@gmail.com>
+- Lsh ([@peterroe](https://github.com/peterroe))
 
 ## v0.1.6
 
@@ -112,31 +254,30 @@
 - Add autofix ci ([2cfd134](https://github.com/unjs/citty/commit/2cfd134))
 - Fix typo in error code ([4f2c7ca](https://github.com/unjs/citty/commit/4f2c7ca))
 
-### ❤️  Contributors
+### ❤️ Contributors
 
 - Pooya Parsa ([@pi0](http://github.com/pi0))
-- Zuixinwang 
+- Zuixinwang
 - Wang Yiding ([@yidingww](http://github.com/yidingww))
 
 ## v0.1.1
 
 [compare changes](https://github.com/unjs/citty/compare/v0.1.0...v0.1.1)
 
-
 ### 🩹 Fixes
 
-  - Remove sub-command name when resolving nested ([47398f1](https://github.com/unjs/citty/commit/47398f1))
-  - Type untyped args as `string ([ boolean`](https://github.com/unjs/citty/commit/ boolean`))
-  - Move deps to devDependencies ([#20](https://github.com/unjs/citty/pull/20))
-  - Fix unspecified arg types ([d1d769b](https://github.com/unjs/citty/commit/d1d769b))
+- Remove sub-command name when resolving nested ([47398f1](https://github.com/unjs/citty/commit/47398f1))
+- Type untyped args as `string ([ boolean`](https://github.com/unjs/citty/commit/ boolean`))
+- Move deps to devDependencies ([#20](https://github.com/unjs/citty/pull/20))
+- Fix unspecified arg types ([d1d769b](https://github.com/unjs/citty/commit/d1d769b))
 
 ### 🏡 Chore
 
-  - Update lockfile ([fd037e4](https://github.com/unjs/citty/commit/fd037e4))
-  - Update unbuild ([0810eaa](https://github.com/unjs/citty/commit/0810eaa))
-  - Update lockfile ([69adc47](https://github.com/unjs/citty/commit/69adc47))
+- Update lockfile ([fd037e4](https://github.com/unjs/citty/commit/fd037e4))
+- Update unbuild ([0810eaa](https://github.com/unjs/citty/commit/0810eaa))
+- Update lockfile ([69adc47](https://github.com/unjs/citty/commit/69adc47))
 
-### ❤️  Contributors
+### ❤️ Contributors
 
 - Pooya Parsa ([@pi0](http://github.com/pi0))
 - Ʀᴀʏ ([@so1ve](http://github.com/so1ve))
@@ -146,38 +287,35 @@
 
 [compare changes](https://github.com/unjs/citty/compare/v0.0.2...v0.1.0)
 
-
 ### 🏡 Chore
 
-  - Inline deps ([ad8cec2](https://github.com/unjs/citty/commit/ad8cec2))
+- Inline deps ([ad8cec2](https://github.com/unjs/citty/commit/ad8cec2))
 
-### ❤️  Contributors
+### ❤️ Contributors
 
 - Pooya Parsa ([@pi0](http://github.com/pi0))
 
 ## v0.0.2
 
-
 ### 🚀 Enhancements
 
-  - `setup` hook ([#9](https://github.com/unjs/citty/pull/9))
-  - Allow accessing args with camelCase or kebabCase ([#17](https://github.com/unjs/citty/pull/17))
-  - Basic type inference for args ([#1](https://github.com/unjs/citty/pull/1))
+- `setup` hook ([#9](https://github.com/unjs/citty/pull/9))
+- Allow accessing args with camelCase or kebabCase ([#17](https://github.com/unjs/citty/pull/17))
+- Basic type inference for args ([#1](https://github.com/unjs/citty/pull/1))
 
 ### 🩹 Fixes
 
-  - Correctly parse positional arguments ([#16](https://github.com/unjs/citty/pull/16))
-  - Allow any args type for `SubCommandsDef` ([60d218d](https://github.com/unjs/citty/commit/60d218d))
+- Correctly parse positional arguments ([#16](https://github.com/unjs/citty/pull/16))
+- Allow any args type for `SubCommandsDef` ([60d218d](https://github.com/unjs/citty/commit/60d218d))
 
 ### 🏡 Chore
 
-  - Small fixes ([1f377a9](https://github.com/unjs/citty/commit/1f377a9))
-  - Update pnpm ([ba75f83](https://github.com/unjs/citty/commit/ba75f83))
-  - Fix build ([b7b42be](https://github.com/unjs/citty/commit/b7b42be))
-  - Update deps ([b1a3f06](https://github.com/unjs/citty/commit/b1a3f06))
+- Small fixes ([1f377a9](https://github.com/unjs/citty/commit/1f377a9))
+- Update pnpm ([ba75f83](https://github.com/unjs/citty/commit/ba75f83))
+- Fix build ([b7b42be](https://github.com/unjs/citty/commit/b7b42be))
+- Update deps ([b1a3f06](https://github.com/unjs/citty/commit/b1a3f06))
 
-### ❤️  Contributors
+### ❤️ Contributors
 
 - Pooya Parsa ([@pi0](http://github.com/pi0))
 - Sebastiaan Van Arkens <sebastiaan@vanarkens.nl>
-

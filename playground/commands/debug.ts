@@ -1,11 +1,10 @@
-import consola from "consola";
-import { defineCommand } from "../../src";
+import { defineCommand } from "../../src/index.ts";
 
 export default defineCommand({
   meta: {
     name: "debug",
     description: "Debug the project",
-    hidden: true
+    hidden: true,
   },
   args: {
     verbose: {
@@ -19,7 +18,7 @@ export default defineCommand({
     },
   },
   run({ args }) {
-    consola.log("Debug");
-    consola.log("Parsed args:", args);
+    console.log("Debug");
+    console.log("Parsed args:", args);
   },
 });
