@@ -38,6 +38,28 @@ describe("args", () => {
     ],
     [[], { command: { type: "positional", required: false } }, { _: [] }],
     /**
+     * MultiPositional
+     */
+    [
+      ["subCommand1", "subCommand2"],
+      { command: { type: "multiPositional" } },
+      {
+        _: ["subCommand1", "subCommand2"],
+        command: ["subCommand1", "subCommand2"],
+      },
+    ],
+    [
+      [],
+      {
+        command: {
+          type: "multiPositional",
+          default: ["subCommand1", "subCommand2"],
+        },
+      },
+      { _: [], command: ["subCommand1", "subCommand2"] },
+    ],
+    [[], { command: { type: "multiPositional", required: false } }, { _: [] }],
+    /**
      * Enum
      */
     [
@@ -67,6 +89,13 @@ describe("args", () => {
         name: { type: "positional" },
       },
       "Missing required positional argument: NAME",
+    ],
+    [
+      [],
+      {
+        name: { type: "multiPositional" },
+      },
+      "Missing required multiPositional argument: NAME",
     ],
     [
       ["--value", "three"],
