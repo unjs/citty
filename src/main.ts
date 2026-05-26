@@ -1,6 +1,7 @@
 import type { ArgsDef, CommandDef } from "./types.ts";
 import { resolveSubCommand, runCommand } from "./command.ts";
 import { CLIError, resolveValue, toArray } from "./_utils.ts";
+import { readPackageVersion } from "./_pkg.ts";
 import { showUsage as _showUsage } from "./usage.ts";
 
 export interface RunMainOptions {
@@ -21,10 +22,11 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
       process.exit(0);
     } else if (rawArgs.length === 1 && builtinFlags.version.includes(rawArgs[0]!)) {
       const meta = typeof cmd.meta === "function" ? await cmd.meta() : await cmd.meta;
-      if (!meta?.version) {
+      const version = meta?.version || readPackageVersion();
+      if (!version) {
         throw new CLIError("No version specified", "E_NO_VERSION");
       }
-      console.log(meta.version);
+      console.log(version);
     } else {
       await runCommand(cmd, { rawArgs });
     }

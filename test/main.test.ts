@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterAll } from "vitest";
 import { createMain, defineCommand, renderUsage, runMain, showUsage } from "../src/index.ts";
 import * as commandModule from "../src/command.ts";
+import * as pkgModule from "../src/_pkg.ts";
 
 describe("runMain", () => {
   vi.spyOn(process, "exit").mockImplementation(() => 0 as never);
@@ -36,6 +37,22 @@ describe("runMain", () => {
     expect(consoleMock).toHaveBeenCalledWith("1.0.0");
   });
 
+  it("shows version from package.json when meta version is missing", async () => {
+    const command = defineCommand({
+      meta: {
+        name: "test",
+        description: "Test command",
+      },
+    });
+
+    const readVersionSpy = vi.spyOn(pkgModule, "readPackageVersion").mockReturnValue("3.2.1");
+
+    await runMain(command, { rawArgs: ["--version"] });
+
+    expect(consoleMock).toHaveBeenCalledWith("3.2.1");
+    readVersionSpy.mockRestore();
+  });
+
   it("shows usage with flag `--version` but without version specified", async () => {
     const command = defineCommand({
       meta: {
@@ -44,11 +61,14 @@ describe("runMain", () => {
       },
     });
 
+    const readVersionSpy = vi.spyOn(pkgModule, "readPackageVersion").mockReturnValue(undefined);
+
     await runMain(command, { rawArgs: ["--version"] });
 
     const usage = await renderUsage(command);
     expect(consoleMock).toHaveBeenCalledWith(usage + "\n");
     expect(consoleErrorMock).toHaveBeenCalledWith("No version specified");
+    readVersionSpy.mockRestore();
   });
 
   it.each([["--help"], ["-h"]])("shows usage with flag `%s`", async (flag) => {
