@@ -109,7 +109,7 @@ export function parseRawArgs<T = Record<string, any>>(
   const negatedFlags: Record<string, boolean> = {};
 
   for (let i = 0; i < args.length; i++) {
-    const arg = args[i]!;
+    let arg = args[i]!;
 
     if (arg === "--") {
       // Pass through -- and everything after
@@ -118,9 +118,22 @@ export function parseRawArgs<T = Record<string, any>>(
     }
 
     // Handle --no-flag syntax
-    if (arg.startsWith("--no-")) {
+    if (arg.startsWith("--no-") && !arg.includes("=")) {
       const flagName = arg.slice(5);
       negatedFlags[flagName] = true;
+      continue;
+    }
+
+    // Handle short alias with =value syntax (e.g., -o=bar)
+    // This is needed because node:util parseArgs doesn't handle = for short aliases
+    if (arg.startsWith("-") && !arg.startsWith("--") && arg.includes("=")) {
+      const eqIndex = arg.indexOf("=");
+      const name = arg.slice(0, eqIndex);
+      const value = arg.slice(eqIndex + 1);
+      processedArgs.push(name);
+      if (value !== "") {
+        processedArgs.push(value);
+      }
       continue;
     }
 
