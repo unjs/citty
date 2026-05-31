@@ -131,9 +131,7 @@ export function parseRawArgs<T = Record<string, any>>(
       const name = arg.slice(0, eqIndex);
       const value = arg.slice(eqIndex + 1);
       processedArgs.push(name);
-      if (value !== "") {
-        processedArgs.push(value);
-      }
+      processedArgs.push(value);
       continue;
     }
 

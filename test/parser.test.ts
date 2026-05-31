@@ -41,6 +41,21 @@ describe("parseRawArgs", () => {
     });
   });
 
+  it("handles -<arg>= with empty value", () => {
+    const result = parseRawArgs(["-n="], {
+      string: ["name"],
+      alias: {
+        n: ["name"],
+      },
+    });
+
+    expect(result).toEqual({
+      _: [],
+      n: "",
+      name: "",
+    });
+  });
+
   it("handles default values", () => {
     const result = parseRawArgs([], { default: { name: "Default" } });
 
