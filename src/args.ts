@@ -26,6 +26,7 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
   const parseOptions = {
     boolean: [] as string[],
     string: [] as string[],
+    multiple: [] as string[],
     alias: {} as Record<string, string[]>,
     default: {} as Record<string, boolean | string>,
   } satisfies ParseOptions;
@@ -41,7 +42,10 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
     } else if (arg.type === "boolean") {
       parseOptions.boolean.push(arg.name);
     }
-    if (arg.default !== undefined) {
+    if (arg.multiple) {
+      parseOptions.multiple.push(arg.name);
+    }
+    if (arg.default !== undefined && !arg.multiple) {
       parseOptions.default[arg.name] = arg.default;
     }
     if (arg.alias) {
@@ -87,6 +91,15 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
       } else {
         parsedArgsProxy[arg.name] = arg.default;
       }
+    } else if (arg.multiple) {
+      const values: string[] = parsedArgsProxy[arg.name] ?? [];
+      for (const value of values) {
+        assertEnumValue(arg, value);
+      }
+      if (arg.required && values.length === 0) {
+        throw new CLIError(`Missing required argument: --${arg.name}`, "EARG");
+      }
+      parsedArgsProxy[arg.name] = values;
     } else if (arg.type === "enum") {
       assertEnumValue(arg, parsedArgsProxy[arg.name]);
     } else if (arg.required && parsedArgsProxy[arg.name] === undefined) {
