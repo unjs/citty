@@ -164,13 +164,14 @@ Plugin `setup` hooks run before the command's `setup` (in order), `cleanup` hook
 
 ### Common Options
 
-| Option        | Description                                                   |
-| ------------- | ------------------------------------------------------------- |
-| `description` | Help text shown in usage output                               |
-| `required`    | Whether the argument is required                              |
-| `default`     | Default value when not provided                               |
-| `alias`       | Short aliases (e.g., `["f"]`). Not for `positional`           |
-| `valueHint`   | Display hint in help (e.g., `"host"` renders `--name=<host>`) |
+| Option        | Description                                                          |
+| ------------- | -------------------------------------------------------------------- |
+| `description` | Help text shown in usage output                                      |
+| `required`    | Whether the argument is required                                     |
+| `multiple`    | Collect repeated values into an array (`string`/`enum`/`positional`) |
+| `default`     | Default value when not provided                                      |
+| `alias`       | Short aliases (e.g., `["f"]`). Not for `positional`                  |
+| `valueHint`   | Display hint in help (e.g., `"host"` renders `--name=<host>`)        |
 
 ### Example
 
@@ -189,6 +190,43 @@ const main = defineCommand({
   },
   run({ args }) {
     console.log(`${args.greeting} ${args.name}! (level: ${args.level})`);
+  },
+});
+```
+
+### Multiple Values
+
+Set `multiple: true` to collect repeated values into an array. It works with `string`, `enum`, and `positional` arguments. Combined with `required`, it expresses the full cardinality matrix (both default to `false`):
+
+| `required` | `multiple` | Cardinality  | Parsed type             |
+| ---------- | ---------- | ------------ | ----------------------- |
+| `false`    | `false`    | zero or one  | `T \| undefined`        |
+| `true`     | `false`    | exactly one  | `T`                     |
+| `false`    | `true`     | zero or more | `T[]` (`[]` when empty) |
+| `true`     | `true`     | one or more  | `T[]` (must have ≥ 1)   |
+
+A repeated flag collects each occurrence, and a `multiple` positional is variadic — it greedily consumes the remaining positional tokens. Only the last positional may be `multiple`.
+
+```js
+const main = defineCommand({
+  args: {
+    // Repeatable flag: `--env A=1 --env B=2` → ["A=1", "B=2"]
+    env: {
+      type: "string",
+      description: "Environment variable as NAME=VALUE (repeatable)",
+      multiple: true,
+    },
+    // Variadic positional: `lint a.ts b.ts` → ["a.ts", "b.ts"]
+    files: {
+      type: "positional",
+      description: "Files to lint",
+      required: true,
+      multiple: true,
+    },
+  },
+  run({ args }) {
+    console.log(args.env); // string[]
+    console.log(args.files); // string[]
   },
 });
 ```
