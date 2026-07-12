@@ -33,6 +33,17 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
 
   const args = resolveArgs(argsDef);
 
+  const positionals = args.filter(({ type }) => type === "positional");
+
+  for (const [index, positional] of positionals.entries()) {
+    if (positional.multiple && index < positionals.length - 1) {
+      throw new CLIError(
+        `A "multiple" positional argument must be the last positional argument, but "${positional.name}" is not.`,
+        "EARG",
+      );
+    }
+  }
+
   for (const arg of args) {
     if (arg.type === "positional") {
       continue;
@@ -79,7 +90,15 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
   });
 
   for (const [, arg] of args.entries()) {
-    if (arg.type === "positional") {
+    if (arg.type === "positional" && arg.multiple) {
+      if (positionalArguments.length === 0 && arg.required !== false) {
+        throw new CLIError(
+          `Missing required positional argument: ${arg.name.toUpperCase()}`,
+          "EARG",
+        );
+      }
+      parsedArgsProxy[arg.name] = positionalArguments;
+    } else if (arg.type === "positional") {
       const nextPositionalArgument = positionalArguments.shift();
       if (nextPositionalArgument !== undefined) {
         parsedArgsProxy[arg.name] = nextPositionalArgument;
