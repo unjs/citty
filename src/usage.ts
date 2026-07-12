@@ -36,7 +36,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
 
   for (const arg of cmdArgs) {
     if (arg.type === "positional") {
-      const name = arg.name.toUpperCase();
+      const name = arg.name.toUpperCase() + (arg.multiple ? "..." : "");
       const isRequired = arg.required !== false && arg.default === undefined;
       posLines.push([colors.cyan(name + renderValueHint(arg)), renderDescription(arg, isRequired)]);
       usageLine.push(isRequired ? `<${name}>` : `[${name}]`);
@@ -136,16 +136,17 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
 function renderValueHint(arg: Arg) {
   const valueHint = arg.valueHint ? `=<${arg.valueHint}>` : "";
   const fallbackValueHint = valueHint || `=<${snakeCase(arg.name)}>`;
+  const repeat = arg.multiple ? "..." : "";
 
   if (!arg.type || arg.type === "positional" || arg.type === "boolean") {
     return valueHint;
   }
 
   if (arg.type === "enum" && arg.options?.length) {
-    return `=<${arg.options.join("|")}>`;
+    return `=<${arg.options.join("|")}>${repeat}`;
   }
 
-  return fallbackValueHint;
+  return fallbackValueHint + repeat;
 }
 
 function renderDescription(arg: Arg, required: boolean) {
