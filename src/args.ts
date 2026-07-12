@@ -4,6 +4,21 @@ import type { Arg, ArgsDef, ParsedArgs } from "./types.ts";
 import { CLIError, toArray } from "./_utils.ts";
 import { cyan } from "./_color.ts";
 
+// Throw if an enum arg received a value outside its declared options. No-op for
+// non-enum args and for an absent value.
+function assertEnumValue(arg: Arg, value: unknown): void {
+  if (arg.type !== "enum" || value === undefined) {
+    return;
+  }
+  const options = arg.options || [];
+  if (options.length > 0 && !options.includes(value as string)) {
+    throw new CLIError(
+      `Invalid value for argument: ${cyan(`--${arg.name}`)} (${cyan(value as string)}). Expected one of: ${options.map((o) => cyan(o)).join(", ")}.`,
+      "EARG",
+    );
+  }
+}
+
 export function parseArgs<T extends ArgsDef = ArgsDef>(
   rawArgs: string[],
   argsDef: ArgsDef,
@@ -73,14 +88,7 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
         parsedArgsProxy[arg.name] = arg.default;
       }
     } else if (arg.type === "enum") {
-      const argument = parsedArgsProxy[arg.name];
-      const options = arg.options || [];
-      if (argument !== undefined && options.length > 0 && !options.includes(argument)) {
-        throw new CLIError(
-          `Invalid value for argument: ${cyan(`--${arg.name}`)} (${cyan(argument)}). Expected one of: ${options.map((o) => cyan(o)).join(", ")}.`,
-          "EARG",
-        );
-      }
+      assertEnumValue(arg, parsedArgsProxy[arg.name]);
     } else if (arg.required && parsedArgsProxy[arg.name] === undefined) {
       throw new CLIError(`Missing required argument: --${arg.name}`, "EARG");
     }
