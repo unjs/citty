@@ -3,6 +3,7 @@ import { parseArgs } from "node:util";
 export interface ParseOptions {
   boolean?: string[];
   string?: string[];
+  multiple?: string[];
   alias?: Record<string, string[]>;
   default?: Record<string, any>;
 }
@@ -17,6 +18,7 @@ export function parseRawArgs<T = Record<string, any>>(
 ): Argv<T> {
   const booleans = new Set(opts.boolean || []);
   const strings = new Set(opts.string || []);
+  const multiples = new Set(opts.multiple || []);
   const aliasMap = opts.alias || {};
   const defaults = opts.default || {};
 
@@ -76,6 +78,11 @@ export function parseRawArgs<T = Record<string, any>>(
     return isInSet(name, strings);
   }
 
+  // Check if a name should collect repeated values (directly or via alias)
+  function isMultiple(name: string): boolean {
+    return isInSet(name, multiples);
+  }
+
   // Collect all option names
   const allOptions = new Set<string>([
     ...booleans,
@@ -92,6 +99,7 @@ export function parseRawArgs<T = Record<string, any>>(
       options[name] = {
         type,
         default: defaults[name],
+        multiple: isMultiple(name),
       };
     }
   }
@@ -148,6 +156,10 @@ export function parseRawArgs<T = Record<string, any>>(
 
   // Coerce a single raw value to its declared type
   function coerceValue(key: string, value: any): any {
+    // A `multiple` option arrives as an array; coerce each item individually
+    if (Array.isArray(value)) {
+      return value.map((item) => coerceValue(key, item));
+    }
     const type = getType(key);
     if (type === "boolean" && typeof value === "string") {
       return value !== "false";
