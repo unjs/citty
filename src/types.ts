@@ -12,6 +12,12 @@ export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
   default?: VT;
   required?: boolean;
   options?: string[];
+  /**
+   * Optional client validation hook invoked after citty parses and type-checks
+   * the argument value. Return `true` to accept, or a `string` error message
+   * to reject (citty throws a CLIError with that message). See issue #84.
+   */
+  validator?: (value: VT, arg: Arg) => boolean | string;
 };
 
 export type BooleanArgDef = Omit<_ArgDef<"boolean", boolean>, "options"> & {

@@ -84,6 +84,16 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
     } else if (arg.required && parsedArgsProxy[arg.name] === undefined) {
       throw new CLIError(`Missing required argument: --${arg.name}`, "EARG");
     }
+
+    if (arg.validator) {
+      const result = arg.validator(parsedArgsProxy[arg.name], arg);
+      if (typeof result === "string" && result.length > 0) {
+        throw new CLIError(
+          `Invalid value for argument ${cyan(`--${arg.name}`)}: ${result}`,
+          "EARG",
+        );
+      }
+    }
   }
 
   return parsedArgsProxy as ParsedArgs<T>;
