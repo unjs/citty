@@ -60,7 +60,21 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
   });
 
   for (const [, arg] of args.entries()) {
-    if (arg.type === "positional") {
+    if (arg.type === "multiPositional") {
+      if (positionalArguments.length > 0) {
+        parsedArgsProxy[arg.name] = [...positionalArguments];
+        positionalArguments.length = 0;
+      } else if (arg.default !== undefined) {
+        parsedArgsProxy[arg.name] = arg.default;
+      } else if (arg.required === true) {
+        throw new CLIError(
+          `Missing required positional argument: ${arg.name.toUpperCase()}`,
+          "EARG",
+        );
+      } else {
+        parsedArgsProxy[arg.name] = [];
+      }
+    } else if (arg.type === "positional") {
       const nextPositionalArgument = positionalArguments.shift();
       if (nextPositionalArgument !== undefined) {
         parsedArgsProxy[arg.name] = nextPositionalArgument;
