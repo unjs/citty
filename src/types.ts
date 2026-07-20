@@ -1,6 +1,6 @@
 // ----- Args -----
 
-export type ArgType = "boolean" | "string" | "enum" | "positional" | undefined;
+export type ArgType = "boolean" | "string" | "number" | "enum" | "positional" | undefined;
 
 // Args: Definition
 
@@ -18,10 +18,16 @@ export type BooleanArgDef = Omit<_ArgDef<"boolean", boolean>, "options"> & {
   negativeDescription?: string;
 };
 export type StringArgDef = Omit<_ArgDef<"string", string>, "options">;
+export type NumberArgDef = Omit<_ArgDef<"number", number>, "options">;
 export type EnumArgDef = _ArgDef<"enum", string>;
 export type PositionalArgDef = Omit<_ArgDef<"positional", string>, "alias" | "options">;
 
-export type ArgDef = BooleanArgDef | StringArgDef | PositionalArgDef | EnumArgDef;
+export type ArgDef =
+  | BooleanArgDef
+  | StringArgDef
+  | NumberArgDef
+  | PositionalArgDef
+  | EnumArgDef;
 
 export type ArgsDef = Record<string, ArgDef>;
 
@@ -48,6 +54,10 @@ type ParsedStringArg<T extends ArgDef> = T extends { type: "string" }
   ? ResolveParsedArgType<T, string>
   : never;
 
+type ParsedNumberArg<T extends ArgDef> = T extends { type: "number" }
+  ? ResolveParsedArgType<T, number>
+  : never;
+
 type ParsedBooleanArg<T extends ArgDef> = T extends { type: "boolean" }
   ? ResolveParsedArgType<T, boolean>
   : never;
@@ -70,6 +80,7 @@ type ParsedArg<T extends ArgDef> =
   T["type"] extends "positional" ? ParsedPositionalArg<T> :
   T["type"] extends "boolean" ? ParsedBooleanArg<T> :
   T["type"] extends "string" ? ParsedStringArg<T> :
+  T["type"] extends "number" ? ParsedNumberArg<T> :
   T["type"] extends "enum" ? ParsedEnumArg<T> :
   never;
 

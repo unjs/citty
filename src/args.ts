@@ -21,12 +21,12 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
     if (arg.type === "positional") {
       continue;
     }
-    if (arg.type === "string" || arg.type === "enum") {
+    if (arg.type === "string" || arg.type === "enum" || arg.type === "number") {
       parseOptions.string.push(arg.name);
     } else if (arg.type === "boolean") {
       parseOptions.boolean.push(arg.name);
     }
-    if (arg.default !== undefined) {
+    if (arg.default !== undefined && arg.type !== "number") {
       parseOptions.default[arg.name] = arg.default;
     }
     if (arg.alias) {
@@ -81,7 +81,26 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
           "EARG",
         );
       }
-    } else if (arg.required && parsedArgsProxy[arg.name] === undefined) {
+    }
+
+    if (arg.type === "number") {
+      let raw = parsedArgsProxy[arg.name];
+      if (raw === undefined && arg.default !== undefined) {
+        raw = arg.default as string | number;
+      }
+      if (raw !== undefined) {
+        const num = Number(raw);
+        if (Number.isNaN(num)) {
+          throw new CLIError(
+            `Invalid number value for argument: ${cyan(`--${arg.name}`)} (${cyan(raw)}).`,
+            "EARG",
+          );
+        }
+        parsedArgsProxy[arg.name] = num;
+      }
+    }
+
+    if (arg.required && parsedArgsProxy[arg.name] === undefined) {
       throw new CLIError(`Missing required argument: --${arg.name}`, "EARG");
     }
   }
