@@ -278,11 +278,6 @@ describe("usage", () => {
           negativeDescription: "Disable legacy",
           hidden: true,
         },
-        secretPos: {
-          type: "positional",
-          description: "A secret positional",
-          hidden: true,
-        },
         rootDir: {
           type: "positional",
           description: "A root dir",

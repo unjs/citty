@@ -35,15 +35,15 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
   const usageLine = [];
 
   for (const arg of cmdArgs) {
-    if (arg.hidden) {
-      continue;
-    }
     if (arg.type === "positional") {
       const name = arg.name.toUpperCase();
       const isRequired = arg.required !== false && arg.default === undefined;
       posLines.push([colors.cyan(name + renderValueHint(arg)), renderDescription(arg, isRequired)]);
       usageLine.push(isRequired ? `<${name}>` : `[${name}]`);
     } else {
+      if (arg.hidden) {
+        continue;
+      }
       const isRequired = arg.required === true && arg.default === undefined;
       const argStr =
         [...(arg.alias || []).map((a) => `-${a}`), `--${arg.name}`].join(", ") +

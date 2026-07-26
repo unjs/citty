@@ -20,7 +20,7 @@ export type BooleanArgDef = Omit<_ArgDef<"boolean", boolean>, "options"> & {
 };
 export type StringArgDef = Omit<_ArgDef<"string", string>, "options">;
 export type EnumArgDef = _ArgDef<"enum", string>;
-export type PositionalArgDef = Omit<_ArgDef<"positional", string>, "alias" | "options">;
+export type PositionalArgDef = Omit<_ArgDef<"positional", string>, "alias" | "options" | "hidden">;
 
 export type ArgDef = BooleanArgDef | StringArgDef | PositionalArgDef | EnumArgDef;
 
