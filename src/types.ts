@@ -8,6 +8,7 @@ export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
   type?: T;
   description?: string;
   valueHint?: string;
+  hidden?: boolean;
   alias?: string | string[];
   default?: VT;
   required?: boolean;

@@ -171,6 +171,7 @@ Plugin `setup` hooks run before the command's `setup` (in order), `cleanup` hook
 | `default`     | Default value when not provided                               |
 | `alias`       | Short aliases (e.g., `["f"]`). Not for `positional`           |
 | `valueHint`   | Display hint in help (e.g., `"host"` renders `--name=<host>`) |
+| `hidden`      | Omit from usage output while still parsing the argument       |
 
 ### Example
 

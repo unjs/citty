@@ -35,6 +35,9 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
   const usageLine = [];
 
   for (const arg of cmdArgs) {
+    if (arg.hidden) {
+      continue;
+    }
     if (arg.type === "positional") {
       const name = arg.name.toUpperCase();
       const isRequired = arg.required !== false && arg.default === undefined;
