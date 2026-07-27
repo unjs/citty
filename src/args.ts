@@ -4,6 +4,21 @@ import type { Arg, ArgsDef, ParsedArgs } from "./types.ts";
 import { CLIError, toArray } from "./_utils.ts";
 import { cyan } from "./_color.ts";
 
+// Throw if an enum arg received a value outside its declared options. No-op for
+// non-enum args and for an absent value.
+function assertEnumValue(arg: Arg, value: unknown): void {
+  if (arg.type !== "enum" || value === undefined) {
+    return;
+  }
+  const options = arg.options || [];
+  if (options.length > 0 && !options.includes(value as string)) {
+    throw new CLIError(
+      `Invalid value for argument: ${cyan(`--${arg.name}`)} (${cyan(value as string)}). Expected one of: ${options.map((o) => cyan(o)).join(", ")}.`,
+      "EARG",
+    );
+  }
+}
+
 export function parseArgs<T extends ArgsDef = ArgsDef>(
   rawArgs: string[],
   argsDef: ArgsDef,
@@ -11,11 +26,23 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
   const parseOptions = {
     boolean: [] as string[],
     string: [] as string[],
+    multiple: [] as string[],
     alias: {} as Record<string, string[]>,
     default: {} as Record<string, boolean | string>,
   } satisfies ParseOptions;
 
   const args = resolveArgs(argsDef);
+
+  const positionals = args.filter(({ type }) => type === "positional");
+
+  for (const [index, positional] of positionals.entries()) {
+    if (positional.multiple && index < positionals.length - 1) {
+      throw new CLIError(
+        `A "multiple" positional argument must be the last positional argument, but "${positional.name}" is not.`,
+        "EARG",
+      );
+    }
+  }
 
   for (const arg of args) {
     if (arg.type === "positional") {
@@ -26,7 +53,10 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
     } else if (arg.type === "boolean") {
       parseOptions.boolean.push(arg.name);
     }
-    if (arg.default !== undefined) {
+    if (arg.multiple) {
+      parseOptions.multiple.push(arg.name);
+    }
+    if (arg.default !== undefined && !arg.multiple) {
       parseOptions.default[arg.name] = arg.default;
     }
     if (arg.alias) {
@@ -60,7 +90,15 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
   });
 
   for (const [, arg] of args.entries()) {
-    if (arg.type === "positional") {
+    if (arg.type === "positional" && arg.multiple) {
+      if (positionalArguments.length === 0 && arg.required !== false) {
+        throw new CLIError(
+          `Missing required positional argument: ${arg.name.toUpperCase()}`,
+          "EARG",
+        );
+      }
+      parsedArgsProxy[arg.name] = positionalArguments;
+    } else if (arg.type === "positional") {
       const nextPositionalArgument = positionalArguments.shift();
       if (nextPositionalArgument !== undefined) {
         parsedArgsProxy[arg.name] = nextPositionalArgument;
@@ -72,15 +110,17 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
       } else {
         parsedArgsProxy[arg.name] = arg.default;
       }
-    } else if (arg.type === "enum") {
-      const argument = parsedArgsProxy[arg.name];
-      const options = arg.options || [];
-      if (argument !== undefined && options.length > 0 && !options.includes(argument)) {
-        throw new CLIError(
-          `Invalid value for argument: ${cyan(`--${arg.name}`)} (${cyan(argument)}). Expected one of: ${options.map((o) => cyan(o)).join(", ")}.`,
-          "EARG",
-        );
+    } else if (arg.multiple) {
+      const values: string[] = parsedArgsProxy[arg.name] ?? [];
+      for (const value of values) {
+        assertEnumValue(arg, value);
       }
+      if (arg.required && values.length === 0) {
+        throw new CLIError(`Missing required argument: --${arg.name}`, "EARG");
+      }
+      parsedArgsProxy[arg.name] = values;
+    } else if (arg.type === "enum") {
+      assertEnumValue(arg, parsedArgsProxy[arg.name]);
     } else if (arg.required && parsedArgsProxy[arg.name] === undefined) {
       throw new CLIError(`Missing required argument: --${arg.name}`, "EARG");
     }
