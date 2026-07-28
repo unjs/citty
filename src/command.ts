@@ -48,6 +48,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
     }
 
     // Handle sub command
+    let ranSubCommand = false;
     const subCommands = await resolveValue(cmd.subCommands);
     if (subCommands && Object.keys(subCommands).length > 0) {
       const subCommandArgIndex = findSubCommandIndex(opts.rawArgs, cmdArgs);
@@ -61,6 +62,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
         await runCommand(subCommand, {
           rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
         });
+        ranSubCommand = true;
       } else {
         // No explicit sub command — check for default
         const defaultSubCommand = await resolveValue(cmd.default);
@@ -81,14 +83,15 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
           await runCommand(subCommand, {
             rawArgs: opts.rawArgs,
           });
+          ranSubCommand = true;
         } else if (!cmd.run) {
           throw new CLIError(`No command specified.`, "E_NO_COMMAND");
         }
       }
     }
 
-    // Handle main command
-    if (typeof cmd.run === "function") {
+    // Handle main command (skipped when a sub command already ran)
+    if (!ranSubCommand && typeof cmd.run === "function") {
       result = await cmd.run(context);
     }
   } catch (error) {
