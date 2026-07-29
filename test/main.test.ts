@@ -143,6 +143,29 @@ describe("sub command", () => {
   });
 });
 
+  it("does not run parent command's run() when subcommand is executed (#253)", async () => {
+    const parentRunMock = vi.fn();
+    const subRunMock = vi.fn();
+
+    const command = defineCommand({
+      subCommands: {
+        foo: {
+          run: async () => {
+            subRunMock();
+          },
+        },
+      },
+      run: async () => {
+        parentRunMock();
+      },
+    });
+
+    await runMain(command, { rawArgs: ["foo"] });
+
+    expect(parentRunMock).not.toHaveBeenCalled();
+    expect(subRunMock).toHaveBeenCalledOnce();
+  });
+
 describe("sub command aliases", () => {
   it("resolves subcommand by single alias", async () => {
     const runMock = vi.fn();
