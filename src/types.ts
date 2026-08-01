@@ -90,6 +90,7 @@ export interface CommandMeta {
   description?: string;
   hidden?: boolean;
   alias?: string | string[];
+  allowUnknownOptions?: boolean;
 }
 
 // Command: Definition

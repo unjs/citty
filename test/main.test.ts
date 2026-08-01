@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterAll } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { createMain, defineCommand, renderUsage, runMain, showUsage } from "../src/index.ts";
 import * as commandModule from "../src/command.ts";
 
@@ -9,8 +9,9 @@ describe("runMain", () => {
 
   const consoleErrorMock = vi.spyOn(console, "error").mockImplementation(() => undefined);
 
-  afterAll(() => {
+  afterEach(() => {
     consoleMock.mockReset();
+    consoleErrorMock.mockReset();
   });
 
   it("shows version with flag `--version`", async () => {
@@ -102,6 +103,39 @@ describe("runMain", () => {
     await runMain(command, { rawArgs });
 
     expect(mockRunCommand).toHaveBeenCalledWith(command, { rawArgs });
+    expect(consoleErrorMock).toHaveBeenCalledWith("Unknown option `--foo`");
+  });
+
+  it("should not warn for subcommand options", async () => {
+    const command = defineCommand({
+      subCommands: {
+        foo: {
+          args: {
+            bar: { type: "string" },
+          },
+          run: () => {},
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["foo", "--bar", "baz"] });
+
+    expect(consoleErrorMock).not.toHaveBeenCalled();
+  });
+
+  it("should allow unknown options with `allowUnknownOptions` enabled", async () => {
+    const mockRunCommand = vi.spyOn(commandModule, "runCommand");
+
+    const command = defineCommand({
+      meta: { allowUnknownOptions: true },
+    });
+
+    const rawArgs = ["--foo", "bar"];
+
+    await runMain(command, { rawArgs });
+
+    expect(mockRunCommand).toHaveBeenCalledWith(command, { rawArgs });
+    expect(consoleErrorMock).not.toHaveBeenCalledWith("Unknown option `--foo`");
   });
 });
 
