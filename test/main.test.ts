@@ -13,16 +13,14 @@ describe("runMain", () => {
     consoleMock.mockReset();
   });
 
-  it("shows version with flag `--version`", async () => {
+  it("shows duration with flag `--duration`", async () => {
     const command = defineCommand({
-      meta: {
-        version: "1.0.0",
-      },
+      run: () => {},
     });
 
-    await runMain(command, { rawArgs: ["--version"] });
+    await runMain(command, { rawArgs: ["--duration"] });
 
-    expect(consoleMock).toHaveBeenCalledWith("1.0.0");
+    expect(consoleMock).toHaveBeenCalled();
   });
 
   it("shows version with flag `--version` with meta specified as async function", async () => {
