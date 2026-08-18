@@ -106,7 +106,6 @@ export function parseRawArgs<T = Record<string, any>>(
 
   // Handle --no- prefixed arguments by preprocessing
   const processedArgs: string[] = [];
-  const negatedFlags: Record<string, boolean> = {};
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]!;
@@ -117,10 +116,13 @@ export function parseRawArgs<T = Record<string, any>>(
       break;
     }
 
-    // Handle --no-flag syntax
+    // Rewrite --no-<flag> to --<flag>=false in place so token order is
+    // preserved: node:util keeps the last occurrence (as it already does for
+    // value flags), the coercion below turns "false" into a boolean, and the
+    // alias-propagation pass handles aliases. A previous positive like
+    // `--no-x --x` is no longer clobbered by an order-insensitive override.
     if (arg.startsWith("--no-")) {
-      const flagName = arg.slice(5);
-      negatedFlags[flagName] = true;
+      processedArgs.push(`--${arg.slice(5)}=false`);
       continue;
     }
 
@@ -157,26 +159,6 @@ export function parseRawArgs<T = Record<string, any>>(
       coerced = "";
     }
     (out as any)[key] = coerced;
-  }
-
-  // Apply negated flags (with alias resolution)
-  for (const [name] of Object.entries(negatedFlags)) {
-    // Set the flag itself
-    (out as any)[name] = false;
-
-    // Resolve to main option and apply there too (handles --no-alias)
-    const mainName = aliasToMain.get(name);
-    if (mainName) {
-      (out as any)[mainName] = false;
-    }
-
-    // Also apply to all aliases of this name (handles --no-main for aliases)
-    const aliases = mainToAliases.get(name);
-    if (aliases) {
-      for (const alias of aliases) {
-        (out as any)[alias] = false;
-      }
-    }
   }
 
   // Propagate values between aliases
