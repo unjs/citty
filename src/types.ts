@@ -12,10 +12,6 @@ export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
   default?: VT;
   required?: boolean;
   options?: string[];
-  /**
-   * Make this argument available to sub commands, so it can be passed before the
-   * sub command name (`cli --cwd . dev`). Values passed after the sub command name win.
-   */
   inherit?: boolean;
 };
 

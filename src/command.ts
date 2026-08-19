@@ -15,10 +15,6 @@ export interface RunCommandOptions {
   rawArgs: string[];
   data?: any;
   showUsage?: boolean;
-  /**
-   * Args declared with `inherit` by a parent command, forwarded so this command can
-   * parse them even when it does not declare them itself.
-   */
   inheritedArgs?: ArgsDef;
 }
 
@@ -209,7 +205,20 @@ function _matchArg(
   argsDef: ArgsDef,
   filter: (def: ArgDef) => boolean,
 ): ArgDef | undefined {
-  const name = flag.replace(/^-{1,2}/, "").replace(/^no-/, "");
+  const name = flag.replace(/^-{1,2}/, "");
+  const direct = _findArg(name, argsDef, filter);
+  if (direct || !name.startsWith("no-")) {
+    return direct;
+  }
+  // `--no-x` only ever refers to a boolean `x`, and never consumes a value
+  return _findArg(name.slice(3), argsDef, (def) => def.type === "boolean" && filter(def));
+}
+
+function _findArg(
+  name: string,
+  argsDef: ArgsDef,
+  filter: (def: ArgDef) => boolean,
+): ArgDef | undefined {
   const normalized = camelCase(name);
   for (const [key, def] of Object.entries(argsDef)) {
     if (!filter(def)) continue;
@@ -228,10 +237,6 @@ function _inheritedArgs(argsDef: ArgsDef): ArgsDef {
   return inherited;
 }
 
-/**
- * Pick out the tokens of inherited args from the args consumed before a sub command name,
- * so they can be re-parsed by the sub command. Positionals are left behind.
- */
 function _collectInheritedRawArgs(
   rawArgs: string[],
   argsDef: ArgsDef,
