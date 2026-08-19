@@ -1,5 +1,5 @@
 import { camelCase } from "scule";
-import type { CommandContext, CommandDef, ArgsDef, SubCommandsDef } from "./types.ts";
+import type { ArgDef, ArgsDef, CommandContext, CommandDef, SubCommandsDef } from "./types.ts";
 import { CLIError, resolveValue, toArray } from "./_utils.ts";
 import { parseArgs } from "./args.ts";
 import { cyan } from "./_color.ts";
@@ -15,13 +15,18 @@ export interface RunCommandOptions {
   rawArgs: string[];
   data?: any;
   showUsage?: boolean;
+  /**
+   * Args declared with `inherit` by a parent command, forwarded so this command can
+   * parse them even when it does not declare them itself.
+   */
+  inheritedArgs?: ArgsDef;
 }
 
 export async function runCommand<T extends ArgsDef = ArgsDef>(
   cmd: CommandDef<T>,
   opts: RunCommandOptions,
 ): Promise<{ result: unknown }> {
-  const cmdArgs = await resolveValue(cmd.args || {});
+  const cmdArgs: ArgsDef = { ...opts.inheritedArgs, ...(await resolveValue(cmd.args || {})) };
   const parsedArgs = parseArgs<T>(opts.rawArgs, cmdArgs);
 
   const context: CommandContext<T> = {
@@ -58,8 +63,17 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
         if (!subCommand) {
           throw new CLIError(`Unknown command ${cyan(explicitName)}`, "E_UNKNOWN_COMMAND");
         }
+        const inheritedArgs = _inheritedArgs(cmdArgs);
         await runCommand(subCommand, {
-          rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
+          rawArgs: [
+            ..._collectInheritedRawArgs(
+              opts.rawArgs.slice(0, subCommandArgIndex),
+              cmdArgs,
+              inheritedArgs,
+            ),
+            ...opts.rawArgs.slice(subCommandArgIndex + 1),
+          ],
+          inheritedArgs,
         });
       } else {
         // No explicit sub command — check for default
@@ -80,6 +94,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
           }
           await runCommand(subCommand, {
             rawArgs: opts.rawArgs,
+            inheritedArgs: _inheritedArgs(cmdArgs),
           });
         } else if (!cmd.run) {
           throw new CLIError(`No command specified.`, "E_NO_COMMAND");
@@ -184,13 +199,62 @@ function findSubCommandIndex(rawArgs: string[], argsDef: ArgsDef): number {
 }
 
 function _isValueFlag(flag: string, argsDef: ArgsDef): boolean {
-  const name = flag.replace(/^-{1,2}/, "");
+  return (
+    _matchArg(flag, argsDef, (def) => def.type === "string" || def.type === "enum") !== undefined
+  );
+}
+
+function _matchArg(
+  flag: string,
+  argsDef: ArgsDef,
+  filter: (def: ArgDef) => boolean,
+): ArgDef | undefined {
+  const name = flag.replace(/^-{1,2}/, "").replace(/^no-/, "");
   const normalized = camelCase(name);
   for (const [key, def] of Object.entries(argsDef)) {
-    if (def.type !== "string" && def.type !== "enum") continue;
-    if (normalized === camelCase(key)) return true;
-    const aliases = Array.isArray(def.alias) ? def.alias : def.alias ? [def.alias] : [];
-    if (aliases.includes(name)) return true;
+    if (!filter(def)) continue;
+    if (normalized === camelCase(key)) return def;
+    if (toArray((def as { alias?: string | string[] }).alias).includes(name)) return def;
   }
-  return false;
+}
+
+function _inheritedArgs(argsDef: ArgsDef): ArgsDef {
+  const inherited: ArgsDef = {};
+  for (const [name, def] of Object.entries(argsDef)) {
+    if (def.type !== "positional" && (def as { inherit?: boolean }).inherit) {
+      inherited[name] = def;
+    }
+  }
+  return inherited;
+}
+
+/**
+ * Pick out the tokens of inherited args from the args consumed before a sub command name,
+ * so they can be re-parsed by the sub command. Positionals are left behind.
+ */
+function _collectInheritedRawArgs(
+  rawArgs: string[],
+  argsDef: ArgsDef,
+  inherited: ArgsDef,
+): string[] {
+  if (Object.keys(inherited).length === 0) {
+    return [];
+  }
+  const collected: string[] = [];
+  for (let i = 0; i < rawArgs.length; i++) {
+    const arg = rawArgs[i]!;
+    if (!arg.startsWith("-")) continue;
+    const [flag] = arg.split("=", 1) as [string];
+    const takesValue = !arg.includes("=") && _isValueFlag(flag, argsDef);
+    if (_matchArg(flag, inherited, () => true)) {
+      collected.push(arg);
+      if (takesValue && i + 1 < rawArgs.length) {
+        collected.push(rawArgs[i + 1]!);
+      }
+    }
+    if (takesValue) {
+      i++;
+    }
+  }
+  return collected;
 }
