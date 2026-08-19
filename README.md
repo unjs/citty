@@ -164,18 +164,18 @@ Plugin `setup` hooks run before the command's `setup` (in order), `cleanup` hook
 
 ### Common Options
 
-| Option        | Description                                                    |
-| ------------- | -------------------------------------------------------------- |
-| `description` | Help text shown in usage output                                |
-| `required`    | Whether the argument is required                               |
-| `default`     | Default value when not provided                                |
-| `alias`       | Short aliases (e.g., `["f"]`). Not for `positional`            |
-| `valueHint`   | Display hint in help (e.g., `"host"` renders `--name=<host>`)  |
-| `inherit`     | Make the arg reachable from sub commands. Not for `positional` |
+| Option        | Description                                                   |
+| ------------- | ------------------------------------------------------------- |
+| `description` | Help text shown in usage output                               |
+| `required`    | Whether the argument is required                              |
+| `default`     | Default value when not provided                               |
+| `alias`       | Short aliases (e.g., `["f"]`). Not for `positional`           |
+| `valueHint`   | Display hint in help (e.g., `"host"` renders `--name=<host>`) |
+| `inherit`     | Also parse the arg in sub commands. Not for `positional`      |
 
 ### Inherited Arguments
 
-By default, args passed before a sub command name are consumed by the parent only. Mark an arg with `inherit: true` to also make it available to sub commands, so `cli --cwd playground dev` and `cli dev --cwd playground` are equivalent:
+Args passed before a sub command name are consumed by the parent only, unless marked `inherit: true`, which also makes them available to sub commands:
 
 ```js
 const main = defineCommand({
@@ -183,8 +183,6 @@ const main = defineCommand({
   subCommands: { dev },
 });
 ```
-
-The arg definition is forwarded too, so sub commands do not need to redeclare it. A sub command that declares the same name wins, as does a value passed after the sub command name.
 
 ### Example
 
