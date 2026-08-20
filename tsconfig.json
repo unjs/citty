@@ -15,6 +15,7 @@
     "forceConsistentCasingInFileNames": true,
     "allowImportingTsExtensions": true,
     "noImplicitOverride": true,
-    "noEmit": true
+    "noEmit": true,
+    "skipLibCheck": true
   }
 }
