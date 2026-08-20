@@ -189,7 +189,7 @@ function _isValueFlag(flag: string, argsDef: ArgsDef): boolean {
   for (const [key, def] of Object.entries(argsDef)) {
     if (def.type !== "string" && def.type !== "enum") continue;
     if (normalized === camelCase(key)) return true;
-    const aliases = Array.isArray(def.alias) ? def.alias : def.alias ? [def.alias] : [];
+    const aliases = "alias" in def && def.alias ? (Array.isArray(def.alias) ? def.alias : [def.alias]) : [];
     if (aliases.includes(name)) return true;
   }
   return false;

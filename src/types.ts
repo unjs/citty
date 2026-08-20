@@ -8,11 +8,18 @@ export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
   type?: T;
   description?: string;
   valueHint?: string;
-  alias?: string | string[];
   default?: VT;
   required?: boolean;
   options?: string[];
-};
+} & (
+  | {
+      alias?: string | string[];
+      positional?: false;
+    }
+  | {
+      positional: true;
+    }
+);
 
 export type BooleanArgDef = Omit<_ArgDef<"boolean", boolean>, "options"> & {
   negativeDescription?: string;
