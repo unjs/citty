@@ -104,6 +104,27 @@ export function parseRawArgs<T = Record<string, any>>(
     }
   }
 
+  // Resolve a flag-like token to a known option name (long, short, or --no- form)
+  function knownOptionName(token: string): string | undefined {
+    if (!token.startsWith("-") || token === "-" || token === "--") {
+      return undefined;
+    }
+    let name: string;
+    if (token.startsWith("--")) {
+      name = token.slice(2);
+      const eqIndex = name.indexOf("=");
+      if (eqIndex !== -1) {
+        name = name.slice(0, eqIndex);
+      }
+      if (!allOptions.has(name) && name.startsWith("no-") && allOptions.has(name.slice(3))) {
+        name = name.slice(3);
+      }
+    } else {
+      name = token.slice(1, 2);
+    }
+    return allOptions.has(name) ? name : undefined;
+  }
+
   // Handle --no- prefixed arguments by preprocessing
   const processedArgs: string[] = [];
   const negatedFlags: Record<string, boolean> = {};
@@ -122,6 +143,23 @@ export function parseRawArgs<T = Record<string, any>>(
       const flagName = arg.slice(5);
       negatedFlags[flagName] = true;
       continue;
+    }
+
+    // A bare string option followed by another known flag should not consume
+    // that flag as its value; give it an explicit empty value instead.
+    if (arg.startsWith("-") && arg !== "-" && !arg.includes("=")) {
+      const name = knownOptionName(arg);
+      const next = args[i + 1];
+      if (
+        name !== undefined &&
+        isStringType(name) &&
+        next !== undefined &&
+        next !== "--" &&
+        knownOptionName(next) !== undefined
+      ) {
+        processedArgs.push(arg.startsWith("--") ? `${arg}=` : `--${name}=`);
+        continue;
+      }
     }
 
     processedArgs.push(arg);

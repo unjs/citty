@@ -113,6 +113,54 @@ describe("parseRawArgs", () => {
     });
   });
 
+  it("does not consume a following flag as the value of a bare string option", () => {
+    const result = parseRawArgs(["--host", "--cwd=playground"], {
+      string: ["host", "cwd"],
+    });
+
+    expect(result).toEqual({
+      _: [],
+      host: "",
+      cwd: "playground",
+    });
+  });
+
+  it("does not consume a following boolean flag as the value of a bare string option", () => {
+    const result = parseRawArgs(["--host", "--verbose"], {
+      string: ["host"],
+      boolean: ["verbose"],
+    });
+
+    expect(result).toEqual({
+      _: [],
+      host: "",
+      verbose: true,
+    });
+  });
+
+  it("does not consume a following short flag as the value of a bare string option", () => {
+    const result = parseRawArgs(["--host", "-v"], {
+      string: ["host"],
+      boolean: ["verbose"],
+      alias: { v: ["verbose"] },
+    });
+
+    expect(result._).toEqual([]);
+    expect(result.host).toBe("");
+    expect(result.verbose).toBe(true);
+  });
+
+  it("still consumes a hyphen-prefixed value that is not a known flag", () => {
+    const result = parseRawArgs(["--offset", "-1"], {
+      string: ["offset"],
+    });
+
+    expect(result).toEqual({
+      _: [],
+      offset: "-1",
+    });
+  });
+
   it("handles empty arguments", () => {
     const result = parseRawArgs([], {});
 
