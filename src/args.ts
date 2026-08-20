@@ -18,7 +18,7 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
   const args = resolveArgs(argsDef);
 
   for (const arg of args) {
-    if (arg.type === "positional") {
+    if (arg.type === "positional" || arg.positional) {
       continue;
     }
     if (arg.type === "string" || arg.type === "enum") {
@@ -60,7 +60,7 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
   });
 
   for (const [, arg] of args.entries()) {
-    if (arg.type === "positional") {
+    if (arg.type === "positional" || arg.positional) {
       const nextPositionalArgument = positionalArguments.shift();
       if (nextPositionalArgument !== undefined) {
         parsedArgsProxy[arg.name] = nextPositionalArgument;
@@ -72,16 +72,18 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
       } else {
         parsedArgsProxy[arg.name] = arg.default;
       }
-    } else if (arg.type === "enum") {
+    }
+
+    if (arg.type === "enum") {
       const argument = parsedArgsProxy[arg.name];
       const options = arg.options || [];
       if (argument !== undefined && options.length > 0 && !options.includes(argument)) {
         throw new CLIError(
-          `Invalid value for argument: ${cyan(`--${arg.name}`)} (${cyan(argument)}). Expected one of: ${options.map((o) => cyan(o)).join(", ")}.`,
+          `Invalid value for argument: ${arg.positional ? cyan(arg.name.toUpperCase()) : cyan(`--${arg.name}`)} (${cyan(argument)}). Expected one of: ${options.map((o) => cyan(o)).join(", ")}.`,
           "EARG",
         );
       }
-    } else if (arg.required && parsedArgsProxy[arg.name] === undefined) {
+    } else if (!(arg.type === "positional" || arg.positional) && arg.required && parsedArgsProxy[arg.name] === undefined) {
       throw new CLIError(`Missing required argument: --${arg.name}`, "EARG");
     }
   }

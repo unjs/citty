@@ -50,6 +50,19 @@ describe("args", () => {
       { fooBar: { type: "enum", options: ["one", "two"], default: "two" } },
       { fooBar: "one", "foo-bar": "one", _: [] },
     ],
+    /**
+     * Positional String / Enum
+     */
+    [
+      ["my-string"],
+      { myArg: { type: "string", positional: true } },
+      { myArg: "my-string", _: ["my-string"] },
+    ],
+    [
+      ["one"],
+      { value: { type: "enum", positional: true, options: ["one", "two"] } },
+      { value: "one", _: ["one"] },
+    ],
   ] as [string[], ArgsDef, any][])(
     "should parsed correctly %o (%o)",
     (rawArgs, definition, result) => {
@@ -72,6 +85,11 @@ describe("args", () => {
       ["--value", "three"],
       { value: { type: "enum", options: ["one", "two"] } },
       "Invalid value for argument: --value (three). Expected one of: one, two.",
+    ],
+    [
+      ["three"],
+      { value: { type: "enum", positional: true, options: ["one", "two"] } },
+      "Invalid value for argument: VALUE (three). Expected one of: one, two.",
     ],
   ])("should throw error with %o (%o)", (rawArgs, definition, result) => {
     // TODO: should check for exact match
