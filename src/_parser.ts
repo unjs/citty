@@ -147,7 +147,12 @@ export function parseRawArgs<T = Record<string, any>>(
 
     // A bare string option followed by another known flag should not consume
     // that flag as its value; give it an explicit empty value instead.
-    if (arg.startsWith("-") && arg !== "-" && !arg.includes("=")) {
+    if (
+      arg.startsWith("-") &&
+      arg !== "-" &&
+      !arg.includes("=") &&
+      (arg.startsWith("--") || arg.length === 2)
+    ) {
       const name = knownOptionName(arg);
       const next = args[i + 1];
       if (

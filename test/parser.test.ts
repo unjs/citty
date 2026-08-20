@@ -150,6 +150,19 @@ describe("parseRawArgs", () => {
     expect(result.verbose).toBe(true);
   });
 
+  it("keeps the inline value of a short string option followed by a known flag", () => {
+    const result = parseRawArgs(["-xfoo", "--verbose"], {
+      string: ["x"],
+      boolean: ["verbose"],
+    });
+
+    expect(result).toEqual({
+      _: [],
+      x: "foo",
+      verbose: true,
+    });
+  });
+
   it("still consumes a hyphen-prefixed value that is not a known flag", () => {
     const result = parseRawArgs(["--offset", "-1"], {
       string: ["offset"],
