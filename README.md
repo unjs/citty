@@ -171,6 +171,18 @@ Plugin `setup` hooks run before the command's `setup` (in order), `cleanup` hook
 | `default`     | Default value when not provided                               |
 | `alias`       | Short aliases (e.g., `["f"]`). Not for `positional`           |
 | `valueHint`   | Display hint in help (e.g., `"host"` renders `--name=<host>`) |
+| `inherit`     | Also parse the arg in sub commands. Not for `positional`      |
+
+### Inherited Arguments
+
+Args passed before a sub command name are consumed by the parent only, unless marked `inherit: true`, which also makes them available to sub commands:
+
+```js
+const main = defineCommand({
+  args: { cwd: { type: "string", default: ".", inherit: true } },
+  subCommands: { dev },
+});
+```
 
 ### Example
 

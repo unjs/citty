@@ -12,6 +12,7 @@ export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
   default?: VT;
   required?: boolean;
   options?: string[];
+  inherit?: boolean;
 };
 
 export type BooleanArgDef = Omit<_ArgDef<"boolean", boolean>, "options"> & {
@@ -19,7 +20,7 @@ export type BooleanArgDef = Omit<_ArgDef<"boolean", boolean>, "options"> & {
 };
 export type StringArgDef = Omit<_ArgDef<"string", string>, "options">;
 export type EnumArgDef = _ArgDef<"enum", string>;
-export type PositionalArgDef = Omit<_ArgDef<"positional", string>, "alias" | "options">;
+export type PositionalArgDef = Omit<_ArgDef<"positional", string>, "alias" | "options" | "inherit">;
 
 export type ArgDef = BooleanArgDef | StringArgDef | PositionalArgDef | EnumArgDef;
 
