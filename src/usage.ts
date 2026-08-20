@@ -41,6 +41,9 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
       posLines.push([colors.cyan(name + renderValueHint(arg)), renderDescription(arg, isRequired)]);
       usageLine.push(isRequired ? `<${name}>` : `[${name}]`);
     } else {
+      if (arg.hidden) {
+        continue;
+      }
       const isRequired = arg.required === true && arg.default === undefined;
       const argStr =
         [...(arg.alias || []).map((a) => `-${a}`), `--${arg.name}`].join(", ") +

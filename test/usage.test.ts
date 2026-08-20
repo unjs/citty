@@ -1,6 +1,6 @@
 import { expect, it, describe } from "vitest";
 import { renderUsage } from "../src/usage.ts";
-import { defineCommand } from "../src/index.ts";
+import { defineCommand, parseArgs } from "../src/index.ts";
 
 describe("usage", () => {
   it("renders arguments", async () => {
@@ -258,6 +258,63 @@ describe("usage", () => {
 
       Use Commander <command> --help for more information about a command."
     `);
+  });
+
+  it("does not render hidden args", async () => {
+    const command = defineCommand({
+      meta: {
+        name: "Commander",
+        description: "A command",
+      },
+      args: {
+        cwd: {
+          type: "string",
+          description: "A cwd",
+          hidden: true,
+        },
+        legacy: {
+          type: "boolean",
+          default: true,
+          negativeDescription: "Disable legacy",
+          hidden: true,
+        },
+        rootDir: {
+          type: "positional",
+          description: "A root dir",
+        },
+        verbose: {
+          type: "boolean",
+          description: "Be verbose",
+        },
+      },
+    });
+
+    const usage = await renderUsage(command);
+
+    expect(usage).toMatchInlineSnapshot(`
+      "A command (Commander)
+
+      USAGE Commander [OPTIONS] <ROOTDIR>
+
+      ARGUMENTS
+
+        ROOTDIR    A root dir (Required)
+
+      OPTIONS
+
+        --verbose    Be verbose
+      "
+    `);
+  });
+
+  it("still parses hidden args", async () => {
+    const args = parseArgs(["--cwd", "/tmp", "--no-legacy"], {
+      cwd: { type: "string", hidden: true },
+      legacy: { type: "boolean", default: true, hidden: true },
+    });
+
+    expect(args.cwd).toBe("/tmp");
+    expect(args.legacy).toBe(false);
   });
 
   it("uses parents meta to explain how to run sub commands", async () => {
