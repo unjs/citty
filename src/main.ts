@@ -26,7 +26,16 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
       }
       console.log(meta.version);
     } else {
-      await runCommand(cmd, { rawArgs });
+      const { hasDuration, rawArgs: cleanedArgs } = _extractDurationFlag(rawArgs);
+      const start = hasDuration ? performance.now() : 0;
+      try {
+        await runCommand(cmd, { rawArgs: cleanedArgs });
+      } finally {
+        if (hasDuration) {
+          const elapsed = ((performance.now() - start) / 1000).toFixed(2);
+          console.log(`duration: ${elapsed}s`);
+        }
+      }
     }
   } catch (error: any) {
     const isCLIError = error instanceof CLIError;
@@ -81,4 +90,12 @@ function _getBuiltinFlags(
     return [`--${long}`];
   }
   return [`--${long}`, `-${short}`];
+}
+
+function _extractDurationFlag(rawArgs: string[]): { hasDuration: boolean; rawArgs: string[] } {
+  const hasDuration = rawArgs.includes("--duration");
+  if (!hasDuration) {
+    return { hasDuration: false, rawArgs };
+  }
+  return { hasDuration: true, rawArgs: rawArgs.filter((arg) => arg !== "--duration") };
 }
