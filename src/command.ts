@@ -35,6 +35,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
   const plugins = await resolvePlugins(cmd.plugins ?? []);
 
   let result: unknown;
+  let subCommandRan = false;
   let runError: unknown;
   try {
     // Plugin setup hooks
@@ -58,9 +59,10 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
         if (!subCommand) {
           throw new CLIError(`Unknown command ${cyan(explicitName)}`, "E_UNKNOWN_COMMAND");
         }
-        await runCommand(subCommand, {
+        ({ result } = await runCommand(subCommand, {
           rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
-        });
+        }));
+        subCommandRan = true;
       } else {
         // No explicit sub command — check for default
         const defaultSubCommand = await resolveValue(cmd.default);
@@ -78,17 +80,18 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
               "E_UNKNOWN_COMMAND",
             );
           }
-          await runCommand(subCommand, {
+          ({ result } = await runCommand(subCommand, {
             rawArgs: opts.rawArgs,
-          });
+          }));
+          subCommandRan = true;
         } else if (!cmd.run) {
           throw new CLIError(`No command specified.`, "E_NO_COMMAND");
         }
       }
     }
 
-    // Handle main command
-    if (typeof cmd.run === "function") {
+    // Handle main command — skipped when a sub command handled the invocation
+    if (!subCommandRan && typeof cmd.run === "function") {
       result = await cmd.run(context);
     }
   } catch (error) {

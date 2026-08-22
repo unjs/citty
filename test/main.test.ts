@@ -141,6 +141,87 @@ describe("sub command", () => {
     expect(cleanupMock).toHaveBeenCalledOnce();
     expect(cleanupMock).toHaveBeenCalledWith("bar");
   });
+
+  it("does not run the parent when a sub command handles the invocation", async () => {
+    const parentRun = vi.fn();
+    const subRun = vi.fn();
+
+    const command = defineCommand({
+      run: parentRun,
+      subCommands: {
+        test: {
+          run: subRun,
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["test"] });
+
+    expect(subRun).toHaveBeenCalledOnce();
+    expect(parentRun).not.toHaveBeenCalled();
+  });
+
+  it("runs the parent when it has sub commands but none was named", async () => {
+    const parentRun = vi.fn();
+    const subRun = vi.fn();
+
+    const command = defineCommand({
+      run: parentRun,
+      subCommands: {
+        test: {
+          run: subRun,
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: [] });
+
+    expect(parentRun).toHaveBeenCalledOnce();
+    expect(subRun).not.toHaveBeenCalled();
+  });
+
+  it("returns the result of the sub command that ran", async () => {
+    const command = defineCommand({
+      run: () => "parent",
+      subCommands: {
+        test: {
+          run: () => "sub",
+        },
+      },
+    });
+
+    await expect(commandModule.runCommand(command, { rawArgs: ["test"] })).resolves.toEqual({
+      result: "sub",
+    });
+  });
+
+  it("does not run an intermediate parent of a nested sub command", async () => {
+    const order: string[] = [];
+
+    const command = defineCommand({
+      run: () => {
+        order.push("root");
+      },
+      subCommands: {
+        workspace: {
+          run: () => {
+            order.push("workspace");
+          },
+          subCommands: {
+            list: {
+              run: () => {
+                order.push("list");
+              },
+            },
+          },
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["workspace", "list"] });
+
+    expect(order).toEqual(["list"]);
+  });
 });
 
 describe("sub command aliases", () => {
