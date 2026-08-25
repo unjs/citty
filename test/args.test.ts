@@ -50,6 +50,59 @@ describe("args", () => {
       { fooBar: { type: "enum", options: ["one", "two"], default: "two" } },
       { fooBar: "one", "foo-bar": "one", _: [] },
     ],
+    /**
+     * Multiple (flags)
+     */
+    // zero or more: repeated values collect into an array
+    [
+      ["--env", "A=1", "--env", "B=2"],
+      { env: { type: "string", multiple: true } },
+      { env: ["A=1", "B=2"], _: [] },
+    ],
+    // zero or more: no values parses to an empty array (not undefined)
+    [[], { env: { type: "string", multiple: true } }, { env: [], _: [] }],
+    // one or more: a single value still collects into an array
+    [
+      ["--env", "A=1"],
+      { env: { type: "string", required: true, multiple: true } },
+      { env: ["A=1"], _: [] },
+    ],
+    // multiple enum: each value collected and validated
+    [
+      ["--level", "info", "--level", "warn"],
+      {
+        level: {
+          type: "enum",
+          options: ["info", "warn", "error"],
+          multiple: true,
+        },
+      },
+      { level: ["info", "warn"], _: [] },
+    ],
+    /**
+     * Multiple (positionals)
+     */
+    // one or more: a variadic positional greedily consumes remaining tokens
+    [
+      ["a.ts", "b.ts"],
+      { files: { type: "positional", multiple: true } },
+      { files: ["a.ts", "b.ts"], _: ["a.ts", "b.ts"] },
+    ],
+    // zero or more: no values parses to an empty array
+    [[], { files: { type: "positional", required: false, multiple: true } }, { files: [], _: [] }],
+    // a leading positional is filled before the trailing variadic one
+    [
+      ["build", "a.ts", "b.ts"],
+      {
+        command: { type: "positional" },
+        files: { type: "positional", multiple: true },
+      },
+      {
+        command: "build",
+        files: ["a.ts", "b.ts"],
+        _: ["build", "a.ts", "b.ts"],
+      },
+    ],
   ] as [string[], ArgsDef, any][])(
     "should parsed correctly %o (%o)",
     (rawArgs, definition, result) => {
@@ -73,12 +126,41 @@ describe("args", () => {
       { value: { type: "enum", options: ["one", "two"] } },
       "Invalid value for argument: --value (three). Expected one of: one, two.",
     ],
+    // one or more: zero values fails like a missing required argument
+    [
+      [],
+      { env: { type: "string", required: true, multiple: true } },
+      "Missing required argument: --env",
+    ],
+    // multiple enum: an invalid value is rejected
+    [
+      ["--level", "trace"],
+      { level: { type: "enum", options: ["info", "warn"], multiple: true } },
+      "Invalid value for argument: --level (trace). Expected one of: info, warn.",
+    ],
+    // one or more positional: zero values fails like a missing required argument
+    [
+      [],
+      { files: { type: "positional", multiple: true } },
+      "Missing required positional argument: FILES",
+    ],
   ])("should throw error with %o (%o)", (rawArgs, definition, result) => {
     // TODO: should check for exact match
     // https://github.com/vitest-dev/vitest/discussions/6048
     expect(() => {
       parseArgs(rawArgs, definition);
     }).toThrowError(result);
+  });
+
+  it("should throw when a multiple positional is not the last positional", () => {
+    expect(() => {
+      parseArgs(["a", "b"], {
+        files: { type: "positional", multiple: true },
+        output: { type: "positional" },
+      });
+    }).toThrowError(
+      'A "multiple" positional argument must be the last positional argument, but "files" is not.',
+    );
   });
 
   it("should resolve camelCase argument", () => {

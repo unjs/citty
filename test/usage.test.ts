@@ -150,6 +150,44 @@ describe("usage", () => {
     `);
   });
 
+  it("marks multiple flags as repeatable and multiple positionals as variadic", async () => {
+    const command = defineCommand({
+      meta: {
+        name: "lint",
+        description: "Lint files",
+      },
+      args: {
+        env: {
+          type: "string",
+          multiple: true,
+          description: "Env vars",
+        },
+        files: {
+          type: "positional",
+          multiple: true,
+          description: "Files",
+        },
+      },
+    });
+
+    const usage = await renderUsage(command);
+
+    expect(usage).toMatchInlineSnapshot(`
+      "Lint files (lint)
+
+      USAGE lint [OPTIONS] <FILES...>
+
+      ARGUMENTS
+
+        FILES...    Files (Required)
+
+      OPTIONS
+
+        --env=<env>...    Env vars
+      "
+    `);
+  });
+
   it("renders subcommands", async () => {
     const command = defineCommand({
       meta: {

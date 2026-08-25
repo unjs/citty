@@ -178,4 +178,42 @@ describe("parseRawArgs", () => {
     expect(result.nightly).toBe("");
     expect(typeof result.nightly).toBe("string");
   });
+
+  it("collects repeated flags into an array when multiple is set", () => {
+    const result = parseRawArgs(["--env", "A=1", "--env", "B=2"], {
+      string: ["env"],
+      multiple: ["env"],
+    });
+
+    expect(result).toEqual({
+      _: [],
+      env: ["A=1", "B=2"],
+    });
+  });
+
+  it("collects a single occurrence into an array when multiple is set", () => {
+    const result = parseRawArgs(["--env", "A=1"], {
+      string: ["env"],
+      multiple: ["env"],
+    });
+
+    expect(result).toEqual({
+      _: [],
+      env: ["A=1"],
+    });
+  });
+
+  it("collects across an alias and its primary name when multiple is set", () => {
+    const result = parseRawArgs(["-e", "A=1", "--environment", "B=2"], {
+      string: ["environment"],
+      multiple: ["environment"],
+      alias: { environment: ["e"] },
+    });
+
+    expect(result).toEqual({
+      _: [],
+      environment: ["A=1", "B=2"],
+      e: ["A=1", "B=2"],
+    });
+  });
 });

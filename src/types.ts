@@ -11,10 +11,11 @@ export type _ArgDef<T extends ArgType, VT extends boolean | number | string> = {
   alias?: string | string[];
   default?: VT;
   required?: boolean;
+  multiple?: boolean;
   options?: string[];
 };
 
-export type BooleanArgDef = Omit<_ArgDef<"boolean", boolean>, "options"> & {
+export type BooleanArgDef = Omit<_ArgDef<"boolean", boolean>, "options" | "multiple"> & {
   negativeDescription?: string;
 };
 export type StringArgDef = Omit<_ArgDef<"string", string>, "options">;
@@ -25,11 +26,15 @@ export type ArgDef = BooleanArgDef | StringArgDef | PositionalArgDef | EnumArgDe
 
 export type ArgsDef = Record<string, ArgDef>;
 
-export type Arg = ArgDef & { name: string; alias: string[] };
+export type Arg = ArgDef & {
+  name: string;
+  alias: string[];
+  multiple?: boolean;
+};
 
 // Args: Parsed
 
-type ResolveParsedArgType<T extends ArgDef, VT> = T extends {
+type ResolveScalarArgType<T extends ArgDef, VT> = T extends {
   default?: any;
   required?: boolean;
 }
@@ -39,6 +44,10 @@ type ResolveParsedArgType<T extends ArgDef, VT> = T extends {
       ? VT
       : VT | undefined
   : VT | undefined;
+
+type ResolveParsedArgType<T extends ArgDef, VT> = T extends { multiple: true }
+  ? VT[]
+  : ResolveScalarArgType<T, VT>;
 
 type ParsedPositionalArg<T extends ArgDef> = T extends { type: "positional" }
   ? ResolveParsedArgType<T, string>

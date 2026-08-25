@@ -3,6 +3,7 @@ import { parseArgs } from "node:util";
 export interface ParseOptions {
   boolean?: string[];
   string?: string[];
+  multiple?: string[];
   alias?: Record<string, string[]>;
   default?: Record<string, any>;
 }
@@ -17,6 +18,7 @@ export function parseRawArgs<T = Record<string, any>>(
 ): Argv<T> {
   const booleans = new Set(opts.boolean || []);
   const strings = new Set(opts.string || []);
+  const multiples = new Set(opts.multiple || []);
   const aliasMap = opts.alias || {};
   const defaults = opts.default || {};
 
@@ -56,25 +58,29 @@ export function parseRawArgs<T = Record<string, any>>(
     }
   > = {};
 
-  // Helper to get option type
-  function getType(name: string): "boolean" | "string" {
-    if (booleans.has(name)) return "boolean";
-    // Check aliases
+  // Check if a name, or any of its aliases, belongs to the given option set
+  function isInSet(name: string, set: Set<string>): boolean {
+    if (set.has(name)) return true;
     const aliases = mainToAliases.get(name) || [];
     for (const alias of aliases) {
-      if (booleans.has(alias)) return "boolean";
+      if (set.has(alias)) return true;
     }
-    return "string";
+    return false;
+  }
+
+  // Helper to get option type
+  function getType(name: string): "boolean" | "string" {
+    return isInSet(name, booleans) ? "boolean" : "string";
   }
 
   // Check if a name is a known string option (directly or via alias)
   function isStringType(name: string): boolean {
-    if (strings.has(name)) return true;
-    const aliases = mainToAliases.get(name) || [];
-    for (const alias of aliases) {
-      if (strings.has(alias)) return true;
-    }
-    return false;
+    return isInSet(name, strings);
+  }
+
+  // Check if a name should collect repeated values (directly or via alias)
+  function isMultiple(name: string): boolean {
+    return isInSet(name, multiples);
   }
 
   // Collect all option names
@@ -93,6 +99,7 @@ export function parseRawArgs<T = Record<string, any>>(
       options[name] = {
         type,
         default: defaults[name],
+        multiple: isMultiple(name),
       };
     }
   }
@@ -147,16 +154,25 @@ export function parseRawArgs<T = Record<string, any>>(
   // Add positionals
   out._ = parsed.positionals;
 
-  // Add parsed values
-  for (const [key, value] of Object.entries(parsed.values)) {
-    let coerced = value;
+  // Coerce a single raw value to its declared type
+  function coerceValue(key: string, value: any): any {
+    // A `multiple` option arrives as an array; coerce each item individually
+    if (Array.isArray(value)) {
+      return value.map((item) => coerceValue(key, item));
+    }
     const type = getType(key);
     if (type === "boolean" && typeof value === "string") {
-      coerced = value !== "false";
-    } else if (isStringType(key) && typeof value === "boolean") {
-      coerced = "";
+      return value !== "false";
     }
-    (out as any)[key] = coerced;
+    if (isStringType(key) && typeof value === "boolean") {
+      return "";
+    }
+    return value;
+  }
+
+  // Add parsed values
+  for (const [key, value] of Object.entries(parsed.values)) {
+    (out as any)[key] = coerceValue(key, value);
   }
 
   // Apply negated flags (with alias resolution)
