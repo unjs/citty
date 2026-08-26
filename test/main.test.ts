@@ -141,6 +141,45 @@ describe("sub command", () => {
     expect(cleanupMock).toHaveBeenCalledOnce();
     expect(cleanupMock).toHaveBeenCalledWith("bar");
   });
+
+  // https://github.com/unjs/citty/issues/253
+  it("does not run the parent's run() after a sub command runs", async () => {
+    const mainRunMock = vi.fn();
+    const subRunMock = vi.fn();
+
+    const command = defineCommand({
+      run: mainRunMock,
+      subCommands: {
+        test: {
+          run: subRunMock,
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["test"] });
+
+    expect(subRunMock).toHaveBeenCalledOnce();
+    expect(mainRunMock).not.toHaveBeenCalled();
+  });
+
+  it("runs the parent's run() when no sub command is given", async () => {
+    const mainRunMock = vi.fn();
+    const subRunMock = vi.fn();
+
+    const command = defineCommand({
+      run: mainRunMock,
+      subCommands: {
+        test: {
+          run: subRunMock,
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: [] });
+
+    expect(mainRunMock).toHaveBeenCalledOnce();
+    expect(subRunMock).not.toHaveBeenCalled();
+  });
 });
 
 describe("sub command aliases", () => {
