@@ -124,6 +124,13 @@ export function parseRawArgs<T = Record<string, any>>(
       continue;
     }
 
+    // Handle -x=value (single-dash alias with = separator)
+    if (arg.startsWith("-") && !arg.startsWith("--") && arg.includes("=")) {
+      const eqIndex = arg.indexOf("=");
+      processedArgs.push(arg.slice(0, eqIndex), arg.slice(eqIndex + 1));
+      continue;
+    }
+
     processedArgs.push(arg);
   }
 

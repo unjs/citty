@@ -36,6 +36,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
 
   let result: unknown;
   let runError: unknown;
+  let subCommandExecuted = false;
   try {
     // Plugin setup hooks
     for (const plugin of plugins) {
@@ -58,6 +59,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
         if (!subCommand) {
           throw new CLIError(`Unknown command ${cyan(explicitName)}`, "E_UNKNOWN_COMMAND");
         }
+        subCommandExecuted = true;
         await runCommand(subCommand, {
           rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
         });
@@ -78,6 +80,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
               "E_UNKNOWN_COMMAND",
             );
           }
+          subCommandExecuted = true;
           await runCommand(subCommand, {
             rawArgs: opts.rawArgs,
           });
@@ -87,8 +90,8 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
       }
     }
 
-    // Handle main command
-    if (typeof cmd.run === "function") {
+    // Handle main command (skip if a subcommand was executed)
+    if (!subCommandExecuted && typeof cmd.run === "function") {
       result = await cmd.run(context);
     }
   } catch (error) {
