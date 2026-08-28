@@ -161,6 +161,15 @@ describe("parseRawArgs", () => {
     });
   });
 
+  it("respects token order for --no- negation (a later positive wins)", () => {
+    const result = parseRawArgs(["--no-verbose", "--verbose"], {
+      boolean: ["verbose"],
+      default: { verbose: true },
+    });
+    // Value flags already honor last-wins; boolean negation must too.
+    expect(result.verbose).toBe(true);
+  });
+
   it("coerces --flag=true to boolean true for boolean args", () => {
     const result = parseRawArgs(["--flag=true"], { boolean: ["flag"] });
     expect(result.flag).toBe(true);
