@@ -25,6 +25,11 @@ describe("usage", () => {
           name: "pos",
           description: "A pos",
         },
+        multiPositional: {
+          type: "multiPositional",
+          name: "pos",
+          description: "Multi positional",
+        },
         enum: {
           type: "enum",
           name: "enum",
@@ -44,11 +49,12 @@ describe("usage", () => {
     expect(usage).toMatchInlineSnapshot(`
       "A command (Commander)
 
-      USAGE Commander [OPTIONS] --foo=<foo> <POS>
+      USAGE Commander [OPTIONS] --foo=<foo> <POS> <...MULTIPOSITIONAL>
 
       ARGUMENTS
 
-        POS    A pos (Required)
+                    POS    A pos (Required)
+        MULTIPOSITIONAL    Multi positional    
 
       OPTIONS
 
