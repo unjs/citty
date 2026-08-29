@@ -73,6 +73,11 @@ describe("args", () => {
       { value: { type: "enum", options: ["one", "two"] } },
       "Invalid value for argument: --value (three). Expected one of: one, two.",
     ],
+    [
+      [],
+      { value: { type: "enum", options: ["one", "two"], required: true } },
+      "Missing required argument: --value",
+    ],
   ])("should throw error with %o (%o)", (rawArgs, definition, result) => {
     // TODO: should check for exact match
     // https://github.com/vitest-dev/vitest/discussions/6048
