@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { defineCommand } from "../src/index.ts";
+import { defineCommand, runCommand } from "../src/index.ts";
 
 describe("ParsedArgs case aliases", () => {
-  it("preserves the argument type when accessed through camelCase", () => {
+  it("preserves the argument type when accessed through camelCase", async () => {
     const command = defineCommand({
       args: {
         "output-dir": { type: "string" },
@@ -11,10 +11,10 @@ describe("ParsedArgs case aliases", () => {
         const outputDir: string | undefined = args.outputDir;
         const kebabOutputDir: string | undefined = args["output-dir"];
 
-        expect([outputDir, kebabOutputDir]).toEqual([undefined, undefined]);
+        expect([outputDir, kebabOutputDir]).toEqual(["dist", "dist"]);
       },
     });
 
-    expect(command).toBeDefined();
+    await runCommand(command, { rawArgs: ["--output-dir", "dist"] });
   });
 });
