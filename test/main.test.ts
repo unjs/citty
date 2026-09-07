@@ -1,5 +1,12 @@
 import { describe, it, expect, vi, afterAll } from "vitest";
-import { createMain, defineCommand, renderUsage, runMain, showUsage } from "../src/index.ts";
+import {
+  createMain,
+  defineCommand,
+  renderUsage,
+  runCommand,
+  runMain,
+  showUsage,
+} from "../src/index.ts";
 import * as commandModule from "../src/command.ts";
 
 describe("runMain", () => {
@@ -661,5 +668,38 @@ describe("createMain", () => {
     const main = createMain(defineCommand({}));
 
     expect(main).toBeInstanceOf(Function);
+  });
+});
+
+describe("runCommand result forwarding", () => {
+  it("forwards explicit subcommand result (#273)", async () => {
+    const main = defineCommand({
+      subCommands: {
+        child: defineCommand({
+          run() {
+            return { value: 42 };
+          },
+        }),
+      },
+    });
+
+    const { result } = await runCommand(main, { rawArgs: ["child"] });
+    expect(result).toEqual({ value: 42 });
+  });
+
+  it("forwards default subcommand result (#273)", async () => {
+    const main = defineCommand({
+      default: "child",
+      subCommands: {
+        child: defineCommand({
+          run() {
+            return "from-default";
+          },
+        }),
+      },
+    });
+
+    const { result } = await runCommand(main, { rawArgs: [] });
+    expect(result).toBe("from-default");
   });
 });

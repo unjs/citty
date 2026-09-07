@@ -58,9 +58,11 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
         if (!subCommand) {
           throw new CLIError(`Unknown command ${cyan(explicitName)}`, "E_UNKNOWN_COMMAND");
         }
-        await runCommand(subCommand, {
+        const sub = await runCommand(subCommand, {
           rawArgs: opts.rawArgs.slice(subCommandArgIndex + 1),
+          data: opts.data,
         });
+        result = sub.result;
       } else {
         // No explicit sub command — check for default
         const defaultSubCommand = await resolveValue(cmd.default);
@@ -78,9 +80,11 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
               "E_UNKNOWN_COMMAND",
             );
           }
-          await runCommand(subCommand, {
+          const sub = await runCommand(subCommand, {
             rawArgs: opts.rawArgs,
+            data: opts.data,
           });
+          result = sub.result;
         } else if (!cmd.run) {
           throw new CLIError(`No command specified.`, "E_NO_COMMAND");
         }
