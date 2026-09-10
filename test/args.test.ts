@@ -50,6 +50,19 @@ describe("args", () => {
       { fooBar: { type: "enum", options: ["one", "two"], default: "two" } },
       { fooBar: "one", "foo-bar": "one", _: [] },
     ],
+    // A required enum is satisfied by its default
+    [
+      [],
+      {
+        value: {
+          type: "enum",
+          options: ["one", "two"],
+          default: "two",
+          required: true,
+        },
+      },
+      { value: "two", _: [] },
+    ],
   ] as [string[], ArgsDef, any][])(
     "should parsed correctly %o (%o)",
     (rawArgs, definition, result) => {
@@ -72,6 +85,11 @@ describe("args", () => {
       ["--value", "three"],
       { value: { type: "enum", options: ["one", "two"] } },
       "Invalid value for argument: --value (three). Expected one of: one, two.",
+    ],
+    [
+      [],
+      { value: { type: "enum", options: ["one", "two"], required: true } },
+      "Missing required argument: --value",
     ],
   ])("should throw error with %o (%o)", (rawArgs, definition, result) => {
     // TODO: should check for exact match
