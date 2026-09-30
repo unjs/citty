@@ -1,13 +1,15 @@
 // Colors support for terminal output
-const noColor = /* @__PURE__ */ (() => {
-  const env = globalThis.process?.env ?? {};
-  return env.NO_COLOR === "1" || env.TERM === "dumb" || env.TEST || env.CI;
-})();
+function noColor() {
+  const { env = {}, stdout } = globalThis.process ?? {};
+  return env.FORCE_COLOR
+    ? env.FORCE_COLOR === "0"
+    : !!env.NO_COLOR || env.TERM === "dumb" || !stdout?.isTTY;
+}
 
 const _c =
   (c: number, r: number = 39) =>
   (t: string) =>
-    noColor ? t : `\u001B[${c}m${t}\u001B[${r}m`;
+    noColor() ? t : `\u001B[${c}m${t}\u001B[${r}m`;
 
 type ColorType = (text: string) => string;
 
