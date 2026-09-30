@@ -89,5 +89,5 @@ Custom `CLIError` class with error codes: `EARG`, `E_UNKNOWN_COMMAND`, `E_NO_COM
 - ESM with explicit `.ts` extensions in imports
 - Internal files prefixed with `_` (not exported)
 - Tests use inline snapshots for usage output verification
-- Colors respect `NO_COLOR`, `TERM=dumb`, `TEST`, `CI` env vars
+- Colors are disabled for non-TTY stdout, `NO_COLOR`, `TERM=dumb`, `TEST` and `CI`; `FORCE_COLOR` overrides
 - `--no-flag` negation requires `default: true` or `negativeDescription` on the arg def

@@ -3,7 +3,7 @@ function noColor() {
   const { env = {}, stdout } = globalThis.process ?? {};
   return env.FORCE_COLOR
     ? env.FORCE_COLOR === "0"
-    : !!env.NO_COLOR || env.TERM === "dumb" || !stdout?.isTTY;
+    : !!env.NO_COLOR || env.TERM === "dumb" || !!env.TEST || !!env.CI || !stdout?.isTTY;
 }
 
 const _c =

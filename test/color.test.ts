@@ -10,7 +10,7 @@ describe("color", () => {
   });
 
   function setup(env: Record<string, string>, isTTY: boolean) {
-    for (const key of ["NO_COLOR", "FORCE_COLOR", "TERM"]) {
+    for (const key of ["NO_COLOR", "FORCE_COLOR", "TERM", "TEST", "CI"]) {
       vi.stubEnv(key, "");
     }
     for (const [key, value] of Object.entries(env)) {
@@ -31,6 +31,11 @@ describe("color", () => {
 
   it("respects any non-empty NO_COLOR", () => {
     setup({ NO_COLOR: "true" }, true);
+    expect(bold("x")).toBe("x");
+  });
+
+  it("does not color output in CI", () => {
+    setup({ CI: "true" }, true);
     expect(bold("x")).toBe("x");
   });
 
