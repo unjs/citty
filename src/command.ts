@@ -36,6 +36,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
 
   let result: unknown;
   let runError: unknown;
+  let runFailed = false;
   try {
     // Plugin setup hooks
     for (const plugin of plugins) {
@@ -92,6 +93,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
       result = await cmd.run(context);
     }
   } catch (error) {
+    runFailed = true;
     runError = error;
   }
 
@@ -114,7 +116,7 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
   }
 
   // Rethrow errors
-  if (runError) {
+  if (runFailed) {
     throw runError;
   }
   if (cleanupErrors.length === 1) {
