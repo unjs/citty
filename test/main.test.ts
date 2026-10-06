@@ -529,6 +529,48 @@ describe("default sub command", () => {
     expect(runMock).toHaveBeenCalledOnce();
     expect(runMock).toHaveBeenCalledWith(expect.objectContaining({ verbose: true }));
   });
+
+  it("forwards sub command result and does not invoke parent run", async () => {
+    const parentRunMock = vi.fn(() => ({ from: "parent" }));
+    const childRunMock = vi.fn(() => ({ from: "child", value: 42 }));
+
+    const command = defineCommand({
+      run: parentRunMock,
+      subCommands: {
+        child: defineCommand({
+          run: childRunMock,
+        }),
+      },
+    });
+
+    const { result } = await commandModule.runCommand(command, {
+      rawArgs: ["child"],
+    });
+
+    expect(childRunMock).toHaveBeenCalledOnce();
+    expect(parentRunMock).not.toHaveBeenCalled();
+    expect(result).toEqual({ from: "child", value: 42 });
+  });
+
+  it("forwards default sub command result", async () => {
+    const devRunMock = vi.fn(() => "dev-result");
+
+    const command = defineCommand({
+      default: "dev",
+      subCommands: {
+        dev: defineCommand({
+          run: devRunMock,
+        }),
+      },
+    });
+
+    const { result } = await commandModule.runCommand(command, {
+      rawArgs: [],
+    });
+
+    expect(devRunMock).toHaveBeenCalledOnce();
+    expect(result).toBe("dev-result");
+  });
 });
 
 describe("builtin flag conflicts", () => {
