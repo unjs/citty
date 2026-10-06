@@ -152,7 +152,7 @@ async function _findSubCommand(
   name: string,
 ): Promise<CommandDef<any> | undefined> {
   // Direct key match (fast path — no resolution needed)
-  if (name in subCommands) {
+  if (Object.hasOwn(subCommands, name)) {
     return resolveValue(subCommands[name]);
   }
   // Alias lookup (resolves subcommands to check meta.alias)
