@@ -56,6 +56,10 @@ Arguments are **case-agnostic** — `--user-name` and `--userName` resolve to th
 
 `Resolvable<T> = T | Promise<T> | (() => T) | (() => Promise<T>)` — used for `meta`, `args`, and `subCommands` to support dynamic imports.
 
+### Default Subcommands
+
+`default` resolves to a subcommand name or alias. Help marks the matching visible command with `(default)` and makes command selection optional; hidden default commands remain hidden. Registered names take priority over aliases.
+
 ### Error Handling
 
 Custom `CLIError` class with error codes: `EARG`, `E_UNKNOWN_COMMAND`, `E_NO_COMMAND`, `E_NO_VERSION`. Usage is auto-shown before error messages in `runMain`.
