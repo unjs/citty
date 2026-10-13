@@ -78,18 +78,29 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
   if (cmd.subCommands) {
     const commandNames: string[] = [];
     const subCommands = await resolveValue(cmd.subCommands);
+    const defaultName = await resolveValue(cmd.default);
+    const defaultKey =
+      defaultName && Object.hasOwn(subCommands, defaultName) ? defaultName : undefined;
+    let hasDefault = false;
     for (const [name, sub] of Object.entries(subCommands)) {
       const subCmd = await resolveValue(sub);
       const meta = await resolveValue(subCmd?.meta);
+      const aliases = toArray(meta?.alias);
+      const isDefault: boolean =
+        !!defaultName &&
+        (defaultKey === name || (!defaultKey && !hasDefault && aliases.includes(defaultName)));
+      hasDefault ||= isDefault;
       if (meta?.hidden) {
         continue;
       }
-      const aliases = toArray(meta?.alias);
-      const label = [name, ...aliases].join(", ");
+      const label = [name, ...aliases].join(", ") + (isDefault ? " (default)" : "");
       commandsLines.push([colors.cyan(label), meta?.description || ""]);
       commandNames.push(name, ...aliases);
     }
-    usageLine.push(commandNames.join("|"));
+    const commands = commandNames.join("|");
+    if (commands) {
+      usageLine.push(hasDefault ? `[${commands}]` : commands);
+    }
   }
 
   const usageLines: (string | undefined)[] = [];

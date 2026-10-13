@@ -181,6 +181,93 @@ describe("usage", () => {
     `);
   });
 
+  it("annotates a default subcommand and makes command selection optional", async () => {
+    const command = defineCommand({
+      meta: { name: "my-cli", description: "My CLI" },
+      default: "dev",
+      subCommands: {
+        dev: { meta: { description: "Start development server" } },
+        build: { meta: { description: "Build for production" } },
+      },
+    });
+
+    const usage = await renderUsage(command);
+    expect(usage).toContain("USAGE my-cli [dev|build]");
+    expect(usage).toContain("dev (default)");
+    expect(usage.replaceAll(/ +$/gm, "")).toMatchInlineSnapshot(`
+      "My CLI (my-cli)
+
+      USAGE my-cli [dev|build]
+
+      COMMANDS
+
+        dev (default)    Start development server
+                build    Build for production
+
+      Use my-cli <command> --help for more information about a command."
+    `);
+  });
+
+  it("resolves a lazy default through the first matching subcommand alias", async () => {
+    const command = defineCommand({
+      meta: { name: "my-cli" },
+      default: async () => "serve",
+      subCommands: async () => ({
+        dev: async () => ({ meta: async () => ({ alias: ["serve", "s"] }) }),
+        build: { meta: { alias: "serve" } },
+      }),
+    });
+
+    const usage = await renderUsage(command);
+    expect(usage).toContain("USAGE my-cli [dev|serve|s|build|serve]");
+    expect(usage).toContain("dev, serve, s (default)");
+    expect(usage).not.toContain("build, serve (default)");
+  });
+
+  it("prefers a registered default name over an earlier matching alias", async () => {
+    const command = defineCommand({
+      meta: { name: "my-cli" },
+      default: Promise.resolve("build"),
+      subCommands: {
+        dev: { meta: { alias: "build" } },
+        build: {},
+      },
+    });
+
+    const usage = await renderUsage(command);
+    expect(usage).toContain("build (default)");
+    expect(usage).not.toContain("dev, build (default)");
+  });
+
+  it("keeps a hidden default hidden while allowing optional selection", async () => {
+    const command = defineCommand({
+      meta: { name: "my-cli" },
+      default: "serve",
+      subCommands: {
+        dev: { meta: { alias: "serve", hidden: true } },
+        build: {},
+      },
+    });
+
+    const usage = await renderUsage(command);
+    expect(usage).toContain("USAGE my-cli [build]");
+    expect(usage).not.toContain("dev");
+    expect(usage).not.toContain("serve");
+    expect(usage).not.toContain("(default)");
+  });
+
+  it.each(["missing", ""])("does not advertise an invalid default %j", async (defaultName) => {
+    const command = defineCommand({
+      meta: { name: "my-cli" },
+      default: defaultName,
+      subCommands: { dev: {} },
+    });
+
+    const usage = await renderUsage(command);
+    expect(usage).toContain("USAGE my-cli dev");
+    expect(usage).not.toContain("(default)");
+  });
+
   it("renders both arguments and subcommands", async () => {
     const command = defineCommand({
       meta: {

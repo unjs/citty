@@ -87,6 +87,11 @@ runMain(main);
 
 Subcommands support `meta.alias` (e.g., `["i", "add"]`) and `meta.hidden: true` to hide from help output.
 
+Set `default: "sub"` on the parent command to run that subcommand when no command
+is provided. Help marks the default with `(default)` and shows the command choice
+as optional. `default` also accepts a subcommand alias, a promise, or a function.
+Hidden default subcommands remain hidden in help output.
+
 ### Lazy Commands
 
 For large CLIs, lazy load sub commands so only the executed command is imported:
