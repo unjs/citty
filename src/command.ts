@@ -63,7 +63,9 @@ export async function runCommand<T extends ArgsDef = ArgsDef>(
         });
       } else {
         // No explicit sub command — check for default
-        const defaultSubCommand = await resolveValue(cmd.default);
+        const defaultSubCommand = await resolveValue(
+          cmd.default ?? cmd.defaultCommand,
+        );
         if (defaultSubCommand) {
           if (cmd.run) {
             throw new CLIError(

@@ -304,4 +304,78 @@ describe("usage", () => {
       Use parent-command child-command <command> --help for more information about a command."
     `);
   });
+
+  it("renders default subcommand in usage and commands table", async () => {
+    const command = defineCommand({
+      meta: {
+        name: "my-cli",
+        description: "My CLI",
+      },
+      default: "dev",
+      subCommands: {
+        dev: defineCommand({
+          meta: {
+            description: "Start dev server",
+          },
+        }),
+        build: defineCommand({
+          meta: {
+            description: "Build for production",
+          },
+        }),
+      },
+    });
+
+    const usage = await renderUsage(command);
+
+    expect(usage).toMatchInlineSnapshot(`
+      "My CLI (my-cli)
+
+      USAGE my-cli [dev|build]
+
+      COMMANDS
+
+          dev    Start dev server (default)
+        build    Build for production      
+
+      Use my-cli <command> --help for more information about a command."
+    `);
+  });
+
+  it("renders defaultCommand alias in usage and commands table", async () => {
+    const command = defineCommand({
+      meta: {
+        name: "my-cli",
+        description: "My CLI",
+      },
+      defaultCommand: "dev",
+      subCommands: {
+        dev: defineCommand({
+          meta: {
+            description: "Start dev server",
+          },
+        }),
+        build: defineCommand({
+          meta: {
+            description: "Build for production",
+          },
+        }),
+      },
+    });
+
+    const usage = await renderUsage(command);
+
+    expect(usage).toMatchInlineSnapshot(`
+      "My CLI (my-cli)
+
+      USAGE my-cli [dev|build]
+
+      COMMANDS
+
+          dev    Start dev server (default)
+        build    Build for production      
+
+      Use my-cli <command> --help for more information about a command."
+    `);
+  });
 });

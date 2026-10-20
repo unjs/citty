@@ -529,6 +529,29 @@ describe("default sub command", () => {
     expect(runMock).toHaveBeenCalledOnce();
     expect(runMock).toHaveBeenCalledWith(expect.objectContaining({ verbose: true }));
   });
+
+  it("runs defaultCommand sub command when no args provided", async () => {
+    const runMock = vi.fn();
+
+    const command = defineCommand({
+      defaultCommand: "dev",
+      subCommands: {
+        dev: {
+          args: {
+            verbose: { type: "boolean" },
+          },
+          run: async ({ args }) => {
+            runMock(args);
+          },
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: ["--verbose"] });
+
+    expect(runMock).toHaveBeenCalledOnce();
+    expect(runMock).toHaveBeenCalledWith(expect.objectContaining({ verbose: true }));
+  });
 });
 
 describe("builtin flag conflicts", () => {

@@ -100,6 +100,7 @@ export type CommandDef<T extends ArgsDef = ArgsDef> = {
   meta?: Resolvable<CommandMeta>;
   args?: Resolvable<T>;
   default?: Resolvable<string>;
+  defaultCommand?: Resolvable<string>;
   subCommands?: Resolvable<SubCommandsDef>;
   plugins?: Resolvable<CittyPlugin>[];
   setup?: (context: CommandContext<T>) => any | Promise<any>;
