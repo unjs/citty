@@ -304,4 +304,124 @@ describe("usage", () => {
       Use parent-command child-command <command> --help for more information about a command."
     `);
   });
+
+  it("renders default subcommand in usage and commands table", async () => {
+    const command = defineCommand({
+      meta: {
+        name: "my-cli",
+        description: "My CLI",
+      },
+      default: "dev",
+      subCommands: {
+        dev: defineCommand({
+          meta: {
+            description: "Start dev server",
+          },
+        }),
+        build: defineCommand({
+          meta: {
+            description: "Build for production",
+          },
+        }),
+      },
+    });
+
+    const usage = await renderUsage(command);
+
+    expect(usage).toMatchInlineSnapshot(`
+      "My CLI (my-cli)
+
+      USAGE my-cli [dev|build]
+
+      COMMANDS
+
+          dev    Start dev server (default)
+        build    Build for production      
+
+      Use my-cli <command> --help for more information about a command."
+    `);
+  });
+
+  it("renders defaultCommand alias in usage and commands table", async () => {
+    const command = defineCommand({
+      meta: {
+        name: "my-cli",
+        description: "My CLI",
+      },
+      defaultCommand: "dev",
+      subCommands: {
+        dev: defineCommand({
+          meta: {
+            description: "Start dev server",
+          },
+        }),
+        build: defineCommand({
+          meta: {
+            description: "Build for production",
+          },
+        }),
+      },
+    });
+
+    const usage = await renderUsage(command);
+
+    expect(usage).toMatchInlineSnapshot(`
+      "My CLI (my-cli)
+
+      USAGE my-cli [dev|build]
+
+      COMMANDS
+
+          dev    Start dev server (default)
+        build    Build for production      
+
+      Use my-cli <command> --help for more information about a command."
+    `);
+  });
+
+  it("does not bracket subcommands as optional when root command has run handler", async () => {
+    const command = defineCommand({
+      meta: {
+        name: "my-cli",
+        description: "My CLI",
+      },
+      default: "dev",
+      run: () => {},
+      subCommands: {
+        dev: defineCommand({
+          meta: {
+            description: "Start dev server",
+          },
+        }),
+        build: defineCommand({
+          meta: {
+            description: "Build for production",
+          },
+        }),
+      },
+    });
+
+    const usage = await renderUsage(command);
+    expect(usage).toContain("USAGE my-cli dev|build");
+  });
+
+  it("does not bracket subcommands as optional when default does not match any subcommand", async () => {
+    const command = defineCommand({
+      meta: {
+        name: "my-cli",
+        description: "My CLI",
+      },
+      default: "nonexistent",
+      subCommands: {
+        dev: defineCommand({
+          meta: {
+            description: "Start dev server",
+          },
+        }),
+      },
+    });
+
+    const usage = await renderUsage(command);
+    expect(usage).toContain("USAGE my-cli dev");
+  });
 });

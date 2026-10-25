@@ -78,6 +78,10 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
   if (cmd.subCommands) {
     const commandNames: string[] = [];
     const subCommands = await resolveValue(cmd.subCommands);
+    const defaultSubCommand = await resolveValue(
+      cmd.default ?? cmd.defaultCommand,
+    );
+    let hasValidDefault = false;
     for (const [name, sub] of Object.entries(subCommands)) {
       const subCmd = await resolveValue(sub);
       const meta = await resolveValue(subCmd?.meta);
@@ -85,11 +89,26 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
         continue;
       }
       const aliases = toArray(meta?.alias);
+      const isDefault = Boolean(
+        defaultSubCommand &&
+          (name === defaultSubCommand || aliases.includes(defaultSubCommand)),
+      );
+      if (isDefault) {
+        hasValidDefault = true;
+      }
       const label = [name, ...aliases].join(", ");
-      commandsLines.push([colors.cyan(label), meta?.description || ""]);
+      const defaultHint = isDefault ? colors.gray("(default)") : "";
+      const description = [meta?.description, defaultHint]
+        .filter(Boolean)
+        .join(" ");
+      commandsLines.push([colors.cyan(label), description]);
       commandNames.push(name, ...aliases);
     }
-    usageLine.push(commandNames.join("|"));
+    const commandsPlaceholder = commandNames.join("|");
+    const isOptional = Boolean(hasValidDefault && !cmd.run);
+    usageLine.push(
+      isOptional ? `[${commandsPlaceholder}]` : commandsPlaceholder,
+    );
   }
 
   const usageLines: (string | undefined)[] = [];
