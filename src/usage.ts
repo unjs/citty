@@ -81,6 +81,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
     const defaultSubCommand = await resolveValue(
       cmd.default ?? cmd.defaultCommand,
     );
+    let hasValidDefault = false;
     for (const [name, sub] of Object.entries(subCommands)) {
       const subCmd = await resolveValue(sub);
       const meta = await resolveValue(subCmd?.meta);
@@ -92,6 +93,9 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
         defaultSubCommand &&
           (name === defaultSubCommand || aliases.includes(defaultSubCommand)),
       );
+      if (isDefault) {
+        hasValidDefault = true;
+      }
       const label = [name, ...aliases].join(", ");
       const defaultHint = isDefault ? colors.gray("(default)") : "";
       const description = [meta?.description, defaultHint]
@@ -101,8 +105,9 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
       commandNames.push(name, ...aliases);
     }
     const commandsPlaceholder = commandNames.join("|");
+    const isOptional = Boolean(hasValidDefault && !cmd.run);
     usageLine.push(
-      defaultSubCommand ? `[${commandsPlaceholder}]` : commandsPlaceholder,
+      isOptional ? `[${commandsPlaceholder}]` : commandsPlaceholder,
     );
   }
 

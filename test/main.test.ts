@@ -451,6 +451,31 @@ describe("default sub command", () => {
     expect(runMock).toHaveBeenCalledWith("dev");
   });
 
+  it("runs defaultCommand sub command when no args provided", async () => {
+    const runMock = vi.fn();
+
+    const command = defineCommand({
+      defaultCommand: "dev",
+      subCommands: {
+        dev: {
+          run: async () => {
+            runMock("dev");
+          },
+        },
+        build: {
+          run: async () => {
+            runMock("build");
+          },
+        },
+      },
+    });
+
+    await runMain(command, { rawArgs: [] });
+
+    expect(runMock).toHaveBeenCalledOnce();
+    expect(runMock).toHaveBeenCalledWith("dev");
+  });
+
   it("runs explicit sub command even when default is set", async () => {
     const runMock = vi.fn();
 
