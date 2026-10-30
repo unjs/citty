@@ -1,6 +1,7 @@
 export * from "./types.ts";
 export type { RunCommandOptions } from "./command.ts";
 export type { RunMainOptions } from "./main.ts";
+export type { RenderUsageOptions } from "./usage.ts";
 
 export { defineCommand, runCommand } from "./command.ts";
 export { parseArgs } from "./args.ts";

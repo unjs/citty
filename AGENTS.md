@@ -28,13 +28,13 @@ Internal files use `_` prefix and are not exported from `index.ts`.
 // Core
 defineCommand(def)           // Define a typed command
 runCommand(cmd, opts)        // Execute a command programmatically
-runMain(cmd, opts?)          // CLI entry point (handles --help, --version, process.exit)
+runMain(cmd, opts?)          // CLI entry point (handles --help/--version; shows them in usage)
 createMain(cmd)              // Returns a function wrapping runMain()
 
 // Utilities
 parseArgs(rawArgs, argsDef)  // Parse CLI arguments against definitions
-renderUsage(cmd, parent?)    // Generate help text string
-showUsage(cmd, parent?)      // Print help to console
+renderUsage(cmd, parent?, opts?) // Generate help text (includes built-in help/version)
+showUsage(cmd, parent?, opts?)   // Print help to console
 ```
 
 ## Architecture

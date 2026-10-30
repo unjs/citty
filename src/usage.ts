@@ -4,12 +4,22 @@ import { formatLineColumns, resolveValue, toArray } from "./_utils.ts";
 import type { Arg, ArgsDef, CommandDef } from "./types.ts";
 import { resolveArgs } from "./args.ts";
 
+export interface RenderUsageOptions {
+  /**
+   * Include built-in `--help`/`-h` and `--version`/`-v` in OPTIONS.
+   * Uses the same name/alias conflict rules as `runMain`.
+   * @default true
+   */
+  showBuiltinFlags?: boolean;
+}
+
 export async function showUsage<T extends ArgsDef = ArgsDef>(
   cmd: CommandDef<T>,
   parent?: CommandDef<T>,
+  opts: RenderUsageOptions = {},
 ) {
   try {
-    console.log((await renderUsage(cmd, parent)) + "\n");
+    console.log((await renderUsage(cmd, parent, opts)) + "\n");
   } catch (error) {
     console.error(error);
   }
@@ -21,6 +31,7 @@ const negativePrefixRe = /^no[-A-Z]/;
 export async function renderUsage<T extends ArgsDef = ArgsDef>(
   cmd: CommandDef<T>,
   parent?: CommandDef<T>,
+  opts: RenderUsageOptions = {},
 ) {
   const cmdMeta = await resolveValue(cmd.meta || {});
   const cmdArgs = resolveArgs(await resolveValue(cmd.args || {}));
@@ -72,6 +83,16 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
       if (isRequired) {
         usageLine.push(`--${arg.name}` + renderValueHint(arg));
       }
+    }
+  }
+
+  if (opts.showBuiltinFlags !== false) {
+    const builtinFlags = await resolveBuiltinFlags(cmd);
+    if (builtinFlags.help.length > 0) {
+      argLines.push([colors.cyan(formatBuiltinFlags(builtinFlags.help)), "Show help"]);
+    }
+    if (builtinFlags.version.length > 0) {
+      argLines.push([colors.cyan(formatBuiltinFlags(builtinFlags.version)), "Show version"]);
     }
   }
 
@@ -131,6 +152,52 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
   }
 
   return usageLines.filter((l) => typeof l === "string").join("\n");
+}
+
+/**
+ * Resolve which built-in help/version flags are available for a command.
+ * Matches `runMain` conflict rules: long/short forms are omitted when the
+ * user already defines the same name or alias.
+ */
+export async function resolveBuiltinFlags<T extends ArgsDef>(
+  cmd: CommandDef<T>,
+): Promise<{ help: string[]; version: string[] }> {
+  const argsDef = await resolveValue(cmd.args || ({} as ArgsDef));
+  const userNames = new Set<string>();
+  const userAliases = new Set<string>();
+  for (const [name, def] of Object.entries(argsDef)) {
+    userNames.add(name);
+    for (const alias of toArray((def as any).alias)) {
+      userAliases.add(alias);
+    }
+  }
+  return {
+    help: getBuiltinFlags("help", "h", userNames, userAliases),
+    version: getBuiltinFlags("version", "v", userNames, userAliases),
+  };
+}
+
+function getBuiltinFlags(
+  long: string,
+  short: string,
+  userNames: Set<string>,
+  userAliases: Set<string>,
+): string[] {
+  const hasLong = userNames.has(long) || userAliases.has(long);
+  if (hasLong) {
+    return [];
+  }
+  const hasShort = userNames.has(short) || userAliases.has(short);
+  if (hasShort) {
+    return [`--${long}`];
+  }
+  return [`--${long}`, `-${short}`];
+}
+
+function formatBuiltinFlags(flags: string[]): string {
+  const short = flags.filter((f) => /^-[^-]/.test(f));
+  const long = flags.filter((f) => f.startsWith("--"));
+  return [...short, ...long].join(", ");
 }
 
 function renderValueHint(arg: Arg) {
