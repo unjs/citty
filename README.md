@@ -203,7 +203,7 @@ Kebab-case args can be accessed as camelCase: `args["output-dir"]` and `args.out
 
 ## Built-in Flags
 
-`--help` / `-h` and `--version` / `-v` are handled automatically. Disabled if your command defines args with the same names or aliases.
+`--help` / `-h` and `--version` / `-v` are handled automatically and appear in generated usage output. Disabled if your command defines args with the same names or aliases. Pass `showBuiltinFlags: false` to `runMain` / `renderUsage` to hide them from usage.
 
 ## API
 

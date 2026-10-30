@@ -1,11 +1,16 @@
 import type { ArgsDef, CommandDef } from "./types.ts";
 import { resolveSubCommand, runCommand } from "./command.ts";
-import { CLIError, resolveValue, toArray } from "./_utils.ts";
-import { showUsage as _showUsage } from "./usage.ts";
+import { CLIError } from "./_utils.ts";
+import { resolveBuiltinFlags, showUsage as _showUsage, type RenderUsageOptions } from "./usage.ts";
 
 export interface RunMainOptions {
   rawArgs?: string[];
   showUsage?: typeof _showUsage;
+  /**
+   * Include built-in `--help`/`-h` and `--version`/`-v` in usage output.
+   * @default true
+   */
+  showBuiltinFlags?: boolean;
 }
 
 export async function runMain<T extends ArgsDef = ArgsDef>(
@@ -13,9 +18,11 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
   opts: RunMainOptions = {},
 ) {
   const rawArgs = opts.rawArgs || process.argv.slice(2);
-  const showUsage = opts.showUsage || _showUsage;
+  const showBuiltinFlags = opts.showBuiltinFlags !== false;
+  const usageOpts: RenderUsageOptions = { showBuiltinFlags };
+  const showUsage = opts.showUsage || ((c, parent) => _showUsage(c, parent, usageOpts));
   try {
-    const builtinFlags = await _resolveBuiltinFlags(cmd);
+    const builtinFlags = await resolveBuiltinFlags(cmd);
     if (builtinFlags.help.length > 0 && rawArgs.some((arg) => builtinFlags.help.includes(arg))) {
       await showUsage(...(await resolveSubCommand(cmd, rawArgs)));
       process.exit(0);
@@ -44,41 +51,4 @@ export function createMain<T extends ArgsDef = ArgsDef>(
   cmd: CommandDef<T>,
 ): (opts?: RunMainOptions) => Promise<void> {
   return (opts: RunMainOptions = {}) => runMain(cmd, opts);
-}
-
-// --- internal ---
-
-async function _resolveBuiltinFlags<T extends ArgsDef>(
-  cmd: CommandDef<T>,
-): Promise<{ help: string[]; version: string[] }> {
-  const argsDef = await resolveValue(cmd.args || ({} as ArgsDef));
-  const userNames = new Set<string>();
-  const userAliases = new Set<string>();
-  for (const [name, def] of Object.entries(argsDef)) {
-    userNames.add(name);
-    for (const alias of toArray((def as any).alias)) {
-      userAliases.add(alias);
-    }
-  }
-  return {
-    help: _getBuiltinFlags("help", "h", userNames, userAliases),
-    version: _getBuiltinFlags("version", "v", userNames, userAliases),
-  };
-}
-
-function _getBuiltinFlags(
-  long: string,
-  short: string,
-  userNames: Set<string>,
-  userAliases: Set<string>,
-): string[] {
-  const hasLong = userNames.has(long) || userAliases.has(long);
-  if (hasLong) {
-    return [];
-  }
-  const hasShort = userNames.has(short) || userAliases.has(short);
-  if (hasShort) {
-    return [`--${long}`];
-  }
-  return [`--${long}`, `-${short}`];
 }

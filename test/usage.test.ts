@@ -56,6 +56,8 @@ describe("usage", () => {
         -b, --bar=<bar>    A bar           
            --enum=<a|b>    An enum         
               --boolean    A boolean       
+             -h, --help    Show help       
+          -v, --version    Show version    
       "
     `);
   });
@@ -86,8 +88,10 @@ describe("usage", () => {
 
       OPTIONS
 
-           --boolean    A boolean (Default: true)
-        --no-boolean    A negative boolean       
+            --boolean    A boolean (Default: true)
+         --no-boolean    A negative boolean       
+           -h, --help    Show help                
+        -v, --version    Show version             
       "
     `);
   });
@@ -116,7 +120,9 @@ describe("usage", () => {
 
       OPTIONS
 
-        --foo=<FOO>    A foo
+          --foo=<FOO>    A foo       
+           -h, --help    Show help   
+        -v, --version    Show version
       "
     `);
   });
@@ -145,7 +151,9 @@ describe("usage", () => {
 
       OPTIONS
 
-        --foo=<foo>    A foo (Default: bar)
+          --foo=<foo>    A foo (Default: bar)
+           -h, --help    Show help           
+        -v, --version    Show version        
       "
     `);
   });
@@ -171,7 +179,12 @@ describe("usage", () => {
     expect(usage).toMatchInlineSnapshot(`
       "A command (Commander)
 
-      USAGE Commander sub
+      USAGE Commander [OPTIONS] sub
+
+      OPTIONS
+
+           -h, --help    Show help   
+        -v, --version    Show version
 
       COMMANDS
 
@@ -212,7 +225,9 @@ describe("usage", () => {
 
       OPTIONS
 
-        --foo    A foo (Required)
+                --foo    A foo (Required)
+           -h, --help    Show help       
+        -v, --version    Show version    
 
       COMMANDS
 
@@ -250,7 +265,12 @@ describe("usage", () => {
     expect(usage).toMatchInlineSnapshot(`
       "A command (Commander)
 
-      USAGE Commander start
+      USAGE Commander [OPTIONS] start
+
+      OPTIONS
+
+           -h, --help    Show help   
+        -v, --version    Show version
 
       COMMANDS
 
@@ -295,7 +315,9 @@ describe("usage", () => {
 
       OPTIONS
 
-        --foo=<foo>    A foo
+          --foo=<foo>    A foo       
+           -h, --help    Show help   
+        -v, --version    Show version
 
       COMMANDS
 
@@ -303,5 +325,77 @@ describe("usage", () => {
 
       Use parent-command child-command <command> --help for more information about a command."
     `);
+  });
+
+  it("renders built-in help and version flags", async () => {
+    const command = defineCommand({
+      meta: {
+        name: "Commander",
+        description: "A command",
+      },
+    });
+
+    const usage = await renderUsage(command);
+
+    expect(usage).toContain("-h, --help");
+    expect(usage).toContain("Show help");
+    expect(usage).toContain("-v, --version");
+    expect(usage).toContain("Show version");
+  });
+
+  it("omits short help alias when -h is taken by user args", async () => {
+    const command = defineCommand({
+      meta: {
+        name: "Commander",
+        description: "A command",
+      },
+      args: {
+        host: {
+          type: "string",
+          alias: "h",
+          description: "Host",
+        },
+      },
+    });
+
+    const usage = await renderUsage(command);
+
+    expect(usage).toContain("--help");
+    expect(usage).not.toContain("-h, --help");
+    expect(usage).toContain("-v, --version");
+  });
+
+  it("omits built-in help when user defines help arg", async () => {
+    const command = defineCommand({
+      meta: {
+        name: "Commander",
+        description: "A command",
+      },
+      args: {
+        help: {
+          type: "boolean",
+          description: "Custom help",
+        },
+      },
+    });
+
+    const usage = await renderUsage(command);
+
+    expect(usage).not.toContain("Show help");
+    expect(usage).toContain("-v, --version");
+  });
+
+  it("can hide built-in flags via showBuiltinFlags: false", async () => {
+    const command = defineCommand({
+      meta: {
+        name: "Commander",
+        description: "A command",
+      },
+    });
+
+    const usage = await renderUsage(command, undefined, { showBuiltinFlags: false });
+
+    expect(usage).not.toContain("--help");
+    expect(usage).not.toContain("--version");
   });
 });
