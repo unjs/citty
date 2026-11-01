@@ -1,5 +1,7 @@
 import type { ArgsDef, CommandDef } from "./types.ts";
 import { resolveSubCommand, runCommand } from "./command.ts";
+import { resolveParseOptions } from "./args.ts";
+import { parseRawArgs } from "./_parser.ts";
 import { CLIError, resolveValue, toArray } from "./_utils.ts";
 import { showUsage as _showUsage } from "./usage.ts";
 
@@ -15,8 +17,17 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
   const rawArgs = opts.rawArgs || process.argv.slice(2);
   const showUsage = opts.showUsage || _showUsage;
   try {
-    const builtinFlags = await _resolveBuiltinFlags(cmd);
-    if (builtinFlags.help.length > 0 && rawArgs.some((arg) => builtinFlags.help.includes(arg))) {
+    const argsDef = await resolveValue(cmd.args || ({} as ArgsDef));
+    const builtinFlags = _resolveBuiltinFlags(argsDef);
+    let hasHelp = false;
+    if (builtinFlags.help.length > 0) {
+      parseRawArgs(rawArgs, resolveParseOptions(argsDef), (tokens) => {
+        hasHelp = tokens.some(
+          (token) => token.kind === "option" && builtinFlags.help.includes(token.rawName || ""),
+        );
+      });
+    }
+    if (hasHelp) {
       await showUsage(...(await resolveSubCommand(cmd, rawArgs)));
       process.exit(0);
     } else if (rawArgs.length === 1 && builtinFlags.version.includes(rawArgs[0]!)) {
@@ -48,10 +59,7 @@ export function createMain<T extends ArgsDef = ArgsDef>(
 
 // --- internal ---
 
-async function _resolveBuiltinFlags<T extends ArgsDef>(
-  cmd: CommandDef<T>,
-): Promise<{ help: string[]; version: string[] }> {
-  const argsDef = await resolveValue(cmd.args || ({} as ArgsDef));
+function _resolveBuiltinFlags(argsDef: ArgsDef): { help: string[]; version: string[] } {
   const userNames = new Set<string>();
   const userAliases = new Set<string>();
   for (const [name, def] of Object.entries(argsDef)) {
