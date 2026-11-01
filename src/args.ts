@@ -4,10 +4,7 @@ import type { Arg, ArgsDef, ParsedArgs } from "./types.ts";
 import { CLIError, toArray } from "./_utils.ts";
 import { cyan } from "./_color.ts";
 
-export function parseArgs<T extends ArgsDef = ArgsDef>(
-  rawArgs: string[],
-  argsDef: ArgsDef,
-): ParsedArgs<T> {
+export function resolveParseOptions(argsDef: ArgsDef): ParseOptions {
   const parseOptions = {
     boolean: [] as string[],
     string: [] as string[],
@@ -50,7 +47,15 @@ export function parseArgs<T extends ArgsDef = ArgsDef>(
     }
   }
 
-  const parsed = parseRawArgs(rawArgs, parseOptions);
+  return parseOptions;
+}
+
+export function parseArgs<T extends ArgsDef = ArgsDef>(
+  rawArgs: string[],
+  argsDef: ArgsDef,
+): ParsedArgs<T> {
+  const args = resolveArgs(argsDef);
+  const parsed = parseRawArgs(rawArgs, resolveParseOptions(argsDef));
   const [...positionalArguments] = parsed._;
 
   const parsedArgsProxy = new Proxy(parsed, {

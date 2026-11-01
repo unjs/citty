@@ -11,9 +11,12 @@ export type Argv<T = Record<string, any>> = T & {
   _: string[];
 };
 
+type RawArgToken = { kind: string; rawName?: string };
+
 export function parseRawArgs<T = Record<string, any>>(
   args: string[] = [],
   opts: ParseOptions = {},
+  onTokens?: (tokens: RawArgToken[]) => void,
 ): Argv<T> {
   const booleans = new Set(opts.boolean || []);
   const strings = new Set(opts.string || []);
@@ -127,7 +130,7 @@ export function parseRawArgs<T = Record<string, any>>(
     processedArgs.push(arg);
   }
 
-  let parsed: { values: Record<string, any>; positionals: string[] };
+  let parsed: { values: Record<string, any>; positionals: string[]; tokens?: RawArgToken[] };
 
   try {
     parsed = parseArgs({
@@ -135,11 +138,14 @@ export function parseRawArgs<T = Record<string, any>>(
       options: Object.keys(options).length > 0 ? options : undefined,
       allowPositionals: true,
       strict: false,
+      tokens: !!onTokens,
     });
   } catch {
     // Fallback for parsing errors
     parsed = { values: {}, positionals: processedArgs };
   }
+
+  onTokens?.(parsed.tokens || []);
 
   // Build result
   const out: Argv<T> = { _: [] as string[] } as Argv<T>;
