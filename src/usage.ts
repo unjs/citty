@@ -97,7 +97,9 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
   const version = cmdMeta.version || parentMeta.version;
 
   usageLines.push(
-    colors.gray(`${cmdMeta.description} (${commandName + (version ? ` v${version}` : "")})`),
+    colors.gray(
+      `${cmdMeta.description ? `${cmdMeta.description} ` : ""}(${commandName + (version ? ` v${version}` : "")})`,
+    ),
     "",
   );
 

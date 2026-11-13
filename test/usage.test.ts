@@ -304,4 +304,39 @@ describe("usage", () => {
       Use parent-command child-command <command> --help for more information about a command."
     `);
   });
+
+  it("renders the description in the header when provided", async () => {
+    const command = defineCommand({
+      meta: {
+        name: "Commander",
+        description: "A command",
+      },
+    });
+
+    const usage = await renderUsage(command);
+
+    expect(usage).toMatchInlineSnapshot(`
+      "A command (Commander)
+
+      USAGE Commander 
+      "
+    `);
+  });
+
+  it("omits the description in the header when not provided", async () => {
+    const command = defineCommand({
+      meta: {
+        name: "Commander",
+      },
+    });
+
+    const usage = await renderUsage(command);
+
+    expect(usage).toMatchInlineSnapshot(`
+      "(Commander)
+
+      USAGE Commander 
+      "
+    `);
+  });
 });
