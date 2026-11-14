@@ -130,4 +130,48 @@ describe("args", () => {
     expect(parsed.nightly).toBe("");
     expect(typeof parsed.nightly).toBe("string");
   });
+
+  it("should preserve --no- prefixed values for string and enum args (#296)", () => {
+    const msgParsed = parseArgs(["--message", "--no-verify is bad"], {
+      message: { type: "string" },
+    });
+    expect(msgParsed).toEqual({
+      _: [],
+      message: "--no-verify is bad",
+    });
+
+    const posParsed = parseArgs(["--node-options", "--no-warnings", "build"], {
+      "node-options": { type: "string" },
+      target: { type: "positional" },
+    });
+    expect(posParsed).toEqual({
+      _: ["build"],
+      "node-options": "--no-warnings",
+      nodeOptions: "--no-warnings",
+      target: "build",
+    });
+
+    const camelParsed = parseArgs(["--nodeOptions", "--no-warnings", "--no-force"], {
+      "node-options": { type: "string" },
+      force: { type: "boolean", default: true },
+    });
+    expect(camelParsed["node-options"]).toBe("--no-warnings");
+    expect(camelParsed.nodeOptions).toBe("--no-warnings");
+    expect(camelParsed.force).toBe(false);
+
+    const enumParsed = parseArgs(["--mode", "--no-cache"], {
+      mode: { type: "enum", options: ["--cache", "--no-cache"] },
+    });
+    expect(enumParsed.mode).toBe("--no-cache");
+
+    const defaultInferred = parseArgs(["-xm", "--out", "--no-color", "--no-verbose"], {
+      x: { default: "" },
+      m: { type: "string" },
+      out: { default: "dist" },
+      verbose: { type: "boolean", default: true },
+    });
+    expect(defaultInferred.x).toBe("m");
+    expect(defaultInferred.out).toBe("--no-color");
+    expect(defaultInferred.verbose).toBe(false);
+  });
 });
