@@ -105,16 +105,25 @@ export function parseRawArgs<T = Record<string, any>>(
   }
 
   /**
+   * Check whether an option is registered as `type: "string"` for `node:util`
+   * `parseArgs` (including options registered via `default` or aliases).
+   */
+  function isRegisteredStringOption(name: string): boolean {
+    return options[name]?.type === "string";
+  }
+
+  /**
    * Check whether `node:util` `parseArgs` will consume the next argv token
    * as the value of a string option.
    */
   function consumesNextToken(arg: string): boolean {
     if (arg.startsWith("--")) {
-      return !arg.includes("=") && isStringType(arg.slice(2));
+      const name = arg.slice(2);
+      return !name.includes("=") && isRegisteredStringOption(name);
     }
     if (arg.startsWith("-") && arg.length > 1) {
       for (let j = 1; j < arg.length; j++) {
-        if (isStringType(arg[j]!)) {
+        if (isRegisteredStringOption(arg[j]!)) {
           return j === arg.length - 1;
         }
       }

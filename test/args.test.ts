@@ -163,5 +163,15 @@ describe("args", () => {
       mode: { type: "enum", options: ["--cache", "--no-cache"] },
     });
     expect(enumParsed.mode).toBe("--no-cache");
+
+    const defaultInferred = parseArgs(["-xm", "--out", "--no-color", "--no-verbose"], {
+      x: { default: "" },
+      m: { type: "string" },
+      out: { default: "dist" },
+      verbose: { type: "boolean", default: true },
+    });
+    expect(defaultInferred.x).toBe("m");
+    expect(defaultInferred.out).toBe("--no-color");
+    expect(defaultInferred.verbose).toBe(false);
   });
 });

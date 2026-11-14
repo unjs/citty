@@ -254,5 +254,41 @@ describe("parseRawArgs", () => {
       _: ["--no-warnings"],
       verbose: false,
     });
+
+    expect(
+      parseRawArgs(["-xm", "--no-verbose"], {
+        string: ["m"],
+        boolean: ["verbose"],
+        default: { x: "", verbose: true },
+      }),
+    ).toEqual({
+      _: [],
+      x: "m",
+      verbose: false,
+    });
+
+    expect(
+      parseRawArgs(["--out", "--no-color", "--no-verbose"], {
+        boolean: ["verbose"],
+        default: { out: "dist", verbose: true },
+      }),
+    ).toEqual({
+      _: [],
+      out: "--no-color",
+      verbose: false,
+    });
+
+    expect(
+      parseRawArgs(["-odist2", "--no-verbose"], {
+        boolean: ["verbose"],
+        alias: { o: ["out"] },
+        default: { out: "dist", verbose: true },
+      }),
+    ).toEqual({
+      _: [],
+      o: "dist2",
+      out: "dist2",
+      verbose: false,
+    });
   });
 });
