@@ -104,12 +104,37 @@ export function parseRawArgs<T = Record<string, any>>(
     }
   }
 
+  /**
+   * Check whether `node:util` `parseArgs` will consume the next argv token
+   * as the value of a string option.
+   */
+  function consumesNextToken(arg: string): boolean {
+    if (arg.startsWith("--")) {
+      return !arg.includes("=") && isStringType(arg.slice(2));
+    }
+    if (arg.startsWith("-") && arg.length > 1) {
+      for (let j = 1; j < arg.length; j++) {
+        if (isStringType(arg[j]!)) {
+          return j === arg.length - 1;
+        }
+      }
+    }
+    return false;
+  }
+
   // Handle --no- prefixed arguments by preprocessing
   const processedArgs: string[] = [];
   const negatedFlags: Record<string, boolean> = {};
+  let expectsValue = false;
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]!;
+
+    if (expectsValue) {
+      processedArgs.push(arg);
+      expectsValue = false;
+      continue;
+    }
 
     if (arg === "--") {
       // Pass through -- and everything after
@@ -125,6 +150,7 @@ export function parseRawArgs<T = Record<string, any>>(
     }
 
     processedArgs.push(arg);
+    expectsValue = consumesNextToken(arg);
   }
 
   let parsed: { values: Record<string, any>; positionals: string[] };
