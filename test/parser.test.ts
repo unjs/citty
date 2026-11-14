@@ -178,4 +178,81 @@ describe("parseRawArgs", () => {
     expect(result.nightly).toBe("");
     expect(typeof result.nightly).toBe("string");
   });
+
+  it("preserves --no- prefixed values for string options (#296)", () => {
+    expect(
+      parseRawArgs(["--message", "--no-verify is bad"], {
+        string: ["message"],
+      }),
+    ).toEqual({
+      _: [],
+      message: "--no-verify is bad",
+    });
+
+    expect(
+      parseRawArgs(["-m", "--no-verify", "--no-verbose"], {
+        string: ["message"],
+        boolean: ["verbose"],
+        alias: { m: ["message"] },
+        default: { verbose: true },
+      }),
+    ).toEqual({
+      _: [],
+      m: "--no-verify",
+      message: "--no-verify",
+      verbose: false,
+    });
+  });
+
+  it("handles grouped short flags, inline values, and bare - before --no- flags (#296)", () => {
+    expect(
+      parseRawArgs(["-vm", "--no-warnings"], {
+        string: ["message"],
+        boolean: ["verbose"],
+        alias: { v: ["verbose"], m: ["message"] },
+      }),
+    ).toEqual({
+      _: [],
+      v: true,
+      verbose: true,
+      m: "--no-warnings",
+      message: "--no-warnings",
+    });
+
+    expect(
+      parseRawArgs(["-mfoo", "--no-verbose"], {
+        string: ["message"],
+        boolean: ["verbose"],
+        alias: { m: ["message"] },
+        default: { verbose: true },
+      }),
+    ).toEqual({
+      _: [],
+      m: "foo",
+      message: "foo",
+      verbose: false,
+    });
+
+    expect(
+      parseRawArgs(["--message=foo", "-", "--no-verbose"], {
+        string: ["message"],
+        boolean: ["verbose"],
+        default: { verbose: true },
+      }),
+    ).toEqual({
+      _: ["-"],
+      message: "foo",
+      verbose: false,
+    });
+
+    expect(
+      parseRawArgs(["--no-verbose", "--", "--no-warnings"], {
+        boolean: ["verbose"],
+        default: { verbose: true },
+      }),
+    ).toEqual({
+      _: ["--no-warnings"],
+      verbose: false,
+    });
+  });
 });
