@@ -121,6 +121,27 @@ describe("usage", () => {
     `);
   });
 
+  it("renders enum options in the description when valueHint is provided", async () => {
+    const command = defineCommand({
+      meta: { name: "Commander", description: "A command" },
+      args: {
+        style: {
+          type: "enum",
+          options: ["flat", "plastic", "flat-square", "social"],
+          valueHint: "style",
+          description: "Badge style",
+          default: "flat",
+        },
+      },
+    });
+
+    const usage = await renderUsage(command);
+
+    expect(usage).toContain(
+      "--style=<style>    Badge style (flat|plastic|flat-square|social) (Default: flat)",
+    );
+  });
+
   it("renders the default value when provided", async () => {
     const command = defineCommand({
       meta: {
