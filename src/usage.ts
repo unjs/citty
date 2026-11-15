@@ -45,7 +45,15 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
       const argStr =
         [...(arg.alias || []).map((a) => `-${a}`), `--${arg.name}`].join(", ") +
         renderValueHint(arg);
-      argLines.push([colors.cyan(argStr), renderDescription(arg, isRequired)]);
+      const enumOptions =
+        arg.type === "enum" && arg.valueHint && arg.options?.length
+          ? renderEnumOptions(arg.options)
+          : "";
+      const description = renderDescription(arg, isRequired, Boolean(enumOptions));
+      argLines.push([
+        colors.cyan(argStr),
+        [description, enumOptions, enumOptions ? renderDefault(arg) : ""].filter(Boolean).join(" "),
+      ]);
 
       /**
        * print negative boolean arg variant usage when
@@ -142,16 +150,27 @@ function renderValueHint(arg: Arg) {
   }
 
   if (arg.type === "enum" && arg.options?.length) {
+    if (valueHint) {
+      return valueHint;
+    }
     return `=<${arg.options.join("|")}>`;
   }
 
   return fallbackValueHint;
 }
 
-function renderDescription(arg: Arg, required: boolean) {
+function renderDescription(arg: Arg, required: boolean, enumOptions = false) {
   const requiredHint = required ? colors.gray("(Required)") : "";
-  const defaultHint = arg.default === undefined ? "" : colors.gray(`(Default: ${arg.default})`);
+  const defaultHint = enumOptions ? "" : renderDefault(arg);
   const description = [arg.description, requiredHint, defaultHint].filter(Boolean).join(" ");
 
   return description;
+}
+
+function renderDefault(arg: Arg) {
+  return arg.default === undefined ? "" : colors.gray(`(Default: ${arg.default})`);
+}
+
+function renderEnumOptions(options: string[]) {
+  return `${colors.gray("(")}${options.map(colors.cyan).join(colors.gray("|"))}${colors.gray(")")}`;
 }
