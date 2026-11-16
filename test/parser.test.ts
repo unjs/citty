@@ -161,6 +161,21 @@ describe("parseRawArgs", () => {
     });
   });
 
+  it("reads a declared no- alias as that option, not a negation", () => {
+    const opts = { string: ["output"], alias: { output: ["no-output"] } };
+
+    expect(parseRawArgs(["--no-output", "report.txt"], opts)).toEqual({
+      _: [],
+      output: "report.txt",
+      "no-output": "report.txt",
+    });
+    expect(parseRawArgs(["--no-output=report.txt"], opts)).toEqual({
+      _: [],
+      output: "report.txt",
+      "no-output": "report.txt",
+    });
+  });
+
   it("coerces --flag=true to boolean true for boolean args", () => {
     const result = parseRawArgs(["--flag=true"], { boolean: ["flag"] });
     expect(result.flag).toBe(true);
