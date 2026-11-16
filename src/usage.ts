@@ -97,7 +97,7 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
         hasValidDefault = true;
       }
       const label = [name, ...aliases].join(", ");
-      const defaultHint = isDefault ? colors.gray("(default)") : "";
+      const defaultHint = isDefault && !cmd.run ? colors.gray("(default)") : "";
       const description = [meta?.description, defaultHint]
         .filter(Boolean)
         .join(" ");

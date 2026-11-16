@@ -402,7 +402,18 @@ describe("usage", () => {
     });
 
     const usage = await renderUsage(command);
-    expect(usage).toContain("USAGE my-cli dev|build");
+    expect(usage).toMatchInlineSnapshot(`
+      "My CLI (my-cli)
+
+      USAGE my-cli dev|build
+
+      COMMANDS
+
+          dev    Start dev server    
+        build    Build for production
+
+      Use my-cli <command> --help for more information about a command."
+    `);
   });
 
   it("does not bracket subcommands as optional when default does not match any subcommand", async () => {
@@ -422,6 +433,16 @@ describe("usage", () => {
     });
 
     const usage = await renderUsage(command);
-    expect(usage).toContain("USAGE my-cli dev");
+    expect(usage).toMatchInlineSnapshot(`
+      "My CLI (my-cli)
+
+      USAGE my-cli dev
+
+      COMMANDS
+
+        dev    Start dev server
+
+      Use my-cli <command> --help for more information about a command."
+    `);
   });
 });
