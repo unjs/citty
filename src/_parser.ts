@@ -117,8 +117,8 @@ export function parseRawArgs<T = Record<string, any>>(
       break;
     }
 
-    // Handle --no-flag syntax
-    if (arg.startsWith("--no-")) {
+    // Handle --no-flag syntax, unless `no-flag` is itself a declared alias
+    if (arg.startsWith("--no-") && !aliasToMain.has(arg.slice(2).split("=")[0]!)) {
       const flagName = arg.slice(5);
       negatedFlags[flagName] = true;
       continue;

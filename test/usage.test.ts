@@ -121,6 +121,41 @@ describe("usage", () => {
     `);
   });
 
+  it("renders aliases longer than one character with two dashes", async () => {
+    const command = defineCommand({
+      meta: {
+        name: "Commander",
+        description: "A command",
+      },
+      args: {
+        output: {
+          type: "string",
+          alias: ["o", "out"],
+          description: "An output",
+        },
+        verbose: {
+          type: "boolean",
+          alias: ["vv"],
+          description: "A verbose",
+        },
+      },
+    });
+
+    const usage = await renderUsage(command);
+
+    expect(usage).toMatchInlineSnapshot(`
+      "A command (Commander)
+
+      USAGE Commander [OPTIONS] 
+
+      OPTIONS
+
+        -o, --out, --output=<output>    An output
+                     --vv, --verbose    A verbose
+      "
+    `);
+  });
+
   it("renders the default value when provided", async () => {
     const command = defineCommand({
       meta: {

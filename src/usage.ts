@@ -43,8 +43,10 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
     } else {
       const isRequired = arg.required === true && arg.default === undefined;
       const argStr =
-        [...(arg.alias || []).map((a) => `-${a}`), `--${arg.name}`].join(", ") +
-        renderValueHint(arg);
+        [
+          ...(arg.alias || []).map((a) => (a.length > 1 ? `--${a}` : `-${a}`)),
+          `--${arg.name}`,
+        ].join(", ") + renderValueHint(arg);
       argLines.push([colors.cyan(argStr), renderDescription(arg, isRequired)]);
 
       /**
