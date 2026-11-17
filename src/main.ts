@@ -16,7 +16,9 @@ export async function runMain<T extends ArgsDef = ArgsDef>(
   const showUsage = opts.showUsage || _showUsage;
   try {
     const builtinFlags = await _resolveBuiltinFlags(cmd);
-    if (builtinFlags.help.length > 0 && rawArgs.some((arg) => builtinFlags.help.includes(arg))) {
+    const terminatorIndex = rawArgs.indexOf("--");
+    const optionArgs = terminatorIndex === -1 ? rawArgs : rawArgs.slice(0, terminatorIndex);
+    if (builtinFlags.help.length > 0 && optionArgs.some((arg) => builtinFlags.help.includes(arg))) {
       await showUsage(...(await resolveSubCommand(cmd, rawArgs)));
       process.exit(0);
     } else if (rawArgs.length === 1 && builtinFlags.version.includes(rawArgs[0]!)) {
