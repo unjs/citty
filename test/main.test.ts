@@ -82,6 +82,24 @@ describe("runMain", () => {
     expect(consoleMock).toHaveBeenCalledWith("Custom usage");
   });
 
+  it.each([["--help"], ["-h"]])("passes flag `%s` after the option terminator", async (flag) => {
+    const runMock = vi.fn();
+    const usageMock = vi.fn();
+    const command = defineCommand({
+      args: {
+        value: { type: "positional" },
+      },
+      run: ({ args }) => {
+        runMock(args.value);
+      },
+    });
+
+    await runMain(command, { rawArgs: ["--", flag], showUsage: usageMock });
+
+    expect(runMock).toHaveBeenCalledWith(flag);
+    expect(usageMock).not.toHaveBeenCalled();
+  });
+
   it("runs the command", async () => {
     const mockRunCommand = vi.spyOn(commandModule, "runCommand");
 
