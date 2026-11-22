@@ -96,10 +96,14 @@ export async function renderUsage<T extends ArgsDef = ArgsDef>(
 
   const version = cmdMeta.version || parentMeta.version;
 
-  usageLines.push(
-    colors.gray(`${cmdMeta.description} (${commandName + (version ? ` v${version}` : "")})`),
-    "",
-  );
+  const header = [
+    cmdMeta.description,
+    `(${commandName + (version ? ` v${version}` : "")})`,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  usageLines.push(colors.gray(header), "");
 
   const hasOptions = argLines.length > 0 || posLines.length > 0;
   usageLines.push(

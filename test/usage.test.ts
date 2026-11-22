@@ -304,4 +304,21 @@ describe("usage", () => {
       Use parent-command child-command <command> --help for more information about a command."
     `);
   });
+
+  it("renders usage without description when meta.description is omitted", async () => {
+    const command = defineCommand({
+      meta: {
+        name: "Commander",
+      },
+    });
+
+    const usage = await renderUsage(command);
+
+    expect(usage).toMatchInlineSnapshot(`
+      "(Commander)
+
+      USAGE Commander 
+      "
+    `);
+  });
 });
