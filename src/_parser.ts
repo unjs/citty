@@ -124,6 +124,14 @@ export function parseRawArgs<T = Record<string, any>>(
       continue;
     }
 
+    // Split short options with an inline value (`-n=value`) so that Node's
+    // parser does not keep the `=` as part of the value.
+    if (/^-[^-=]=/.test(arg)) {
+      const eqIndex = arg.indexOf("=");
+      processedArgs.push(arg.slice(0, eqIndex), arg.slice(eqIndex + 1));
+      continue;
+    }
+
     processedArgs.push(arg);
   }
 
